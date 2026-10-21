@@ -940,7 +940,6 @@ function renderSpec(){
     ${thermo(t)}
     <div class="brewer" id="brewer"></div></div>
   <div><p class="lab">Suggested pairings</p><p class="hint">Editorial recommendations, not sourced historical facts.</p><div class="pair">${t.pair.map(p=>`<span>${esc(p)}</span>`).join("")}</div></div>
-  <details><summary>More combinations to try</summary>${suggestedPairingsHTML(t.pairingSuggestions)}</details>
   <div><p class="lab">History</p><p class="hist">${esc(t.history)}</p>
     ${t.rh?`<p class="hist ghist"><span class="gl">From the record</span>${esc(t.rh)}</p>${srcUL(...t.rs)}`:""}
     ${t.gen?`<p class="gen">General entry: no Chinese-language source confirmed this tea's specific history yet, so it is kept to well-established basics.</p>`:""}</div>
