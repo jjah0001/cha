@@ -171,7 +171,7 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .seg2 button{border:0;background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;color:var(--ink-2)}
 .seg2 button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 .bub{cursor:pointer;outline:none}
-.bub circle{fill:var(--seal);fill-opacity:.85;stroke:var(--paper);stroke-width:2;transition:r .2s}
+.bub circle{fill:var(--bubfill,var(--seal));fill-opacity:.85;stroke:var(--paper);stroke-width:2;transition:r .2s,fill .2s}
 .bub:hover circle,.bub:focus-visible circle{fill-opacity:1}
 .bub text{font:600 11px var(--f-mono);fill:var(--on-seal);pointer-events:none}
 .bub .bl{font:600 10px var(--f-body);letter-spacing:.06em;text-transform:uppercase;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:3px}
@@ -684,6 +684,7 @@ function passes(t,ignoreProv,ignoreCty){
 function paintMap(){
   const svg=$("mapsvg"); const counts={}; let tot=0;
   for(const t of ALL) if(passes(t,true)){counts[t.prov]=(counts[t.prov]||0)+1;tot++;}
+  svg.style.setProperty("--bubfill", TYPE_ORDER.includes(filter) ? `var(--t-${filter})` : "var(--seal)");
   svg.querySelectorAll(".bub").forEach(g=>{const n=counts[g.dataset.p]||0;g.classList.toggle("zero",!n);
     g.querySelector("circle").setAttribute("r",(9+Math.sqrt(n)*2.4).toFixed(1));g.querySelector("text").textContent=n;
     g.setAttribute("aria-label",`${g.dataset.p}: ${n} teas. Zoom in`);});
@@ -957,7 +958,8 @@ function renderSpec(){
     <div class="badge"><b>${ty.zh}</b><span>${ty.en}</span></div></div>
   <div class="shelfctl" id="shelfctl"></div>
   ${t.scented?`<div class="scent">${typeof t.scented==="string"?esc(t.scented):"Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types."}</div>`:""}
-  <div class="meta">${esc(t.region)} · ${esc(t.prov)} · Harvest: ${esc(t.harvest)}${harvestStrip(t.harvest)}</div>
+  <div class="meta">${esc(t.region)} · ${esc(t.prov)} · Harvest: ${esc(t.harvest)}</div>
+  ${harvestStrip(t.harvest)}
   <div><p class="lab">Flavour profile</p><div class="flav">
     ${radar([{cls:"shape",f:t.f}],190)}
     <div><div class="notes">${esc(t.notes)}</div>
