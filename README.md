@@ -10,6 +10,10 @@ npm run check     # validate the tea lists
 npm run build     # writes dist/tea-time.html
 ```
 
+Open `dist/tea-time.html` in your browser after building. The root `index.html`
+is the source template, not the runnable page: the build injects its tea data
+and reviews module. Opening the template directly causes `DATA is not defined`.
+
 ## Where the teas live
 - `teas.js` … `teas5.js` — the full profiles (tasting notes, history, brewing, coordinates). `pairs.js` holds food pairings.
 - `idx/*.txt` — the listed teas, one file per source batch. Each file:
@@ -64,3 +68,23 @@ Tea ids are stable (listed teas use a hash of the Chinese name), so adding or re
 Anonymous users pile up in *Authentication → Users*; that's expected. Supabase's free tier allows far more than a tea site needs.
 
 For a local build with ratings, create `config.json` (git-ignored) with `{"supabaseUrl": "...", "supabaseAnonKey": "..."}`, or set the two environment variables, then `npm run build`.
+
+## Pairing search on the public site
+
+The "What are you eating?" pairing picker uses the claude.ai sampling API when the page is opened inside a claude.ai artifact. Outside claude.ai (e.g. the GitHub Pages copy) that API isn't present and the page falls back to a small keyword matcher that only handles ~20 ingredient families.
+
+For a proper AI picker on the public site, deploy the Cloudflare Worker in `worker/` and point the build at it:
+
+1. **Create the Worker.** From `worker/` (installs `wrangler` locally so you don't need a global):
+   ```
+   cd worker
+   npm install
+   npx wrangler login
+   npx wrangler secret put ANTHROPIC_API_KEY   # paste your Anthropic key
+   npx wrangler deploy
+   ```
+   `wrangler.toml` sets a per-IP rate limit of 10 requests/minute and locks the allowed origins to `https://jjah0001.github.io`. Edit `ALLOWED_ORIGINS` if your Pages URL differs.
+2. **Wire the build.** Copy the deployed URL (ends in `.workers.dev`) and set it as a repo variable: *Settings → Secrets and variables → Actions → Variables → `PAIR_PROXY_URL`* = `https://tea-pair.<your-subdomain>.workers.dev/pair`. The next push rebuilds and the pairing picker calls the Worker, which forwards to `claude-haiku-4-5` and returns the same JSON shape the in-page code expects. If `PAIR_PROXY_URL` is unset, the build logs `pairing proxy: none (local keyword fallback)` and the keyword matcher continues to run.
+3. **Local build with the proxy.** Set `PAIR_PROXY_URL=https://…/pair npm run build`, or add `"pairProxyUrl": "https://…/pair"` to `config.json`.
+
+Costs: the Worker free tier covers a personal site many times over; Anthropic bills per request. The per-IP rate limit caps the surprise-bill risk.

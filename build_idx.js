@@ -61,6 +61,20 @@ for (const f of fs.readdirSync(D).filter(f => /^[A-Z]_.*\.txt$/.test(f)).sort())
       line: lineFor({ zh, prov, place, group, note }, { kind }), s: srcIdx, shape: shapeFor(zh, ttype, group) });
   }
 }
+// Research additions use field-level sources and append after the legacy list.
+// Never assign legacy position ids (`o`) to additions: those ids belong to old shelves.
+const research = require("./research.json");
+for (const r of research.teas) {
+  if (fullZh.has(r.zh) || seenZh.has(r.zh)) continue;
+  if (ALIAS_SKIP.has(r.zh)) throw new Error("Research name needs an explicit alias mapping: " + r.zh);
+  const s = sources.length;
+  sources.push({ links: r.sources.map(k => ({ url: research.sources[k].url, label: research.sources[k].title })) });
+  const py = pinyin(r.zh, { toneType: "symbol" });
+  const en = pinyin(r.zh, { toneType: "none", type: "array" }).map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+  out.push({ i: stableId(r.zh), zh: r.zh, py, en, type: r.type, prov: PROV[r.prov], place: r.place,
+    group: "", line: "A sourced regional tea; see the field-level evidence below.", s, shape: shapeFor(r.zh, r.type, "") });
+  seenZh.add(r.zh);
+}
 // ── histories: ./hist/*.txt — "#src url | label; …" header, then "名称|history" rows; "@group|history" rows give a group background
 const H = __dirname + "/hist"; const GH = {}; const hmiss = []; let hcount = 0;
 const byZh = new Map(out.map(t => [t.zh, t])); const FH = {};

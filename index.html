@@ -422,6 +422,18 @@ html{scroll-behavior:smooth}
 .stars.ghost button.on{color:var(--ink-2)}
 .stars button[disabled]{cursor:wait;opacity:.7}
 </style>
+<style>
+.evidence{border-left:3px solid var(--seal);padding:0 0 0 14px}
+.evidence h3,.cultivar-card h3{font-family:var(--f-display);margin:0 0 8px}
+.evidence p{margin:6px 0}.evidence .lab{margin-top:14px}
+.pair-advice{padding-left:20px}.pair-advice li{margin:10px 0}
+.pair-advice small{display:block;color:var(--ink-2)}
+.cultivar-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:22px}
+.cultivar-card{padding:20px;border:1px solid var(--rule);border-radius:8px;background:var(--card);min-width:0}
+.cultivar-card p{overflow-wrap:anywhere}.cultivar-card summary{cursor:pointer;margin:14px 0;font-weight:600}
+.cultivar-card h3{font-size:26px}.cultivar-card .lab{margin-bottom:4px}
+@media(max-width:700px){.cultivar-list{grid-template-columns:1fr}}
+</style>
 
 <div class="wrap">
   <header class="mast">
@@ -435,6 +447,7 @@ html{scroll-behavior:smooth}
 <nav class="chap" aria-label="Sections"><div class="wrap" style="display:flex;gap:4px;width:100%">
   <a href="#colours" data-view="colours"><span class="han">色</span>What is tea</a>
   <a href="#atlas" data-view="atlas"><span class="han">图</span>Atlas</a>
+  <a href="#cultivars" data-view="cultivars"><span class="han">种</span>Cultivars</a>
   <a href="#shelf" data-view="shelf"><span class="han">柜</span>My shelf <span class="navcount" id="navcount"></span></a>
   <a href="#pairing" data-view="pairing"><span class="han">配</span>Pairing</a>
   <a href="#test" data-view="test"><span class="han">性</span>Tea personality</a>
@@ -479,6 +492,16 @@ html{scroll-behavior:smooth}
   </section>
 
 
+  <section id="cultivars" hidden>
+    <div class="sec-head"><h2>Tea cultivars</h2><span class="han">茶树品种</span>
+      <p>Named tea plants from Chinese-language cultivar records. A cultivar may make several tea styles; these records are counted separately from finished teas and tea-growing places in the Atlas.</p></div>
+    <p class="hint">Flavour terms summarise the preparations reported by the source. Recommended growing regions are not verified harvest locations. Unrecorded facts remain unfilled.</p>
+    <label class="lab" for="cultivarSearch">Find a cultivar, flavour or growing region</label>
+    <div class="pairrow"><input id="cultivarSearch" type="search" placeholder="e.g. 白月香, chestnut, Sichuan" autocomplete="off"></div>
+    <p id="cultivarCount" aria-live="polite"></p><div id="cultivarList" class="cultivar-list"></div>
+    <div class="more"><button id="cultivarMore" class="btn ghost">Show 24 more</button></div>
+  </section>
+
   <section id="pairing">
     <div class="sec-head"><h2>What are you eating?</h2><span class="han">茶配</span>
       <p>Name a dish, any cuisine, and get three teas from the atlas that suit it, with the reason for each.</p></div>
@@ -519,7 +542,8 @@ html{scroll-behavior:smooth}
 
   <footer><details><summary>Sources and notes</summary>
     <p><strong>Sources checked.</strong> History and brewing details were cross-checked against Chinese-language sources, including China's national intangible heritage register (中国非物质文化遗产网), Xinhua, The Paper (澎湃新闻), People's Daily, Lugu Township Office (Taiwan) and Taiwan's Tea Research and Extension Station reporting. Where legends differ, the page says so. Entries whose specific history no Chinese source confirmed are marked "General entry" on their card and kept to basics. Food pairings are suggestions, not sourced facts.</p>
-    <p><strong>Listed teas.</strong> The 850 listed teas come from the published registers and lists below. Each card links to the list it came from. English names are pinyin transliterations.</p>
+    <p><strong>Listed teas.</strong> <span id="listedTotal"></span> entries come from published registers and lists. These include regional teas, historic bushes and tea-growing places, not a count of botanically distinct varieties. English names are pinyin transliterations. Additional cultivar records are kept in the Cultivars tab.</p>
+    <p><strong>Evidence and suggestions.</strong> Newly researched facts link to their Chinese-language sources beside each field. Missing facts are marked as unrecorded. Food pairings are editorial suggestions. Timer settings are adjustable starting points, not sourced recipes for every named tea. Existing profile prose and radar scores have not all been re-audited.</p>
     <ul id="xsrc"></ul>
     <ul>
       <li><a href="https://www.ihchina.cn/project_details/14618.html" target="_blank" rel="noopener">祁门红茶制作技艺 · ihchina.cn</a></li>
@@ -604,7 +628,7 @@ const T=DATA.teas;
 const TB={green:{temp:[80,85],g:3,time:"30 s",inf:"3–4",western:"3 g · 250 ml · 2–3 min"},white:{temp:[85,90],g:5,time:"40 s",inf:"5–6",western:"3 g · 250 ml · 3–4 min"},
  yellow:{temp:[80,85],g:3,time:"30 s",inf:"3–4",western:"3 g · 250 ml · 2–3 min"},oolong:{temp:[95,100],g:6,time:"20 s",inf:"6–8",western:"3 g · 250 ml · 3 min"},
  red:{temp:[90,95],g:5,time:"10 s",inf:"5",western:"3 g · 250 ml · 3 min"},dark:{temp:[95,100],g:7,time:"10 s",inf:"8–10",western:"4 g · 250 ml · 3–4 min, rinse first"}};
-const XT=DATA.X.map(x=>({...TB[x.type],id:x.i,idx:true,zh:x.zh,py:x.py,en:x.en,type:x.type,scented:x.scented,prov:x.prov,place:x.place,region:x.place,group:x.group,line:x.line,s:x.s,shape:x.shape,cty:x.cty,cs:x.cs,cx:x.cx,cy:x.cy,lv:x.lv,h:x.h,hs:x.hs,hx:x.hx}));
+const XT=DATA.X.map(x=>({...TB[x.type],id:x.i,idx:true,zh:x.zh,py:x.py,en:x.en,type:x.type,scented:x.scented,prov:x.prov,place:x.place,region:x.place,group:x.group,line:x.line,s:x.s,shape:x.shape,cty:x.cty,cs:x.cs,cx:x.cx,cy:x.cy,lv:x.lv,h:x.h,hs:x.hs,hx:x.hx,evidence:x.evidence,pairingSuggestions:x.pairingSuggestions}));
 const ALL=T.concat(XT);
 const byId=Object.fromEntries(ALL.map(t=>[t.id,t]));
 let sel="longjing", filter="all", tier="all", prov=null, cty=null, page=1;
@@ -894,9 +918,12 @@ function renderSpec(){
     <div class="meta">${esc(t.place||"")}${t.place?" · ":""}${esc(t.prov)}${t.lv==="county"&&t.place&&!t.place.includes(t.cs)?` · map: ${esc(t.cty)}`:""}${t.lv==="pref"?` · placed at ${esc(t.cty)}`:""}${t.lv==="prov"?" · exact place not given":""}</div>
     <div><p class="lab">About</p><p class="srcline">${esc(t.line)}</p>
       <ul class="srcs">${S.links.map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("")}</ul></div>
-    ${histHTML(t)}
-    <p class="idxnote">Listed tea: confirmed by name, place and type in the sources above. Tasting notes and pairings aren't written yet, so brewing below uses the standard for ${esc(ty.en.toLowerCase())} tea.</p>
-    <div><p class="lab">Brew it · ${esc(ty.en.toLowerCase())} tea standard</p>
+    ${evidenceHTML(t)}
+    ${t.evidence?"":histHTML(t)}
+    ${suggestedPairingsHTML(t.pairingSuggestions)}
+    <p class="idxnote">Listed tea: individual tasting and brewing evidence may be incomplete. The adjustable timer below is a tea-style starting point.</p>
+    ${sourceBrewHTML(t)}
+    <div><p class="lab">Brew it · ${esc(ty.en.toLowerCase())} tea starting point</p>
       <div class="brew"><div><b>${tempTxt(t)}</b><span>Water</span></div><div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
         <div><b>${esc(t.time)}</b><span>First steep</span></div><div><b>${esc(t.inf)}</b><span>Infusions</span></div></div>
       ${thermo(t)}<div class="brewer" id="brewer"></div></div>
@@ -910,11 +937,13 @@ function renderSpec(){
   <div class="shelfctl" id="shelfctl"></div>
   ${t.scented?`<div class="scent">${typeof t.scented==="string"?esc(t.scented):"Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types."}</div>`:""}
   <div class="meta">${esc(t.region)} · ${esc(t.prov)} · Harvest: ${esc(t.harvest)}</div>
+  ${evidenceHTML(t)}
   <div><p class="lab">Flavour profile</p><div class="flav">
     ${radar([{cls:"shape",f:t.f}],190)}
     <div><div class="notes">${esc(t.notes)}</div>
       <div class="bodybar">Light<i style="--w:${t.body/5*100}%"></i>Full body</div></div></div></div>
-  <div><p class="lab">Brew it</p>
+  ${sourceBrewHTML(t)}
+  <div><p class="lab">Brew it · adjustable starting point</p>
     <div class="brew">
       <div><b>${tempTxt(t)}</b><span>Water</span></div>
       <div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
@@ -923,7 +952,8 @@ function renderSpec(){
     </div>
     ${thermo(t)}
     <div class="brewer" id="brewer"></div></div>
-  <div><p class="lab">Pairs well with</p><div class="pair">${t.pair.map(p=>`<span>${esc(p)}</span>`).join("")}</div></div>
+  <div><p class="lab">Suggested pairings</p><p class="hint">Editorial recommendations, not sourced historical facts.</p><div class="pair">${t.pair.map(p=>`<span>${esc(p)}</span>`).join("")}</div></div>
+  <details><summary>More combinations to try</summary>${suggestedPairingsHTML(t.pairingSuggestions)}</details>
   <div><p class="lab">History</p><p class="hist">${esc(t.history)}</p>
     ${t.rh?`<p class="hist ghist"><span class="gl">From the record</span>${esc(t.rh)}</p>${srcUL(...t.rs)}`:""}
     ${t.gen?`<p class="gen">General entry: no Chinese-language source confirmed this tea's specific history yet, so it is kept to well-established basics.</p>`:""}</div>
@@ -1322,7 +1352,7 @@ function paintTOTD(){
 }
 
 /* ── views ── */
-const VIEWS=["colours","atlas","pairing","test","shelf"];
+const VIEWS=["colours","atlas","cultivars","pairing","test","shelf"];
 let view="colours";
 function go(v,push=true){
   if(!VIEWS.includes(v)) v="colours";
@@ -1378,8 +1408,32 @@ function localPick(food){
   return out.map(x=>({id:x.t.id,why:`Its ${x.t.notes.split(",")[0].toLowerCase()} and ${x.t.body>=4?"full":x.t.body>=3?"medium":"light"} body suit the weight and flavours of this dish.`}));
 }
 function catalogue(){return T.map(t=>`${t.id} | ${t.en} ${t.zh} | ${DATA.types[t.type].en} | ${t.notes} | body ${t.body}/5`).join("\n")}
+const PAIR_CFG=/*__PAIR_CFG__*/{};
 let sampleFn=null, pairCtl=null;
 (async()=>{try{sampleFn=await window.claude?.use?.("sample")}catch(e){sampleFn=null}})();
+async function proxyCall(food,signal){
+  const r=await fetch(PAIR_CFG.proxyUrl,{method:"POST",headers:{"content-type":"application/json"},signal,body:JSON.stringify({food,catalogue:catalogue()})});
+  if(r.status===429) throw {code:"rate_limited"};
+  if(!r.ok) throw {code:"upstream",status:r.status};
+  return await r.json();
+}
+async function aiCall(food,signal){
+  const prompt=`You are a Chinese tea sommelier. A diner is eating: "${food}". The dish may be from any cuisine.
+Choose the 3 best teas for it from this catalogue ONLY (format: id | name | type | tasting notes | body). Prefer variety across tea types unless one type is clearly best.
+${catalogue()}
+
+Reply with only JSON: {"picks":[{"id":"<catalogue id>","why":"<one sentence, max 25 words, naming what in the dish and the tea work together>"}],"tip":"<one short brewing or serving tip for this pairing, max 20 words>"}
+If the input is not a food or drink, reply {"picks":[],"tip":"Name a dish or ingredient."}`;
+  if(sampleFn){
+    try{return await sampleFn.json(prompt,{signal,modelTier:"quick"})}
+    catch(e){
+      if(["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e?.code)){sampleFn=null}
+      else throw e;
+    }
+  }
+  if(PAIR_CFG.proxyUrl) return await proxyCall(food,signal);
+  throw {code:"no_ai"};
+}
 function renderPicks(food,picks,tip,source){
   const ok=picks.filter(p=>byId[p.id]).slice(0,3);
   if(!ok.length){$("pairOut").innerHTML=`<div class="pstatus">No match found for "${esc(food)}". Try naming the main ingredient, like "salmon" or "chocolate".</div>`;return}
@@ -1395,25 +1449,18 @@ function renderPicks(food,picks,tip,source){
 async function suggest(food){
   food=food.trim(); if(!food) return;
   const local=()=>{const r=localPick(food); if(r) renderPicks(food,r,"",'local'); else $("pairOut").innerHTML=`<div class="pstatus">I couldn't place "${esc(food)}" from keywords alone. Try the main ingredient, like "lamb", "prawns" or "chocolate".</div>`;};
-  if(!sampleFn){local();return}
+  if(!sampleFn && !PAIR_CFG.proxyUrl){local();return}
   pairCtl?.abort(); pairCtl=new AbortController();
   $("pairOut").innerHTML=`<div class="pstatus">Thinking about ${esc(food)}…</div>`;
   $("pairGo").disabled=true; $("pairStop").hidden=false;
-  const prompt=`You are a Chinese tea sommelier. A diner is eating: "${food}". The dish may be from any cuisine.
-Choose the 3 best teas for it from this catalogue ONLY (format: id | name | type | tasting notes | body). Prefer variety across tea types unless one type is clearly best.
-${catalogue()}
-
-Reply with only JSON: {"picks":[{"id":"<catalogue id>","why":"<one sentence, max 25 words, naming what in the dish and the tea work together>"}],"tip":"<one short brewing or serving tip for this pairing, max 20 words>"}
-If the input is not a food or drink, reply {"picks":[],"tip":"Name a dish or ingredient."}`;
   try{
-    const r=await sampleFn.json(prompt,{signal:pairCtl.signal,modelTier:"quick"});
+    const r=await aiCall(food,pairCtl.signal);
     const picks=Array.isArray(r?.picks)?r.picks.map(p=>({id:String(p.id||"").trim(),why:p.why})):[];
     if(!picks.length){$("pairOut").innerHTML=`<div class="pstatus">${esc(String(r?.tip||"Name a dish or ingredient."))}</div>`;}
     else renderPicks(food,picks,r?.tip,"ai");
   }catch(e){
-    if(e?.code==="cancelled"){$("pairOut").innerHTML="";}
-    else if(["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e?.code)){sampleFn=null;local();}
-    else if(e?.code==="rate_limited"){$("pairOut").innerHTML=`<div class="pstatus">Claude is busy for you right now. Here's a quick keyword match instead.</div>`;const r=localPick(food);if(r)renderPicks(food,r,"","local");}
+    if(e?.code==="cancelled"||e?.name==="AbortError"){$("pairOut").innerHTML="";}
+    else if(e?.code==="rate_limited"){$("pairOut").innerHTML=`<div class="pstatus">The pairing service is busy right now. Here's a quick keyword match instead.</div>`;const r=localPick(food);if(r)renderPicks(food,r,"","local");}
     else local();
   }finally{$("pairGo").disabled=false;$("pairStop").hidden=true;}
 }
@@ -1423,6 +1470,7 @@ $("pairForm").addEventListener("submit",e=>{e.preventDefault();suggest($("food")
 $("pairStop").addEventListener("click",()=>pairCtl?.abort());
 
 /*__REVIEWS__*/
+/*__RESEARCH_UI__*/
 /* ── wiring ── */
 function select(id){sel=id;const t=byId[id];try{if(view==="atlas")history.replaceState(null,"","#"+id)}catch(e){}
   if(filter!=="all"&&t.type!==filter){filter="all";$("chips").querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f==="all"))}
@@ -1439,6 +1487,10 @@ let qt;$("q").addEventListener("input",e=>{clearTimeout(qt);qt=setTimeout(()=>{q
 $("moreBtn").addEventListener("click",()=>{page++;buildIndex()});
 $("tier").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{tier=b.dataset.t;$("tier").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));page=1;render()}));
 $("count").textContent=ALL.length.toLocaleString("en");
+$("listedTotal").textContent=XT.length.toLocaleString("en");
+$("cultivarSearch").addEventListener("input",()=>{cultivarPage=1;renderCultivars()});
+$("cultivarMore").addEventListener("click",()=>{cultivarPage++;renderCultivars()});
+renderCultivars();
 {const seen=new Set();$("xsrc").innerHTML=DATA.XS.flatMap(s=>s.links).filter(l=>!seen.has(l.url)&&seen.add(l.url)).map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("");}
  buildMap(); buildChips(); buildColours(); quizStep(); render(); paintTOTD(); routeFromHash();
 $("sortSel").addEventListener("change",e=>{sortBy=e.target.value;page=1;buildIndex()});

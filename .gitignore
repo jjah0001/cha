@@ -3,3 +3,4 @@ data/
 dist/
 config.json
 idx.json
+.claude/

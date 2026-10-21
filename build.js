@@ -104,16 +104,38 @@ for (const x of IDX.teas) {
 for (const t of teas) { const r = (IDX.full || {})[t.zh]; if (r) { t.rh = r.h; t.rs = r.s; delete t.gen; } }
 for (const t of teas) { const c = GC.countyAt(t.prov, t.lon, t.lat); if (c) { t.cty = c.name; t.cs = GC.short(c.name); } }
 console.log("geocode", lvl);
-const data = { W, H, provinces, qhPath, teas: teas.map(t => ({ ...t })), types, X: IDX.teas, XS: IDX.sources, XG: IDX.groups || {}, PM: provMeta };
-let html = fs.readFileSync(__dirname + "/template.html", "utf8");
-html = html.replace("/*__DATA__*/", "const DATA = " + JSON.stringify(data) + ";");
+const research = require("./research.json");
+const researchByName = new Map(research.teas.map(t => [t.zh, t]));
+const { suggestPairings } = require("./pairing-suggestions.js");
+for (const t of [...teas, ...IDX.teas]) {
+  t.evidence = researchByName.get(t.zh) || null;
+  t.pairingSuggestions = suggestPairings(t);
+}
+const cultivars = require("./cultivars.json");
+const { pinyin } = require("pinyin-pro");
+for (const c of cultivars) {
+  c.py = pinyin(c.zh, { toneType: "symbol" });
+  c.pairingOptions = c.suitableTypes.map(type => ({ type, ...suggestPairings({ type, zh: c.zh }) }));
+}
+const data = { W, H, provinces, qhPath, teas: teas.map(t => ({ ...t })), types, X: IDX.teas, XS: IDX.sources, XG: IDX.groups || {}, PM: provMeta,
+  researchSources: research.sources, brewingGroups: research.brewingGroups, cultivars, researchDate: research.checkedOn };
+let html = fs.readFileSync(__dirname + "/index.html", "utf8");
+if (!html.includes("/*__DATA__*/")) throw new Error("index.html must contain the DATA build placeholder");
+html = html.replace("/*__DATA__*/", () => "const DATA = " + JSON.stringify(data).replace(/</g, "\\u003c") + ";");
 // public reviews: module + optional Supabase config (env vars, or config.json beside this file)
 let cfg = {}; try { cfg = JSON.parse(fs.readFileSync(__dirname + "/config.json", "utf8")); } catch (e) {}
 if (process.env.SUPABASE_URL) cfg.supabaseUrl = process.env.SUPABASE_URL;
 if (process.env.SUPABASE_ANON_KEY) cfg.supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+if (process.env.PAIR_PROXY_URL) cfg.pairProxyUrl = process.env.PAIR_PROXY_URL;
 const pub = {}; if (cfg.supabaseUrl && cfg.supabaseAnonKey) { pub.supabaseUrl = String(cfg.supabaseUrl); pub.supabaseAnonKey = String(cfg.supabaseAnonKey); }
 const revJs = fs.readFileSync(__dirname + "/reviews.js", "utf8").replace("/*__CONFIG__*/{}", JSON.stringify(pub).replace(/</g, "\\u003c"));
 html = html.replace("/*__REVIEWS__*/", () => revJs);
+// tea pairing proxy for the public site (used only when window.claude is absent)
+const pairCfg = {}; if (cfg.pairProxyUrl) pairCfg.proxyUrl = String(cfg.pairProxyUrl);
+if (!html.includes("/*__PAIR_CFG__*/")) throw new Error("index.html must contain the PAIR_CFG placeholder");
+html = html.replace("/*__PAIR_CFG__*/{}", () => JSON.stringify(pairCfg).replace(/</g, "\\u003c"));
+console.log("pairing proxy:", pairCfg.proxyUrl || "none (local keyword fallback)");
+html = html.replace("/*__RESEARCH_UI__*/", () => fs.readFileSync(__dirname + "/research-ui.js", "utf8"));
 console.log("reviews backend:", pub.supabaseUrl ? "supabase " + pub.supabaseUrl : "claude.ai db (or none)");
 fs.mkdirSync(__dirname + "/dist", { recursive: true });
 fs.writeFileSync(__dirname + "/dist/tea-time.html", html);

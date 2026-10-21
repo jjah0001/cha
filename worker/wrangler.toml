@@ -1,0 +1,22 @@
+name = "tea-pair"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# Comma-separated origins that may call /pair. Leave empty to allow all.
+# Set this to the GitHub Pages URL once Pages is deployed.
+[vars]
+ALLOWED_ORIGINS = "https://jjah0001.github.io"
+ANTHROPIC_MODEL = "claude-haiku-4-5"
+
+# Per-IP rate limit: 10 requests per 60 seconds. Pick any unique namespace_id
+# for your Cloudflare account; it only needs to be unique between your own
+# rate-limit bindings. See:
+# https://developers.cloudflare.com/workers/runtime-apis/bindings/rate-limit/
+[[unsafe.bindings]]
+name = "PAIR_RL"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }
+
+# Secret, set with:  wrangler secret put ANTHROPIC_API_KEY
+# ANTHROPIC_API_KEY is read from env in worker.js; do not commit it.

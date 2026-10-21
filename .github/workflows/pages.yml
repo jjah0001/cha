@@ -1,6 +1,6 @@
 # Builds Tea Time and publishes it to GitHub Pages on every push to main.
 # Repo → Settings → Pages → Source: "GitHub Actions".
-# Repo → Settings → Secrets and variables → Actions → Variables: SUPABASE_URL, SUPABASE_ANON_KEY
+# Repo → Settings → Secrets and variables → Actions → Variables: SUPABASE_URL, SUPABASE_ANON_KEY, PAIR_PROXY_URL
 name: Deploy Tea Time
 on:
   push: { branches: [main] }
@@ -21,6 +21,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          PAIR_PROXY_URL: ${{ vars.PAIR_PROXY_URL }}
       - run: mkdir -p site && cp dist/tea-time.html site/index.html && touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
