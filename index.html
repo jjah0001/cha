@@ -1335,7 +1335,7 @@ function paintShelf(){
   const title=k=>shelfSort==="status"?[ST[k].zh,ST[k].en]:shelfSort==="type"?[DATA.types[k].zh,DATA.types[k].en+" tea"]:[PM[k]?.zh||"",k];
   $("shelves").innerHTML=order.filter(k=>groups[k]).map(k=>{const [zh,en]=title(k);const arr=groups[k].sort((a,b)=>TYPE_ORDER.indexOf(a.t.type)-TYPE_ORDER.indexOf(b.t.type)||b.e.at-a.e.at);
     return `<div class="shelfgroup"><h3><span class="han">${zh}</span>${esc(en)}<small>${arr.length}</small></h3><div class="shelfrow">${arr.map(({t,e})=>
-      `<button class="jar ${e.st}" data-id="${t.id}" title="${esc(t.en)}">${jarSVG(t,e)}<span class="jg">${e.st==="have"&&e.g!=null?e.g+" g":e.st==="wish"?"wish":e.r?"★".repeat(e.r):"tried"}</span></button>`).join("")}</div></div>`}).join("");
+      `<button class="jar ${e.st}" data-id="${t.id}" title="${esc(t.en)} · ${ST[e.st].en}">${jarSVG(t,e)}<span class="jg">${e.st==="have"&&e.g!=null?e.g+" g":e.st==="tried"&&e.r?"★".repeat(e.r):""}</span></button>`).join("")}</div></div>`}).join("");
   $("shelves").querySelectorAll(".jar").forEach(b=>b.onclick=()=>{prov=null;setFilter("all");select(b.dataset.id);go("atlas");});
   paintShelfMap(items);
 }
