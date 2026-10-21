@@ -165,7 +165,7 @@
 黄家寨|云南|保山市昌宁县漭水乡|dark|puer|古茶园
 高黎贡山|云南|保山市|dark|puer|
 石佛山|云南|保山市|dark|puer|
-景谷大白茶|云南|普洱市景谷县|white|puer|Listed as a named tea of the Jinggu area
+景谷大白茶|云南|普洱市景谷县|white||A Yunnan white tea from the Jinggu Dabai cultivar; the Jinggu area is also a Pu'er region but this tea is processed as white
 景东|云南|普洱市景东县|dark|puer|
 镇沅|云南|普洱市镇沅县|dark|puer|
 茫芽|云南|普洱市|dark|puer|

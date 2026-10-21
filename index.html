@@ -924,7 +924,6 @@ function renderSpec(){
   <div class="shelfctl" id="shelfctl"></div>
   ${t.scented?`<div class="scent">${typeof t.scented==="string"?esc(t.scented):"Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types."}</div>`:""}
   <div class="meta">${esc(t.region)} · ${esc(t.prov)} · Harvest: ${esc(t.harvest)}</div>
-  ${evidenceHTML(t)}
   <div><p class="lab">Flavour profile</p><div class="flav">
     ${radar([{cls:"shape",f:t.f}],190)}
     <div><div class="notes">${esc(t.notes)}</div>
