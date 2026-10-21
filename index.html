@@ -424,15 +424,10 @@ html{scroll-behavior:smooth}
 </style>
 <style>
 .evidence{border-left:3px solid var(--seal);padding:0 0 0 14px}
-.evidence h3,.cultivar-card h3{font-family:var(--f-display);margin:0 0 8px}
+.evidence h3{font-family:var(--f-display);margin:0 0 8px}
 .evidence p{margin:6px 0}.evidence .lab{margin-top:14px}
 .pair-advice{padding-left:20px}.pair-advice li{margin:10px 0}
 .pair-advice small{display:block;color:var(--ink-2)}
-.cultivar-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:22px}
-.cultivar-card{padding:20px;border:1px solid var(--rule);border-radius:8px;background:var(--card);min-width:0}
-.cultivar-card p{overflow-wrap:anywhere}.cultivar-card summary{cursor:pointer;margin:14px 0;font-weight:600}
-.cultivar-card h3{font-size:26px}.cultivar-card .lab{margin-bottom:4px}
-@media(max-width:700px){.cultivar-list{grid-template-columns:1fr}}
 </style>
 
 <div class="wrap">
@@ -447,7 +442,6 @@ html{scroll-behavior:smooth}
 <nav class="chap" aria-label="Sections"><div class="wrap" style="display:flex;gap:4px;width:100%">
   <a href="#colours" data-view="colours"><span class="han">色</span>What is tea</a>
   <a href="#atlas" data-view="atlas"><span class="han">图</span>Atlas</a>
-  <a href="#cultivars" data-view="cultivars"><span class="han">种</span>Cultivars</a>
   <a href="#shelf" data-view="shelf"><span class="han">柜</span>My shelf <span class="navcount" id="navcount"></span></a>
   <a href="#pairing" data-view="pairing"><span class="han">配</span>Pairing</a>
   <a href="#test" data-view="test"><span class="han">性</span>Tea personality</a>
@@ -492,15 +486,6 @@ html{scroll-behavior:smooth}
   </section>
 
 
-  <section id="cultivars" hidden>
-    <div class="sec-head"><h2>Tea cultivars</h2><span class="han">茶树品种</span>
-      <p>Named tea plants from Chinese-language cultivar records. A cultivar may make several tea styles; these records are counted separately from finished teas and tea-growing places in the Atlas.</p></div>
-    <p class="hint">Flavour terms summarise the preparations reported by the source. Recommended growing regions are not verified harvest locations. Unrecorded facts remain unfilled.</p>
-    <label class="lab" for="cultivarSearch">Find a cultivar, flavour or growing region</label>
-    <div class="pairrow"><input id="cultivarSearch" type="search" placeholder="e.g. 白月香, chestnut, Sichuan" autocomplete="off"></div>
-    <p id="cultivarCount" aria-live="polite"></p><div id="cultivarList" class="cultivar-list"></div>
-    <div class="more"><button id="cultivarMore" class="btn ghost">Show 24 more</button></div>
-  </section>
 
   <section id="pairing">
     <div class="sec-head"><h2>What are you eating?</h2><span class="han">茶配</span>
@@ -542,7 +527,7 @@ html{scroll-behavior:smooth}
 
   <footer><details><summary>Sources and notes</summary>
     <p><strong>Sources checked.</strong> History and brewing details were cross-checked against Chinese-language sources, including China's national intangible heritage register (中国非物质文化遗产网), Xinhua, The Paper (澎湃新闻), People's Daily, Lugu Township Office (Taiwan) and Taiwan's Tea Research and Extension Station reporting. Where legends differ, the page says so. Entries whose specific history no Chinese source confirmed are marked "General entry" on their card and kept to basics. Food pairings are suggestions, not sourced facts.</p>
-    <p><strong>Listed teas.</strong> <span id="listedTotal"></span> entries come from published registers and lists. These include regional teas, historic bushes and tea-growing places, not a count of botanically distinct varieties. English names are pinyin transliterations. Additional cultivar records are kept in the Cultivars tab.</p>
+    <p><strong>Listed teas.</strong> <span id="listedTotal"></span> entries come from published registers and lists. These include regional teas, historic bushes and tea-growing places, not a count of botanically distinct varieties. English names are pinyin transliterations.</p>
     <p><strong>Evidence and suggestions.</strong> Newly researched facts link to their Chinese-language sources beside each field. Missing facts are marked as unrecorded. Food pairings are editorial suggestions. Timer settings are adjustable starting points, not sourced recipes for every named tea. Existing profile prose and radar scores have not all been re-audited.</p>
     <ul id="xsrc"></ul>
     <ul>
@@ -1352,7 +1337,7 @@ function paintTOTD(){
 }
 
 /* ── views ── */
-const VIEWS=["colours","atlas","cultivars","pairing","test","shelf"];
+const VIEWS=["colours","atlas","pairing","test","shelf"];
 let view="colours";
 function go(v,push=true){
   if(!VIEWS.includes(v)) v="colours";
@@ -1488,9 +1473,6 @@ $("moreBtn").addEventListener("click",()=>{page++;buildIndex()});
 $("tier").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{tier=b.dataset.t;$("tier").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));page=1;render()}));
 $("count").textContent=ALL.length.toLocaleString("en");
 $("listedTotal").textContent=XT.length.toLocaleString("en");
-$("cultivarSearch").addEventListener("input",()=>{cultivarPage=1;renderCultivars()});
-$("cultivarMore").addEventListener("click",()=>{cultivarPage++;renderCultivars()});
-renderCultivars();
 {const seen=new Set();$("xsrc").innerHTML=DATA.XS.flatMap(s=>s.links).filter(l=>!seen.has(l.url)&&seen.add(l.url)).map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("");}
  buildMap(); buildChips(); buildColours(); quizStep(); render(); paintTOTD(); routeFromHash();
 $("sortSel").addEventListener("change",e=>{sortBy=e.target.value;page=1;buildIndex()});
