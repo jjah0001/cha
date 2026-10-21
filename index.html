@@ -439,6 +439,26 @@ html{scroll-behavior:smooth}
 .evidence p{margin:6px 0}.evidence .lab{margin-top:14px}
 .pair-advice{padding-left:20px}.pair-advice li{margin:10px 0}
 .pair-advice small{display:block;color:var(--ink-2)}
+
+/* seasonal animated overlay: fixed, non-interactive, subtle. 18 particles drift top→bottom while swaying. */
+.seasonfx{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.seasonfx span{position:absolute;top:-6%;left:var(--x,50%);width:var(--sz,14px);height:var(--sz,14px);opacity:0;will-change:transform,opacity;
+  animation:sfall var(--dur,16s) linear var(--dly,0s) infinite, ssway var(--sway,5s) ease-in-out var(--dly,0s) infinite alternate}
+.seasonbadge{cursor:pointer}
+@keyframes sfall{0%{transform:translateY(-10vh) rotate(0deg);opacity:0}8%{opacity:var(--op,.55)}92%{opacity:var(--op,.55)}100%{transform:translateY(112vh) rotate(360deg);opacity:0}}
+@keyframes ssway{from{margin-left:-18px}to{margin-left:18px}}
+
+/* per-season particle shapes (SVG background) */
+:root[data-season="spring"] .seasonfx span{background:radial-gradient(circle at 35% 30%,#FFC4D4 0 55%,#E58FA5 56% 100%);border-radius:60% 40% 60% 40%/50% 60% 40% 50%;filter:drop-shadow(0 1px 1px rgba(0,0,0,.08))}
+:root[data-season="summer"] .seasonfx span{background:radial-gradient(circle,#FFE28A 0 30%,rgba(255,210,100,.0) 70%);border-radius:50%;filter:blur(.6px)}
+:root[data-season="autumn"] .seasonfx span{background:linear-gradient(135deg,#C7571E 0 50%,#8D3A14 100%);border-radius:50% 10% 60% 10%/60% 10% 50% 10%;transform-origin:center;filter:drop-shadow(0 1px 1px rgba(0,0,0,.12))}
+:root[data-season="winter"] .seasonfx span{background:
+  radial-gradient(circle,#FFFFFF 0 25%,rgba(255,255,255,0) 60%),
+  conic-gradient(from 0deg,#FFFFFF 0 10%,transparent 10% 50%,#FFFFFF 50% 60%,transparent 60%);
+  border-radius:50%;filter:drop-shadow(0 0 2px rgba(255,255,255,.7))}
+
+/* nothing animated if the user prefers reduced motion */
+@media (prefers-reduced-motion:reduce){.seasonfx{display:none}}
 </style>
 
 <div class="wrap">
@@ -1510,15 +1530,32 @@ $("tier").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
 $("count").textContent=ALL.length.toLocaleString("en");
 $("listedTotal").textContent=XT.length.toLocaleString("en");
 {const seen=new Set();$("xsrc").innerHTML=DATA.XS.flatMap(s=>s.links).filter(l=>!seen.has(l.url)&&seen.add(l.url)).map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("");}
-/* seasonal theming: pick season from the user's current date + hemisphere (inferred from IANA timezone) */
+/* seasonal theming: pick season from the user's current date + hemisphere (inferred from IANA timezone),
+   then rain season-appropriate particles across the viewport. Badge toggles the particles on/off. */
 (function(){try{const tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||"").replace(/_/g," ");
   const south=/^(Antarctica|Australia|Pacific\/(Auckland|Chatham|Easter|Fiji|Norfolk|Tahiti|Tongatapu|Apia)|America\/(Argentina|Santiago|La Paz|Lima|Asuncion|Montevideo|Punta Arenas|Sao Paulo|Araguaina|Bahia|Belem|Boa Vista|Campo Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto Velho|Recife|Rio Branco|Santarem)|Africa\/(Johannesburg|Harare|Luanda|Lusaka|Maputo|Nairobi|Windhoek|Blantyre|Gaborone|Kinshasa|Mbabane|Maseru)|Indian\/(Antananarivo|Mauritius|Reunion|Mahe))\b/.test(tz);
   const m=new Date().getMonth();  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
   const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
   const season=south?flip[N[m]]:N[m];
-  const names={spring:"Spring 春",summer:"Summer 夏",autumn:"Autumn 秋",winter:"Winter 冬"};
+  const names={spring:"Spring 春 · petals",summer:"Summer 夏 · motes",autumn:"Autumn 秋 · leaves",winter:"Winter 冬 · snow"};
   document.documentElement.setAttribute("data-season",season);
-  const b=$("seasonBadge"); if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]}`;b.title=`Themed to ${names[season].toLowerCase()} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""})`;}
+  const b=$("seasonBadge"); if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season].split(" · ")[0]}`;b.title=`Themed to ${names[season].toLowerCase()} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}). Click to toggle animation.`;}
+  /* particle overlay — 22 drifting particles with randomised size/speed/delay */
+  const fx=document.createElement("div"); fx.className="seasonfx"; fx.setAttribute("aria-hidden","true");
+  const N_P=22, rng=()=>Math.random();
+  for(let i=0;i<N_P;i++){const s=document.createElement("span");
+    const sz=(season==="winter"?6:season==="summer"?10:14)+Math.floor(rng()*(season==="autumn"?16:10));
+    s.style.setProperty("--x",(rng()*100).toFixed(2)+"vw");
+    s.style.setProperty("--sz",sz+"px");
+    s.style.setProperty("--dur",(10+rng()*18).toFixed(1)+"s");
+    s.style.setProperty("--dly",(-rng()*20).toFixed(1)+"s");
+    s.style.setProperty("--sway",(3+rng()*5).toFixed(1)+"s");
+    s.style.setProperty("--op",(season==="summer"?.35:.55+rng()*.25).toFixed(2));
+    fx.appendChild(s);}
+  document.body.appendChild(fx);
+  /* toggle particles via the badge; remember the choice */
+  const KEY="teatime.seasonfx"; try{if(localStorage.getItem(KEY)==="off") fx.style.display="none";}catch(e){}
+  if(b) b.addEventListener("click",()=>{const off=fx.style.display==="none"; fx.style.display=off?"":"none"; try{localStorage.setItem(KEY,off?"on":"off");}catch(e){}});
 }catch(e){}})();
  buildMap(); buildChips(); buildColours(); quizStep(); render(); paintTOTD(); routeFromHash();
 $("sortSel").addEventListener("change",e=>{sortBy=e.target.value;page=1;buildIndex()});
