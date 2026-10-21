@@ -1,6 +1,86 @@
-#src https://www.maigoo.com/top/423324.html | 云南十大名茶排行榜 · 买购网
+#src https://www.maigoo.com/top/423324.html | 云南十大名茶排行榜 · 买购网; http://nync.yn.gov.cn/html/2022/zhengcewenjian_0506/61810.html | 云南茶产业 · 云南省农业农村厅; http://www.ihchina.cn/project_details/15934/ | 滇红茶制作技艺 · 中国非物质文化遗产网; http://www.ihchina.cn/project_details/12146/ | 普洱茶（贡茶）制作技艺 · 中国非物质文化遗产网
 云龙茶|云南|大理云龙|green
 白竹山茶|云南|楚雄双柏|green
 底圩茶|云南|文山广南|green
 老姆登茶|云南|怒江福贡|green
 绿春玛玉茶|云南|红河绿春|green
+滇红工夫|云南|临沧凤庆|red||The classic Dianhong gongfu black tea, Fengqing cradle
+滇红金芽|云南|临沧凤庆|red||A gold-bud-only grade of Dianhong
+滇红金螺|云南|临沧凤庆|red||A spiral-shape Dianhong grade
+滇红松针|云南|临沧凤庆|red||A pine-needle shape Dianhong
+滇红大叶种红茶|云南|临沧|red||A broad Yunnan large-leaf black tea designation
+凤庆红茶|云南|临沧凤庆|red
+凤庆古树红|云南|临沧凤庆|red||Fengqing black made from ancient tea trees
+凤庆大叶种茶|云南|临沧凤庆|green||A Fengqing large-leaf green from the Dianhong cradle
+临沧古树红|云南|临沧|red
+临沧蒸酶茶|云南|临沧|green||A Lincang steamed-enzyme green
+双江勐库大叶种|云南|临沧双江|green||The Shuangjiang Mengku Dabai large-leaf cultivar green
+双江勐库红茶|云南|临沧双江|red
+永德忙肺茶|云南|临沧永德|green||A Yongde Mangfei ancient-tree green
+永德大雪山古树茶|云南|临沧永德|green
+镇康马鞍山茶|云南|临沧镇康|green||A Zhenkang Ma'an-saddle mountain green
+耿马芒撒茶|云南|临沧耿马|green||A Gengma Mangsa village green
+沧源佤族冰岛茶|云南|临沧沧源|green
+云县白莺山茶|云南|临沧云县|green||A Yunxian Baiying-mountain mixed-cultivar ancient-tree area
+保山昌宁红|云南|保山昌宁|red||A Changning Dianhong-style black
+保山昌宁雪兰|云南|保山昌宁|green
+保山腾冲高黎贡山红|云南|保山腾冲|red
+高黎贡山红茶|云南|保山|red
+腾冲清凉山磨锅茶|云南|保山腾冲|green
+施甸古树茶|云南|保山施甸|green
+隆阳晾晒茶|云南|保山隆阳|green
+德宏芒市茶|云南|德宏芒市|green
+盈江小粒种茶|云南|德宏盈江|green
+瑞丽红茶|云南|德宏瑞丽|red
+梁河回龙茶|云南|德宏梁河|green||A Lianghe Huilong historic Tang-era green
+陇川户撒茶|云南|德宏陇川|green||A Longchuan Husa-town green
+怒江独龙族茶|云南|怒江贡山|green||A Gongshan Derung-minority green
+贡山独龙江茶|云南|怒江贡山|green
+兰坪营盘茶|云南|怒江兰坪|green
+泸水六库茶|云南|怒江泸水|green
+怒江云潞茶|云南|怒江|green
+丽江拉市海茶|云南|丽江|green||A Lijiang Lashi-hai low-altitude green
+华坪永兴茶|云南|丽江华坪|green
+宁蒗蒗蕖茶|云南|丽江宁蒗|green
+楚雄南华茶|云南|楚雄南华|green
+禄丰土瓜茶|云南|楚雄禄丰|green
+双柏绿孔雀茶|云南|楚雄双柏|green||A Shuangbai green-peacock-themed green
+元江哈尼梯田茶|云南|玉溪元江|green||A Yuanjiang Hani terraced-field green from the UNESCO-listed region
+新平苦聪茶|云南|玉溪新平|green||A Xinping Yi-Kucong green
+江川星云湖茶|云南|玉溪江川|green
+玉溪峨山彝族茶|云南|玉溪峨山|green||An Eshan Yi-minority green
+文山八宝茶|云南|文山广南|green||A Guangnan Babao-town green
+文山麻栗坡茶|云南|文山麻栗坡|green||A Malipo border green
+砚山八嘎茶|云南|文山砚山|green
+富宁百抖茶|云南|文山富宁|green||A Funing county "hundred shakes" roasted green
+红河金平古树茶|云南|红河金平|green||A Jinping county Jinhe-mountain ancient-tree green
+元阳梯田茶|云南|红河元阳|green||A Yuanyang Hani terrace green
+蒙自过桥茶|云南|红河蒙自|green||A Mengzi green themed on the city's famous bridge noodles
+个旧云雾绿|云南|红河个旧|green
+石屏白族茶|云南|红河石屏|green
+建水紫陶茶|云南|红河建水|green||A Jianshui green named after the city's purple-clay ware
+西双版纳攸乐古树茶|云南|西双版纳景洪|dark
+西双版纳巴达古树茶|云南|西双版纳勐海|dark
+南糯山古树茶|云南|西双版纳勐海|dark||The classic Nannuoshan ancient-tree raw Pu'er
+勐海七子饼茶|云南|西双版纳勐海|dark||Menghai's standard seven-son cake raw Pu'er
+勐海沱茶|云南|西双版纳勐海|dark
+下关沱茶|云南|大理|dark||The Dali Xiaguan tuocha, GI-protected
+下关铁饼|云南|大理|dark||A tightly-pressed iron cake from Xiaguan Factory
+下关甲级沱茶|云南|大理|dark
+大理感通茶|云南|大理|green||A Dali Gantong-temple historic green
+大理南涧樱花茶|云南|大理南涧|green||A Nanjian county cherry-blossom themed green
+弥渡牛街茶|云南|大理弥渡|green
+南涧藤条茶|云南|大理南涧|green||A Nanjian "vine-branch" cultivar green
+巍山古树茶|云南|大理巍山|green
+鹤庆高原茶|云南|大理鹤庆|green
+剑川茶|云南|大理剑川|green
+洱源茶|云南|大理洱源|green
+曲靖师宗茶|云南|曲靖师宗|green
+罗平八大河茶|云南|曲靖罗平|green
+红河屏边古茶|云南|红河屏边|green
+镇沅千家寨古树|云南|普洱镇沅|dark||The Zhenyuan Qianjiazhai Ta Chi/Da Chashu ancient-tree area
+景东御笔春芽|云南|普洱景东|green
+景谷大白龙珠|云南|普洱景谷|white||A Jinggu white-tea pearl made from the local Dabai cultivar
+江城困鹿山毛峰|云南|普洱江城|green
+无量山古树茶|云南|普洱|dark||The Wuliangshan range raw Pu'er belt
+哀牢山古树茶|云南|普洱|dark||The Ailaoshan range raw Pu'er belt

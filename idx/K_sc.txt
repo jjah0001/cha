@@ -1,4 +1,4 @@
-#src https://www.maigoo.com/top/423323.html | 四川十大名茶 · 买购网
+#src https://www.maigoo.com/top/423323.html | 四川十大名茶 · 买购网; http://nynct.sc.gov.cn/nynct/c103755/2022/4/20/f4c6edcbe5fa4b989f0cc02ab02c3b3e.shtml | 四川茶产业概况 · 四川省农业农村厅; http://www.ihchina.cn/project_details/19854/ | 蒙山茶传统制作技艺 · 中国非物质文化遗产网; http://www.ihchina.cn/project_details/15822/ | 南路边茶制作技艺 · 中国非物质文化遗产网
 蒙山茶|四川|雅安|green
 峨眉山茶|四川|乐山峨眉山|green
 赵坡茶|四川|绵竹|green
@@ -7,3 +7,85 @@
 七佛贡茶|四川|广元青川|green
 宜宾早茶|四川|宜宾|green
 米仓山茶|四川|广元旺苍|green
+蒙顶石花|四川|雅安名山|green||Mengding's historic Qing-era tribute green, re-released in loose form
+蒙顶甘露|四川|雅安名山|green||Mengding's curled, sweet-dew green and one of China's historic ten
+蒙顶黄芽|四川|雅安名山|yellow||The classic Mengding Shan yellow bud tea, 非遗 listed
+蒙顶万春银叶|四川|雅安名山|green
+蒙顶玉叶长春|四川|雅安名山|green
+雅安藏茶|四川|雅安|dark||The Ya'an Tibetan border-tea belt, 非遗 listed in 2008
+雅安康砖|四川|雅安|dark||The Kangzhuan Tibetan brick tea, Ya'an's main border-tea format
+雅安金尖|四川|雅安|dark||A finer Kangzhuan-style brick, the "golden tip"
+雅安茯砖|四川|雅安|dark
+雅安雅红|四川|雅安|red
+荥经严道茶|四川|雅安荥经|green||A Yingjing county Yandao-ridge historic green
+名山蒙山茶|四川|雅安名山|green
+名山甘露|四川|雅安名山|green
+峨眉竹叶青|四川|乐山峨眉山|green||The Zhuyeqing bamboo-leaf green from Mt. Emei
+峨眉毛峰|四川|乐山峨眉山|green
+峨眉雪芽|四川|乐山峨眉山|green||A snow-bud grade from Mt. Emei
+乐山犍为龙芽|四川|乐山犍为|green||A Qianwei county "dragon bud" early green
+沐川茶|四川|乐山沐川|green||A Muchuan county green from the Dadu river
+马边绿茶|四川|乐山马边|green||A Mabian Yi-minority green from the Daliang mountains
+马边彝族云雾茶|四川|乐山马边|green
+峨边苗茶|四川|乐山峨边|green
+乐山夹江峨眉山银毫|四川|乐山夹江|green||A Jiajiang silver-tipped green
+乐山井研白毛茶|四川|乐山井研|green
+宜宾川红工夫|四川|宜宾|red||The Yibin Chuanhong gongfu black tea, one of China's four historic reds
+宜宾早白尖|四川|宜宾|green
+宜宾叙府龙芽|四川|宜宾|green
+宜宾筠连红茶|四川|宜宾筠连|red||A Yunlian county Dianhong-style black tea
+筠连早茶|四川|宜宾筠连|green
+高县早茶|四川|宜宾高县|green||A Gaoxian county early-season green
+江安僰人贡茶|四川|宜宾江安|green||A Jiang'an Bo-minority historic tribute green
+长宁竹海松针|四川|宜宾长宁|green||A Changning bamboo-sea pine-needle green
+南溪长宁七佛|四川|宜宾长宁|green
+珙县鹿鸣茶|四川|宜宾珙县|green||A Gongxian county Luming-mountain green
+兴文大坝苦丁茶|四川|宜宾兴文|green||A Xingwen Kuding tea on the Dabashan slopes
+泸州纳溪特早茶|四川|泸州纳溪|green||The Naxi "extra early" green, usually China's earliest harvest
+纳溪贡茶|四川|泸州纳溪|green
+古蔺赤水河茶|四川|泸州古蔺|green||A Gulin Chishui-river green
+合江福宝茶|四川|泸州合江|green
+达州万源巴山雀舌|四川|达州万源|green||A Wanyuan Dabashan "sparrow tongue" green
+达州宣汉巴山红|四川|达州宣汉|red||A Xuanhan Dabashan-area black tea
+达州开江白茶|四川|达州开江|white
+巴中南江大叶茶|四川|巴中南江|green||A Nanjiang Dabashan large-leaf green
+巴中通江银耳茶|四川|巴中通江|green
+南充阆中保宁茶|四川|南充阆中|green
+南充仪陇朱德故里茶|四川|南充仪陇|green
+南充营山银芽|四川|南充营山|green
+广元旺苍米仓红|四川|广元旺苍|red||A Wangcang Micangshan-area black tea
+广元青川七佛贡茶|四川|广元青川|green||The classic Qichuan Qifo historic Qing tribute green
+广元朝天雪峰|四川|广元朝天|green
+绵阳北川苔子茶|四川|绵阳北川|green||A Beichun Qiang-minority mossy-leaf green
+绵阳平武茶|四川|绵阳平武|green
+绵阳平武雪芽|四川|绵阳平武|green
+江油云雾茶|四川|绵阳江油|green||A Jiangyou Fulongshan-mountain cloud-mist green
+德阳什邡冰川茶|四川|德阳什邡|green||A Shifang Jinshan glacier-themed green
+什邡红白茶|四川|德阳什邡|green
+德阳绵竹赵坡贡茶|四川|德阳绵竹|green
+成都双流苦丁茶|四川|成都双流|green
+成都邛崃黑茶|四川|成都邛崃|dark||A Qionglai historic Tibetan-border dark tea revival
+邛崃黑茶|四川|成都邛崃|dark
+邛崃文君绿茶|四川|成都邛崃|green||A Qionglai Wenjun historic green named for Zhuo Wenjun
+蒲江雀舌|四川|成都蒲江|green||A Pujiang "sparrow tongue" GI-protected early green
+蒲江米芽|四川|成都蒲江|green
+崇州枇杷茶|四川|成都崇州|green||A Chongzhou loquat-cultivar green from Mount Longmen
+崇州枇杷红茶|四川|成都崇州|red
+都江堰青城雪芽|四川|成都都江堰|green||The Mt. Qingcheng Taoist-mountain snow-bud green
+都江堰方包茶|四川|成都都江堰|dark||A square-package Tibetan border dark tea
+温江绿茶|四川|成都温江|green
+资阳安岳茶|四川|资阳安岳|green
+乐至通旅茶|四川|资阳乐至|green
+内江威远七星椒茶|四川|内江威远|green
+自贡威远茶|四川|自贡|green
+攀枝花米易雾雨茶|四川|攀枝花米易|green
+凉山雷波脐橙红茶|四川|凉山雷波|red
+凉山会理黑茶|四川|凉山会理|dark||A Huili Tibetan-border dark tea
+凉山甘洛古树茶|四川|凉山甘洛|green||A Ganluo Yi-minority Daliangshan ancient-tree green
+雅安汉源黄茶|四川|雅安汉源|yellow||A Hanyuan county yellow tea on the native cultivar
+雅安天全青茶|四川|雅安天全|green
+雅安宝兴白茶|四川|雅安宝兴|white
+洪雅瓦屋山茶|四川|眉山洪雅|green||A Hongya county Wawushan-mountain plateau green
+峨眉洪雅川红|四川|眉山洪雅|red
+眉山青神竹编茶|四川|眉山青神|green
+眉山东坡茶|四川|眉山|green||A Meishan Dongpo-themed green named after Su Shi

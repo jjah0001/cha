@@ -1,5 +1,78 @@
-#src https://www.maigoo.com/top/390501.html | 湖南十大名茶排行榜 · 买购网
+#src https://www.maigoo.com/top/390501.html | 湖南十大名茶排行榜 · 买购网; http://nynct.hunan.gov.cn/nynct/xxgk/tzgg/202201/t20220118_22198820.html | 湖南茶产业概况 · 湖南省农业农村厅; http://www.ihchina.cn/project_details/16452/ | 千两茶制作技艺 · 中国非物质文化遗产网; http://www.ihchina.cn/project_details/16429/ | 黑茶（茯砖茶）制作技艺 · 中国非物质文化遗产网
 兰岭毛尖|湖南|岳阳湘阴|green
 东山秀峰|湖南|湘潭|green
 安化松针|湖南|益阳安化|green
 金井毛尖|湖南|长沙金井|green
+安化千两茶|湖南|益阳安化|dark||The giant pole-pressed Anhua dark tea, 非遗 listed in 2008
+安化黑砖茶|湖南|益阳安化|dark||One of the three Anhua "brick" dark teas
+安化花砖茶|湖南|益阳安化|dark||A patterned brick dark tea, Anhua's "flower brick"
+安化茯砖茶|湖南|益阳安化|dark||The Anhua fuzhuan with Eurotium cristatum golden flowers
+安化百两茶|湖南|益阳安化|dark||A hundred-liang pole-pressed dark tea, Anhua
+安化十两茶|湖南|益阳安化|dark||A smaller ten-liang pole-pressed Anhua dark tea
+安化贡尖|湖南|益阳安化|dark||The middle grade of Anhua's "three tips" loose dark teas
+安化生尖|湖南|益阳安化|dark||The entry grade of Anhua's "three tips" loose dark teas
+安化黑毛茶|湖南|益阳安化|dark||The raw material for all Anhua pressed dark teas
+益阳茯茶|湖南|益阳|dark
+益阳青砖茶|湖南|益阳|dark
+益阳甲中洞|湖南|益阳|green
+桃源野茶王|湖南|常德桃源|green||A Taoyuan county wild-tree green from the Wuling foothills
+桃源红茶|湖南|常德桃源|red
+石门银峰|湖南|常德石门|green
+石门渫峰红茶|湖南|常德石门|red||A Shimen Xiefeng black tea from the Taofenghu area
+石门茶|湖南|常德石门|green
+慈利茶|湖南|张家界慈利|green||A Cili county green from western Hunan
+张家界甑山毛尖|湖南|张家界|green
+张家界龙虾花茶|湖南|张家界永定|green||A Yongding "lobster flower" green
+桑植白茶|湖南|张家界桑植|white
+桑植七眼泉红茶|湖南|张家界桑植|red
+古丈毛尖|湖南|湘西古丈|green||One of Hunan's four famous greens, Guzhang Miao-country Mao Jian
+古丈红茶|湖南|湘西古丈|red
+保靖黄金茶|湖南|湘西保靖|green||A Baojing "golden" cultivar green, Hunan's most-planted modern elite tea
+保靖黄金红|湖南|湘西保靖|red
+吉首湘西毛尖|湖南|湘西吉首|green
+永顺莓茶|湖南|湘西永顺|green||A Yongshun Mei-vine herb-tea sold in tea form
+龙山毛尖|湖南|湘西龙山|green
+花垣苗茶|湖南|湘西花垣|green||A Huayuan county Miao-area green
+碣滩毛尖|湖南|怀化沅陵|green||The classic Jietan Miao-ridge Mao Jian of Yuanling
+怀化溆浦红茶|湖南|怀化溆浦|red
+通道野茶|湖南|怀化通道|green||A Tongdao Dong-area wild-tree green
+会同炒青|湖南|怀化会同|green
+芷江侗茶|湖南|怀化芷江|green||A Zhijiang Dong-minority green
+洪江雪峰毛尖|湖南|怀化洪江|green||A Hongjiang Xuefeng-mountain Mao Jian
+新晃炒青|湖南|怀化新晃|green
+邵阳城步虫茶|湖南|邵阳城步|dark||A Chengbu Miao-country insect-droppings dark tea
+隆回虎久寨茶|湖南|邵阳隆回|green
+城步峒茶|湖南|邵阳城步|green
+衡阳岳北大白|湖南|衡阳|green||A Yuebei large-white cultivar green from the Hengyang hills
+南岳云雾茶|湖南|衡阳南岳|green||A Mt. Hengshan Taoist-mountain cloud-mist green
+衡山云雾|湖南|衡阳南岳|green
+衡阳茶陵野茶|湖南|株洲茶陵|green||A Chaling county wild-tree green named after the "tea tomb"
+茶陵毛尖|湖南|株洲茶陵|green
+攸县皇图岭茶|湖南|株洲攸县|green
+郴州安仁豪峰茶|湖南|郴州安仁|green||An Anren county high-peak green
+桂东玲珑茶|湖南|郴州桂东|green||A Guidong county "exquisite" ridge green
+桂东玲珑王|湖南|郴州桂东|green
+苏仙岭雾茶|湖南|郴州|green||A Suxianling-mountain mist green
+资兴狗脑贡茶|湖南|郴州资兴|green||A Zixing Gounao historic tribute green
+永州零陵白茶|湖南|永州零陵|white
+江华瑶山红茶|湖南|永州江华|red||A Jianghua Yao-mountain black tea
+蓝山土茶|湖南|永州蓝山|green
+邵阳河伯岭茶|湖南|邵阳|green
+娄底金秋茶|湖南|娄底|green||A Loudi "golden autumn" cultivar tea
+新化紫鹊界茶|湖南|娄底新化|green||A Xinhua Zique-boundary terrace green
+双峰双峰红|湖南|娄底双峰|red
+长沙高桥银峰|湖南|长沙|green
+长沙湘丰茶|湖南|长沙长沙县|green||A Changsha-county "Xiangfeng" brand green
+长沙宁乡沩山毛尖|湖南|长沙宁乡|yellow||A Ningxiang Weishan Buddhist-mountain yellow tea
+宁乡沩山白毛尖|湖南|长沙宁乡|yellow
+岳阳君山银针|湖南|岳阳|yellow||The classic Junshan island yellow needle tea
+岳阳君山毛尖|湖南|岳阳|yellow
+岳阳北港毛尖|湖南|岳阳|yellow||A Beigang-area yellow tea from Dongting Lake
+岳阳白鹤茶|湖南|岳阳|green
+平江白茶|湖南|岳阳平江|white
+湘阴兰岭绿茶|湖南|岳阳湘阴|green
+华容白鹤茶|湖南|岳阳华容|green
+临湘聂市青砖|湖南|岳阳临湘|dark||A Linxiang Nieshi-town green-brick dark tea
+临湘黑茶|湖南|岳阳临湘|dark
+洞口雪峰云雾|湖南|邵阳洞口|green||A Dongkou Xuefeng-mountain cloud-mist green
+隆回高霞山茶|湖南|邵阳隆回|green
