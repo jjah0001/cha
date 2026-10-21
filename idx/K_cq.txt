@@ -1,4 +1,4 @@
-#src https://www.maigoo.com/top/423632.html | 重庆十大名茶 · 买购网
+#src https://www.maigoo.com/top/423632.html | 重庆十大名茶 · 买购网; http://nyncw.cq.gov.cn/zwxx_161/zwdt/202205/t20220520_10716856.html | 重庆茶产业 · 重庆市农业农村委员会
 鸡鸣贡茶|重庆|城口|green
 南川金佛玉翠茶|重庆|南川|green
 秀山毛尖|重庆|秀山土家族苗族自治县|green
@@ -6,3 +6,42 @@
 巴南银针茶|重庆|巴南区|green
 西农毛尖|重庆|北碚|green
 涪陵白茶|重庆|涪陵|white
+永川秀芽|重庆|永川|green||The Yongchuan Xiuya green, one of Chongqing's best-known teas
+永川红茶|重庆|永川|red
+永川萼岩绿茶|重庆|永川|green
+南川大树茶|重庆|南川|green||A Nanchuan Jinfoshan-mountain large-tree green
+南川古树红茶|重庆|南川|red
+南川方竹红|重庆|南川|red||A Nanchuan square-bamboo-themed black tea
+万州乌龙茶|重庆|万州|oolong||A Wanzhou-area trial oolong
+万州古红梅|重庆|万州|red
+万州三峡云雾|重庆|万州|green
+开州龙珠茶|重庆|开州|green||A Kaizhou county dragon-pearl shape green
+开州毛尖|重庆|开州|green
+城口鸡鸣寺茶|重庆|城口|green||The Chengkou Jiming-temple historic tribute green
+城口高山红|重庆|城口|red||A Chengkou Daba-shan black tea
+巫溪宁河毛尖|重庆|巫溪|green||A Wuxi Ninghe-river Mao Jian
+巫山云雾茶|重庆|巫山|green||A Wushan Three-Gorges area cloud-mist green
+巫山云雾红|重庆|巫山|red
+奉节脐橙香茶|重庆|奉节|green
+云阳龙缸毛尖|重庆|云阳|green
+云阳歧耀山茶|重庆|云阳|green
+石柱黄连茶|重庆|石柱|green||A Shizhu Tujia-area Huanglian-mountain green
+石柱古茶|重庆|石柱|green
+石柱红|重庆|石柱|red
+黔江高山茶|重庆|黔江|green
+酉阳山银花茶|重庆|酉阳|green
+酉阳古茶|重庆|酉阳|green||A Youyang Wuling-mountain ancient-tree green
+彭水郁山茶|重庆|彭水|green||A Pengshui Yushan-mountain green
+武隆仙女红|重庆|武隆|red||A Wulong Fairy Mountain black tea
+武隆仙女山云雾|重庆|武隆|green
+长寿湖茶|重庆|长寿|green
+合川嘉陵春|重庆|合川|green||A Hechuan Jialing-river spring green
+铜梁巴岳茶|重庆|铜梁|green||A Tongliang Bayue-mountain green
+綦江巴山茶|重庆|綦江|green
+江津白沙茶|重庆|江津|green||A Jiangjin Baisha-district green
+江津富硒茶|重庆|江津|green
+荣昌雨泽毛尖|重庆|荣昌|green
+大足石刻香茶|重庆|大足|green||A Dazu stone-carving themed green
+璧山来凤茶|重庆|璧山|green
+潼南大佛茶|重庆|潼南|green
+北碚缙云茶|重庆|北碚|green||A Beibei Jinyun-mountain plateau green
