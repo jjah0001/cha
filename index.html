@@ -907,7 +907,7 @@ function renderSpec(){
       <div class="brew"><div><b>${tempTxt(t)}</b><span>Water</span></div><div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
         <div><b>${esc(t.time)}</b><span>First steep</span></div><div><b>${esc(t.inf)}</b><span>Infusions</span></div></div>
       ${thermo(t)}<div class="brewer" id="brewer"></div></div>
-    ${suggestedPairingsHTML(t.pairingSuggestions)}
+    <div><p class="lab">Suggested pairings</p><p class="hint">${esc(t.pairingSuggestions.basis)}</p><div class="pair">${t.pairingSuggestions.items.map(i=>`<span title="${esc(i.reason)}">${esc(i.food)}</span>`).join("")}</div></div>
     ${t.evidence?"":histHTML(t)}
     <details class="idxref"><summary>Source entry</summary>
       <p class="srcline">${esc(t.line)}</p>
