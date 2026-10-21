@@ -901,17 +901,19 @@ function renderSpec(){
     <div class="shelfctl" id="shelfctl"></div>
     ${t.scented?`<div class="scent">Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types.</div>`:""}
     <div class="meta">${esc(t.place||"")}${t.place?" · ":""}${esc(t.prov)}${t.lv==="county"&&t.place&&!t.place.includes(t.cs)?` · map: ${esc(t.cty)}`:""}${t.lv==="pref"?` · placed at ${esc(t.cty)}`:""}${t.lv==="prov"?" · exact place not given":""}</div>
-    <div><p class="lab">About</p><p class="srcline">${esc(t.line)}</p>
-      <ul class="srcs">${S.links.map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("")}</ul></div>
     ${evidenceHTML(t)}
-    ${t.evidence?"":histHTML(t)}
-    ${suggestedPairingsHTML(t.pairingSuggestions)}
-    <p class="idxnote">Listed tea: individual tasting and brewing evidence may be incomplete. The adjustable timer below is a tea-style starting point.</p>
     ${sourceBrewHTML(t)}
-    <div><p class="lab">Brew it · ${esc(ty.en.toLowerCase())} tea starting point</p>
+    <div><p class="lab">Brew it · adjustable starting point</p>
       <div class="brew"><div><b>${tempTxt(t)}</b><span>Water</span></div><div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
         <div><b>${esc(t.time)}</b><span>First steep</span></div><div><b>${esc(t.inf)}</b><span>Infusions</span></div></div>
       ${thermo(t)}<div class="brewer" id="brewer"></div></div>
+    ${suggestedPairingsHTML(t.pairingSuggestions)}
+    ${t.evidence?"":histHTML(t)}
+    <details class="idxref"><summary>Source entry</summary>
+      <p class="srcline">${esc(t.line)}</p>
+      <ul class="srcs">${S.links.map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("")}</ul>
+      <p class="idxnote">Listed tea: individual tasting and brewing evidence may be incomplete. The adjustable timer above is a tea-style starting point.</p>
+    </details>
     <div class="reviews" id="reviews"></div>`;
     initBrew(t); paintShelfCtl(t); paintRsum(t); paintReviews(t); return; }
   el.innerHTML=`
