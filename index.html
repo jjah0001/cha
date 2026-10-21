@@ -33,7 +33,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .han{font-family:var(--f-han)}
 h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.15}
 button{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+:focus-visible{outline:2px solid var(--season-accent,var(--seal));outline-offset:2px}
 
 /* masthead */
 .mast{display:flex;gap:20px;align-items:center;padding-block:28px 18px}
@@ -41,6 +41,17 @@ button{font:inherit;color:inherit}
   font:56px/1 var(--f-brush);transform:rotate(-3deg)}
 .mast h1{font-size:clamp(30px,5vw,46px)}
 .mast p{margin:4px 0 0;color:var(--ink-2);max-width:60ch}
+/* season badge: subtle pill in the header, tinted by the user's current season */
+.seasonbadge{display:inline-flex;gap:6px;align-items:center;font:500 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--season-ink,var(--ink-2));background:var(--season-bg,transparent);border:1px solid var(--season-rule,var(--rule));padding:4px 10px;border-radius:999px;vertical-align:middle;margin-left:10px;position:relative;top:-6px}
+.seasonbadge .sdot{width:8px;height:8px;border-radius:50%;background:var(--season-accent,var(--seal))}
+:root[data-season="spring"]{--season-accent:#6FA43A;--season-bg:#EDF4E1;--season-rule:#C9DFA8;--season-ink:#305115}
+:root[data-season="summer"]{--season-accent:#D08A2A;--season-bg:#FBEFD9;--season-rule:#EACC8A;--season-ink:#654214}
+:root[data-season="autumn"]{--season-accent:#B74B20;--season-bg:#F6E1D4;--season-rule:#E3B498;--season-ink:#5A2410}
+:root[data-season="winter"]{--season-accent:#466F93;--season-bg:#E1EAF2;--season-rule:#AAC3D7;--season-ink:#1E3752}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"])[data-season="spring"]{--season-bg:#1F2E17;--season-rule:#3B5A24;--season-ink:#B3D59A}
+:root:not([data-theme="light"])[data-season="summer"]{--season-bg:#2E2311;--season-rule:#5A4420;--season-ink:#E8C786}
+:root:not([data-theme="light"])[data-season="autumn"]{--season-bg:#2E1A10;--season-rule:#5A2D1A;--season-ink:#E4A389}
+:root:not([data-theme="light"])[data-season="winter"]{--season-bg:#132231;--season-rule:#294258;--season-ink:#9FBFD8}}
 
 nav.chap{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-block:1px solid var(--rule);
   display:flex;gap:4px;overflow-x:auto;padding-block:6px;scrollbar-width:none}
@@ -193,10 +204,10 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .clu.on circle{fill:var(--seal);stroke:var(--seal)}.clu.on text{fill:var(--on-seal)}.clu.on .cl{fill:var(--ink)}
 .clu.loose circle{stroke-dasharray:3 2}
 .one{cursor:pointer;outline:none}
-.one circle{fill:var(--card);stroke:var(--tc)}
+.one circle{fill:var(--tc);fill-opacity:.5;stroke:var(--tc)}
 .one .cl{font-family:var(--f-body);font-weight:500;fill:var(--ink);paint-order:stroke;stroke:var(--paper);opacity:0;pointer-events:none}
 .one:hover .cl,.one:focus-visible .cl,.one.sel .cl{opacity:1}
-.one:hover circle,.one.sel circle{fill:var(--tc)}
+.one:hover circle,.one.sel circle{fill-opacity:1}
 /* index */
 .find{margin-top:0}
 .find label{display:block}
@@ -434,7 +445,7 @@ html{scroll-behavior:smooth}
   <header class="mast">
     <div class="seal" aria-hidden="true">茶</div>
     <div>
-      <h1>Tea Time</h1>
+      <h1>Tea Time <span class="seasonbadge" id="seasonBadge" hidden></span></h1>
       <p><span id="count">73</span> teas of China and Taiwan: where they grow, how they taste, how to brew them, what to eat with them, and which one you are.</p>
     </div>
   </header>
@@ -881,6 +892,29 @@ function thermo(t,lo=60,hi=100){
     <div class="therm-ax"><span>60°C</span><span>70</span><span>80</span><span>90</span><span>100°C</span></div>`;
 }
 const tempTxt=t=>t.temp[0]===t.temp[1]?`${t.temp[0]}°C`:`${t.temp[0]}–${t.temp[1]}°C`;
+/* harvest → 12-month highlighted strip. Parses English months, Chinese solar terms, seasons, and ranges. */
+function harvestMonths(txt){ if(!txt) return null; const t=String(txt), lo=t.toLowerCase(), M=new Array(12).fill(false);
+  const ABB=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const ZH=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+  const TERM={清明:4,谷雨:4,立夏:5,小满:5,芒种:6,夏至:6,小暑:7,大暑:7,立秋:8,处暑:8,白露:9,秋分:9,寒露:10,霜降:10,立冬:11,'qingming':4,'guyu':4,'lixia':5};
+  const SEA={spring:[3,4,5],summer:[6,7,8],autumn:[9,10,11],fall:[9,10,11],winter:[12,1,2],春:[3,4,5],夏:[6,7,8],秋:[9,10,11],冬:[12,1,2]};
+  const found=new Set();
+  for(let i=0;i<12;i++){ if(t.includes(ZH[i])) found.add(i+1); if(new RegExp('\\b'+ABB[i]+'[a-z]*\\b').test(lo)) found.add(i+1); }
+  for(const[k,m]of Object.entries(TERM)) if(t.includes(k)||lo.includes(k)) found.add(m);
+  for(const[k,arr]of Object.entries(SEA)) if(t.includes(k)||lo.includes(k)) arr.forEach(m=>found.add(m));
+  /* "before/pre-X" → include month before the matched term too */
+  if(/\b(before|pre[-\s])/i.test(t)) { for(const m of [...found]) found.add(m===1?12:m-1); }
+  /* fill ranges across common range separators */
+  if(found.size>=2 && /[–\-]|\bto\b/.test(lo)){ const sorted=[...found].sort((a,b)=>a-b);
+    for(let i=0;i<sorted.length-1;i++){ const [a,b]=[sorted[i],sorted[i+1]]; if(b-a<=4) for(let m=a;m<=b;m++) found.add(m); } }
+  if(found.size===0) return null;
+  for(const m of found) if(m>=1&&m<=12) M[m-1]=true;
+  return M; }
+function harvestStrip(txt){ const M=harvestMonths(txt); if(!M) return '';
+  const w=18, gap=2, h=10, labels=['J','F','M','A','M','J','J','A','S','O','N','D'];
+  return `<svg class="hstrip" viewBox="0 0 ${12*(w+gap)-gap} ${h+15}" width="100%" style="max-width:260px;margin-top:6px" role="img" aria-label="Harvest window: ${esc(txt)}">`+
+    labels.map((n,i)=>`<g><rect x="${i*(w+gap)}" y="0" width="${w}" height="${h}" rx="2" fill="${M[i]?'var(--tc)':'var(--rule)'}" fill-opacity="${M[i]?.85:.35}"/><text x="${i*(w+gap)+w/2}" y="${h+11}" text-anchor="middle" font-size="9" fill="var(--ink-2)" font-family="var(--f-mono)">${n}</text></g>`).join('')+
+    '</svg>'; }
 const srcUL=(...ix)=>`<ul class="srcs">${[...new Set(ix)].flatMap(i=>DATA.XS[i].links).map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("")}</ul>`;
 const GROUPNAME={wuyi:"Wuyi rock tea cultivars",wuyihist:"Wuyi's historic named bushes",dancong:"Phoenix Dancong strains",puer:"Pu'er tea mountains",ttes:"Taiwan's bred cultivars"};
 function histHTML(t){ const G=DATA.XG[t.group];
@@ -923,7 +957,7 @@ function renderSpec(){
     <div class="badge"><b>${ty.zh}</b><span>${ty.en}</span></div></div>
   <div class="shelfctl" id="shelfctl"></div>
   ${t.scented?`<div class="scent">${typeof t.scented==="string"?esc(t.scented):"Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types."}</div>`:""}
-  <div class="meta">${esc(t.region)} · ${esc(t.prov)} · Harvest: ${esc(t.harvest)}</div>
+  <div class="meta">${esc(t.region)} · ${esc(t.prov)} · Harvest: ${esc(t.harvest)}${harvestStrip(t.harvest)}</div>
   <div><p class="lab">Flavour profile</p><div class="flav">
     ${radar([{cls:"shape",f:t.f}],190)}
     <div><div class="notes">${esc(t.notes)}</div>
@@ -1474,6 +1508,16 @@ $("tier").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
 $("count").textContent=ALL.length.toLocaleString("en");
 $("listedTotal").textContent=XT.length.toLocaleString("en");
 {const seen=new Set();$("xsrc").innerHTML=DATA.XS.flatMap(s=>s.links).filter(l=>!seen.has(l.url)&&seen.add(l.url)).map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("");}
+/* seasonal theming: pick season from the user's current date + hemisphere (inferred from IANA timezone) */
+(function(){try{const tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||"").replace(/_/g," ");
+  const south=/^(Antarctica|Australia|Pacific\/(Auckland|Chatham|Easter|Fiji|Norfolk|Tahiti|Tongatapu|Apia)|America\/(Argentina|Santiago|La Paz|Lima|Asuncion|Montevideo|Punta Arenas|Sao Paulo|Araguaina|Bahia|Belem|Boa Vista|Campo Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto Velho|Recife|Rio Branco|Santarem)|Africa\/(Johannesburg|Harare|Luanda|Lusaka|Maputo|Nairobi|Windhoek|Blantyre|Gaborone|Kinshasa|Mbabane|Maseru)|Indian\/(Antananarivo|Mauritius|Reunion|Mahe))\b/.test(tz);
+  const m=new Date().getMonth();  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
+  const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
+  const season=south?flip[N[m]]:N[m];
+  const names={spring:"Spring 春",summer:"Summer 夏",autumn:"Autumn 秋",winter:"Winter 冬"};
+  document.documentElement.setAttribute("data-season",season);
+  const b=$("seasonBadge"); if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]}`;b.title=`Themed to ${names[season].toLowerCase()} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""})`;}
+}catch(e){}})();
  buildMap(); buildChips(); buildColours(); quizStep(); render(); paintTOTD(); routeFromHash();
 $("sortSel").addEventListener("change",e=>{sortBy=e.target.value;page=1;buildIndex()});
 initReviews();
