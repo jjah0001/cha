@@ -1,0 +1,27 @@
+#src https://www.7teahouse.com/pages/blog-tea-cultivars-of-taiwan | 台灣茶樹品種的由來與臺茶編號介紹 · 七三茶堂
+台茶1号|Named in 1969 as TTES No. 1, bred from the Indian large-leaf Kyang and Taiwan's Qingxin Damao, and suited to black tea.
+台茶2号|Named in 1969 as TTES No. 2, bred from the Indian large-leaf Jaipuri and Dayeh Oolong, and suited to black tea.
+台茶3号|Named in 1969 as TTES No. 3, from the Indian large-leaf Manipuri and Hongxin Damao, and suited to black tea.
+台茶4号|Named in 1969 as TTES No. 4, bred from the Indian large-leaf Manipuri and Hongxin Damao, and suited to black tea.
+台茶5号|Named in 1973 as TTES No. 5, a natural hybrid from the Fuzhou line, suited to green tea, oolong and Oriental Beauty.
+台茶6号|Named in 1973 as TTES No. 6, a natural hybrid from the Qingxin Oolong line, suited to green tea, black tea and Oriental Beauty.
+台茶7号|Named in 1973 as TTES No. 7, selected from a single plant of the Thai large-leaf Shan variety, and suited to black tea.
+台茶9号|Named in 1975 as TTES No. 9, bred from the Indian large-leaf Kyang and Hongxin Damao, for green and black tea.
+台茶10号|Named in 1975 as TTES No. 10, bred from the Indian large-leaf Jaipuri and Huanggan, for green and black tea.
+台茶11号|Named in 1975 as TTES No. 11, bred from the Indian large-leaf Jaipuri and Dayeh Oolong, for green and black tea.
+白文|Named Baiwen in 1983 as TTES No. 14, bred from Baimaohou and the line Tainong 983, and suited to Baozhong.
+白燕|Named Baiyan in 1983 as TTES No. 15, bred from Baimaohou and the line Tainong 983, and suited to Oriental Beauty and white tea.
+白鹤|Named Baihe in 1983 as TTES No. 16, bred from the lines Tainong 1958 and Tainong 335, and suited to Longjing-style green tea and Baozhong.
+白鹭|Named Bailu in 1983 as TTES No. 17, bred from the lines Tainong 1958 and Tainong 335, and suited to Oriental Beauty.
+碧玉|Named Biyu in 2004 as TTES No. 19, bred from Qingxin Oolong and Jin Xuan (TTES No. 12), and suited to Baozhong.
+迎香|Named Yingxiang in 2004 as TTES No. 20, bred with Jin Xuan (TTES No. 12) as one parent, and suited to Baozhong.
+红韵|Named Hongyun in 2008 as TTES No. 21, bred from China's Keemun and India's Kyang, and suited to black tea.
+沁玉|Named Qinyu in 2014 as TTES No. 22, bred from Qingxin Oolong and Jin Xuan, for green tea, oolong and black tea.
+祁韵|Named Qiyun in 2018 as TTES No. 23, selected from a single Keemun-type plant, and suited to black tea.
+山蕴|Named Shanyun in 2019 as TTES No. 24, selected from a single plant of Taiwan's native mountain tea (Yongkang variety), for green and black tea.
+紫韵|Named Ziyun in 2021 as TTES No. 25. It was selected by the Tea Research and Extension Station in 1992 from the offspring of a Burmese large-leaf cross, probably with TTES No. 13 as the father.
+青心乌龙|Qingxin Oolong was brought to Taiwan from mainland China. In the Japanese colonial period it was one of the four base cultivars, with Qingxin Damao, Dayeh Oolong and Yingzhi Hongxin, and it remains the most widely planted tea cultivar in Taiwan.
+青心大冇|One of the four base cultivars of the Japanese colonial period, together with Qingxin Oolong, Dayeh Oolong and Yingzhi Hongxin. It is a parent of TTES No. 1.
+大叶乌龙|One of the four base cultivars of the Japanese colonial period, together with Qingxin Oolong, Qingxin Damao and Yingzhi Hongxin. It is a parent of TTES No. 2 and No. 11.
+硬枝红心|One of the four base cultivars of the Japanese colonial period, together with Qingxin Oolong, Qingxin Damao and Dayeh Oolong. It is a parent of Jin Xuan (TTES No. 12) and Cui Yu (TTES No. 13).
+@ttes|Taiwan's modern tea cultivars come from the Tea Research and Extension Station (茶業改良場), which numbers each release "TTES No." with the year it was named. In the Japanese colonial period Taiwan grew four base cultivars, Qingxin Oolong, Qingxin Damao, Dayeh Oolong and Yingzhi Hongxin, and the colonial government brought in Assam large-leaf seed from India, which only took at Sun Moon Lake. The station's crosses of these with Indian, Burmese, Thai and Keemun stock have produced 25 numbered cultivars since 1969.

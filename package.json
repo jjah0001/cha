@@ -1,0 +1,16 @@
+{
+  "name": "tea-time",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tea Time: a tea wiki for teas of China and Taiwan, built into one HTML page",
+  "scripts": {
+    "setup": "node -e \"require('fs').existsSync('data/geojson-map-china')||require('child_process').execSync('git clone --depth 1 --filter=blob:none --sparse https://github.com/longwosion/geojson-map-china.git data/geojson-map-china && cd data/geojson-map-china && git sparse-checkout set geometryCouties',{stdio:'inherit',shell:true})\"",
+    "build": "node build_idx.js && node build.js",
+    "check": "node check.js"
+  },
+  "dependencies": {
+    "d3-geo": "3.1.0",
+    "echarts": "4.9.0",
+    "pinyin-pro": "3.26.0"
+  }
+}

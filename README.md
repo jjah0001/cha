@@ -1,0 +1,66 @@
+# Tea Time — source
+
+Builds `dist/tea-time.html`, a single self-contained page (map, profiles, timer, pairing, personality test, shelf).
+
+## Build
+```
+npm install
+npm run setup     # one-off: county map data from GitHub (longwosion/geojson-map-china)
+npm run check     # validate the tea lists
+npm run build     # writes dist/tea-time.html
+```
+
+## Where the teas live
+- `teas.js` … `teas5.js` — the full profiles (tasting notes, history, brewing, coordinates). `pairs.js` holds food pairings.
+- `idx/*.txt` — the listed teas, one file per source batch. Each file:
+  ```
+  #src https://source-url | Source title · Publisher; https://second-url | …
+  名称|省份|地点|type|group|note
+  ```
+  - 省份: 江苏 福建 广东 云南 江西 浙江 安徽 贵州 河南 陕西 山东 湖南 湖北 四川 重庆 广西 海南 台湾 甘肃
+  - type: green white yellow oolong red dark scented
+  - group (optional): wuyi, wuyihist, dancong, puer, ttes, or blank
+  - note (optional): a short fact the source states
+- Rule: a tea is only added if a source you actually read names it. Every row must sit under a `#src` line pointing to that source.
+
+## Map placement
+`geocode.js` matches each listed tea's 地点 (and name) to a county; aliases for scenic places (e.g. 易武 → 勐腊) are in its ALIAS table.
+
+## Histories
+
+`hist/*.txt` hold tea histories, kept apart from the tea lists so a history can be added without touching a tea's row.
+
+```
+#src https://example.com/article | Article title · Site
+名称|One or more sentences of history, in English, written only from that source.
+@group|A background shared by a whole group (wuyi, wuyihist, dancong, puer, ttes).
+```
+
+- Every row belongs to the nearest `#src` line above it. A tea can appear in several files; the texts are joined and every source is listed on its card.
+- A name that matches a full profile adds a "From the record" paragraph to that profile and removes its "General entry" note.
+- Teas with no row show "No individual record found" (plus their group background, if any). That is deliberate: never write a history that a source you opened doesn't support. Mark legends and single-source claims as such ("Tradition says…", "This source says…").
+
+## Public star ratings
+
+Every tea card has a Rating section: the average, the number of ratings, a 5-to-1 breakdown, and five stars to tap for your own rating (tap another star to change it, or "Remove my rating"). There are no written reviews and no sign-up. Tea cards show "★ 4.3 (12)" and the list can be sorted by **Top rated** (a weighted average, so one 5-star vote doesn't beat twenty 4.5s) or **Most rated**. Rating a tea that's on your shelf also updates the shelf's stars.
+
+**One vote per browser per tea.** The browser remembers its votes (`teatime.ratings.v1` in local storage) and holds an anonymous Supabase session (`teatime.session`), created on the first vote. The database allows one row per session per tea, so changing your stars replaces your vote instead of adding one. A 4-second cool-down in the page and a 60-changes-an-hour cap in the database stop rapid-fire voting. Clearing browser data or using a private window does give someone a fresh vote; that is the limit of any no-login scheme. If that ever becomes a problem, turn on Supabase's CAPTCHA protection for sign-ins (Authentication → Attack Protection) and the anonymous sessions will need a CAPTCHA too.
+
+| Where | Back end | Who can vote |
+|---|---|---|
+| Your own site (GitHub Pages etc.) | Supabase, set up below | Anyone, once per browser |
+| claude.ai artifact | the artifact's built-in database | You, and teammates on a Team plan; public-link visitors see ratings only |
+| A copy opened from disk with no config | none | Nobody; the section says ratings aren't connected |
+
+Tea ids are stable (listed teas use a hash of the Chinese name), so adding or removing teas never moves ratings, shelves or shared links onto the wrong tea.
+
+### Setting up the public site (about 15 minutes, free tiers)
+
+1. **Supabase.** Create a project at supabase.com. In *SQL Editor*, paste `supabase/schema.sql` and run it: it creates the `ratings` table, the rules (each session reads and changes only its own votes), the hourly cap and the public `tea_ratings` totals.
+2. **Anonymous sign-ins.** In *Authentication → Sign In / Providers*, turn on "Allow anonymous sign-ins".
+3. **Keys.** From *Project Settings → API* copy the Project URL and the `anon` public key. The anon key is meant to be public; the database rules protect the data. Never put the `service_role` key anywhere in this project.
+4. **GitHub.** Push this folder to a repo. In *Settings → Pages* choose "GitHub Actions". In *Settings → Secrets and variables → Actions → Variables* add `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Every push to `main` now runs check, build and deploy (`.github/workflows/pages.yml`).
+
+Anonymous users pile up in *Authentication → Users*; that's expected. Supabase's free tier allows far more than a tea site needs.
+
+For a local build with ratings, create `config.json` (git-ignored) with `{"supabaseUrl": "...", "supabaseAnonKey": "..."}`, or set the two environment variables, then `npm run build`.

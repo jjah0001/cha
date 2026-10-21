@@ -1,0 +1,1446 @@
+<title>Tea Time</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600&family=Ma+Shan+Zheng&display=swap">
+<style>
+/* Layout: a celadon field-guide with four views behind a sticky tab bar — Atlas (map + specimen card with brew timer), Six colours, Pairing (food → tea), Personality test. */
+:root{
+  --paper:#E8ECE5; --card:#F5F7F2; --ink:#1C2521; --ink-2:#55625B; --rule:#C2CBC1;
+  --land:#D9E0D5; --land-tea:#C6D4C0; --seal:#B4382A; --on-seal:#FBF3EE;
+  --t-green:#5A8829; --t-white:#8E8A74; --t-yellow:#AD850B; --t-oolong:#1C7668; --t-red:#A33B25; --t-dark:#4E3829;
+  --f-display:"Young Serif",Georgia,"Times New Roman",serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --f-han:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-brush:"Ma Shan Zheng","Kaiti SC","KaiTi",serif;
+  --f-kai:"Ma Shan Zheng","LXGW WenKai","Kaiti SC","STKaiti","KaiTi","Noto Serif SC",serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#111714; --card:#18201C; --ink:#E0E6DF; --ink-2:#98A69E; --rule:#2D3832;
+  --land:#1C2621; --land-tea:#243329; --seal:#D0533D; --on-seal:#FFF4EF;
+  --t-green:#8EBB55; --t-white:#CDC8AF; --t-yellow:#DDB43A; --t-oolong:#4DB3A1; --t-red:#DB6C51; --t-dark:#B88F6E; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#111714; --card:#18201C; --ink:#E0E6DF; --ink-2:#98A69E; --rule:#2D3832;
+  --land:#1C2621; --land-tea:#243329; --seal:#D0533D; --on-seal:#FFF4EF;
+  --t-green:#8EBB55; --t-white:#CDC8AF; --t-yellow:#DDB43A; --t-oolong:#4DB3A1; --t-red:#DB6C51; --t-dark:#B88F6E; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:15px/1.6 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:1180px;margin:0 auto}
+.han{font-family:var(--f-han)}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.15}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--seal);outline-offset:2px}
+
+/* masthead */
+.mast{display:flex;gap:20px;align-items:center;padding-block:28px 18px}
+.seal{flex:none;width:76px;height:76px;background:var(--seal);color:var(--on-seal);border-radius:6px;display:grid;place-items:center;
+  font:56px/1 var(--f-brush);transform:rotate(-3deg)}
+.mast h1{font-size:clamp(30px,5vw,46px)}
+.mast p{margin:4px 0 0;color:var(--ink-2);max-width:60ch}
+
+nav.chap{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-block:1px solid var(--rule);
+  display:flex;gap:4px;overflow-x:auto;padding-block:6px;scrollbar-width:none}
+nav.chap a{flex:none;text-decoration:none;color:var(--ink-2);padding:6px 12px;border-radius:999px;font-weight:500;font-size:14px}
+nav.chap a:hover{color:var(--ink);background:var(--card)}
+nav.chap a .han{margin-right:6px;color:var(--seal)}
+nav.chap a[aria-current="page"]{background:var(--ink);color:var(--paper)}
+nav.chap a[aria-current="page"] .han{color:var(--paper)}
+main > section[hidden]{display:none}
+
+section{padding-block:40px 8px;scroll-margin-top:56px}
+.sec-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.sec-head h2{font-size:clamp(24px,3.4vw,32px)}
+.sec-head .han{font:26px var(--f-kai);color:var(--seal)}
+.sec-head p{flex-basis:100%;margin:0;color:var(--ink-2);max-width:68ch}
+
+/* filters */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{border:1px solid var(--rule);background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-size:13.5px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.c-green{--tc:var(--t-green)}.c-white{--tc:var(--t-white)}.c-yellow{--tc:var(--t-yellow)}
+.c-oolong{--tc:var(--t-oolong)}.c-red{--tc:var(--t-red)}.c-dark{--tc:var(--t-dark)}
+.dot{background:var(--tc,var(--ink-2))}
+
+/* atlas */
+.atlas{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-areas:"map spec" "cards spec";gap:24px;align-items:start}
+.mapcol{grid-area:map;min-width:0}.cardcol{grid-area:cards;min-width:0}
+.atlas .spec{grid-area:spec;position:sticky;top:calc(env(safe-area-inset-top,0px) + 60px);max-height:calc(100vh - 76px);overflow-y:auto}
+.mapbox{position:relative;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--paper)}
+.mapbox svg{display:block;width:100%;height:auto}
+.prov{fill:var(--land);stroke:var(--paper);stroke-width:1}
+.prov.tea{fill:var(--land-tea)}
+.plabel{font:600 9.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;fill:var(--ink-2);opacity:.7;pointer-events:none}
+.qh{fill:none;stroke:var(--ink-2);stroke-width:1.2;stroke-dasharray:4 4;opacity:.7}
+.qhl{font:italic 11px var(--f-body);fill:var(--ink-2)}
+.leader{stroke:var(--ink-2);stroke-width:.8;opacity:.5}
+.pin{cursor:pointer;outline:none}
+.pin circle.m{fill:var(--tc);stroke:var(--paper);stroke-width:2;transition:r .15s}
+.pin:hover circle.m,.pin:focus-visible circle.m{r:8}
+.pin .ring{fill:none;stroke:var(--tc);stroke-width:2;opacity:0}
+.pin.sel .ring{opacity:1}
+.pin.dim{opacity:.15;pointer-events:none}
+.pin .lbl{font:500 12px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:3.5px;opacity:0;pointer-events:none}
+.pin.sel .lbl,.pin:hover .lbl,.pin:focus-visible .lbl{opacity:1}
+.legend-note{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--ink-2);background:var(--paper);padding:2px 6px;border-radius:4px}
+
+/* specimen card */
+.spec{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:22px;display:grid;gap:18px;min-width:0}
+.spec-top{display:flex;gap:16px;align-items:flex-start;justify-content:space-between}
+.spec .zh{font:44px/1.1 var(--f-kai)}
+.spec .en{font:22px/1.2 var(--f-display);margin-top:6px}
+.spec .py{color:var(--ink-2);font-size:13.5px;margin-top:2px}
+.badge{flex:none;text-align:center;border:1.5px solid var(--tc);color:var(--tc);border-radius:6px;padding:6px 10px;line-height:1.1}
+.badge b{display:block;font:24px var(--f-kai)}
+.badge span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.meta{color:var(--ink-2);font-size:13.5px;margin-top:-8px}
+.lab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--ink-2);margin:0 0 8px}
+.flav{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:16px;align-items:center}
+.radar text{font:500 10px var(--f-body);fill:var(--ink-2)}
+.radar .grid{fill:none;stroke:var(--rule)}
+.radar .ax{stroke:var(--rule)}
+.radar .shape{fill:var(--tc);fill-opacity:.28;stroke:var(--tc);stroke-width:2}
+.radar .you{fill:var(--seal);fill-opacity:.12;stroke:var(--seal);stroke-width:1.5;stroke-dasharray:4 3}
+.notes{font-size:14.5px}
+.bodybar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);margin-top:10px}
+.bodybar i{flex:1;height:6px;border-radius:3px;background:var(--rule);position:relative}
+.bodybar i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--tc);border-radius:3px}
+
+.brew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.brew div{background:var(--card);padding:10px 12px}
+.brew b{display:block;font:500 18px var(--f-mono);font-variant-numeric:tabular-nums}
+.brew span{font-size:11.5px;color:var(--ink-2)}
+.therm{margin-top:10px;position:relative;height:22px}
+.therm .track{position:absolute;left:0;right:0;top:9px;height:4px;border-radius:2px;background:linear-gradient(90deg,var(--t-oolong),var(--t-yellow),var(--seal));opacity:.35}
+.therm .rng{position:absolute;top:5px;height:12px;border-radius:6px;background:var(--tc);}
+.therm-ax{display:flex;justify-content:space-between;font:11px var(--f-mono);color:var(--ink-2)}
+.western{font-size:13px;color:var(--ink-2);margin-top:8px}
+.pair{display:flex;flex-wrap:wrap;gap:6px}
+.pair span{border:1px solid var(--rule);border-radius:4px;padding:3px 9px;font-size:13.5px;background:var(--paper)}
+.hist{margin:0;max-width:65ch}
+.ghist{margin-top:12px;color:var(--ink-2)}
+.gl{display:block;font:600 11px/1.4 var(--f-mono,monospace);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-bottom:2px}
+.gen{margin:10px 0 0;font-size:12.5px;color:var(--ink-2);border-left:2px dashed var(--rule);padding-left:10px}
+
+/* brew timer */
+.brewer{border:1px solid var(--rule);border-radius:8px;background:var(--paper);padding:16px;display:grid;gap:14px;margin-top:12px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:2px;gap:2px;justify-self:start}
+.seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.water{font-size:13.5px}
+.water b{font-family:var(--f-mono);font-weight:500}
+.steeps{display:flex;gap:6px;flex-wrap:wrap}
+.steeps button{border:1px solid var(--rule);background:var(--card);border-radius:6px;padding:4px 8px;cursor:pointer;font:12px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.steeps button.done{text-decoration:line-through;opacity:.55}
+.steeps button.cur{border-color:var(--tc);color:var(--ink);box-shadow:inset 0 0 0 1px var(--tc)}
+.steeps .rinse{border-style:dashed}
+.clock{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.ring{position:relative;width:132px;height:132px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .bg{fill:none;stroke:var(--rule);stroke-width:8}
+.ring .fg{fill:none;stroke:var(--tc);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.ring.over .fg{stroke:var(--seal)}
+.ring .read{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .t{font:500 30px var(--f-mono);font-variant-numeric:tabular-nums;line-height:1}
+.ring .s{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);font-weight:600;margin-top:4px}
+.ring.over .s{color:var(--seal)}
+.ctrls{display:grid;gap:8px;flex:1;min-width:170px}
+.ctrls .row{display:flex;gap:8px;flex-wrap:wrap}
+.ctrls .btn{padding:8px 16px}
+.small{border:1px solid var(--rule);background:transparent;border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13px}
+.hint{font-size:12.5px;color:var(--ink-2)}
+
+.tierrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:-4px 0 14px}
+.tierrow .hint{max-width:60ch}
+.seg2{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:2px;gap:2px;background:var(--card)}
+.seg2 button{border:0;background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;color:var(--ink-2)}
+.seg2 button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.bub{cursor:pointer;outline:none}
+.bub circle{fill:var(--seal);fill-opacity:.85;stroke:var(--paper);stroke-width:2;transition:r .2s}
+.bub:hover circle,.bub:focus-visible circle{fill-opacity:1}
+.bub text{font:600 11px var(--f-mono);fill:var(--on-seal);pointer-events:none}
+.bub .bl{font:600 10px var(--f-body);letter-spacing:.06em;text-transform:uppercase;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:3px}
+.bub.zero{display:none}
+.prov.hasbub{cursor:pointer}
+.prov.dimp{opacity:.45}
+.prov.cur{fill:var(--land-tea);stroke:var(--seal);stroke-width:1.2}
+.zoomed .bub,.zoomed .plabel,.zoomed .qh,.zoomed .qhl{display:none}
+.pin{display:none}.zoomed .pin.inprov{display:inline}
+.crumb{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:14px}
+.crumb .back{border:1px solid var(--rule);background:var(--card);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px}
+.crumb b{font-weight:600}
+.crumb .han{font:20px var(--f-kai);color:var(--seal)}
+.cardhead{font-size:13.5px;color:var(--ink-2);margin:14px 0 10px}
+.more{display:flex;justify-content:center;margin-top:14px}
+.tcard .lst{position:absolute;top:8px;left:8px;font:600 9.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:1px 6px}
+.srcline{font-size:14px;margin:0;max-width:62ch}
+.srcs{font-size:12.5px;color:var(--ink-2);margin:6px 0 0;padding-left:16px}
+.srcs a{color:var(--ink-2)}
+.idxnote{font-size:12.5px;color:var(--ink-2);border-left:2px dashed var(--rule);padding-left:10px}
+.clu{cursor:pointer;outline:none}
+.clu circle:not(.anchor){fill:var(--card);stroke:var(--ink-2);fill-opacity:.85}
+.clu .lead{stroke:var(--ink-2);opacity:.6}.clu .anchor{fill:var(--ink-2);stroke:none}
+.spl{font-family:var(--f-body);font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--paper);pointer-events:none}
+.pin.faint{opacity:.35}
+.clu text{font-family:var(--f-mono);font-weight:600;fill:var(--ink);pointer-events:none}
+.clu .cl{font-family:var(--f-body);font-weight:500;fill:var(--ink-2);paint-order:stroke;stroke:var(--paper);opacity:0}
+.clu:hover .cl,.clu:focus-visible .cl,.clu.on .cl{opacity:1}
+.clu:hover circle,.clu:focus-visible circle{stroke:var(--seal)}
+.clu.on circle{fill:var(--seal);stroke:var(--seal)}.clu.on text{fill:var(--on-seal)}.clu.on .cl{fill:var(--ink)}
+.clu.loose circle{stroke-dasharray:3 2}
+.one{cursor:pointer;outline:none}
+.one circle{fill:var(--card);stroke:var(--tc)}
+.one .cl{font-family:var(--f-body);font-weight:500;fill:var(--ink);paint-order:stroke;stroke:var(--paper);opacity:0;pointer-events:none}
+.one:hover .cl,.one:focus-visible .cl,.one.sel .cl{opacity:1}
+.one:hover circle,.one.sel circle{fill:var(--tc)}
+/* index */
+.find{margin-top:0}
+.find label{display:block}
+.find input{width:100%;max-width:420px;border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:999px;padding:9px 16px;font:15px var(--f-body)}
+.find input::placeholder{color:var(--ink-2)}
+.scent{font-size:12.5px;color:var(--ink-2);border-left:2px solid var(--tc);padding-left:10px;margin-top:-6px}
+.index{display:grid;gap:26px;margin-top:18px}
+.index h4{margin:0 0 10px;font:600 12px var(--f-body);letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.index h4 .han{font:20px var(--f-kai);letter-spacing:0;text-transform:none;color:var(--tc)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.tcard{position:relative;display:grid;gap:2px;align-content:start;text-align:left;background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:10px 10px 12px;cursor:pointer;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+.tcard:hover{transform:translateY(-2px);border-color:var(--tc)}
+.tcard.sel{border-color:var(--tc);box-shadow:0 0 0 2px var(--tc)}
+.tcard .tart{display:block;margin-bottom:6px}
+.tcard .tart svg{display:block;width:100%;height:auto}
+.tcard .tzh{font:22px/1.15 var(--f-kai);color:var(--ink);text-wrap:balance}
+.tcard .ten{font-size:13.5px;font-weight:600;line-height:1.25}
+.tcard .tmeta{font:11px var(--f-mono);color:var(--ink-2);margin-top:3px}
+.stamp{position:absolute;top:8px;right:8px;width:26px;height:26px;display:grid;place-items:center;border:1.5px solid var(--tc);color:var(--tc);border-radius:4px;font:17px/1 var(--f-kai);background:var(--card);transform:rotate(4deg)}
+.spec-art{max-width:300px}
+.spec-art svg{display:block;width:100%;height:auto}
+@media (prefers-reduced-motion:reduce){.tcard{transition:none}.tcard:hover{transform:none}}
+
+/* six colours wheel */
+.intro-lead{font:clamp(18px,2.4vw,22px)/1.45 var(--f-display);max-width:46ch;margin:0 0 6px}
+.intro-sub{color:var(--ink-2);max-width:62ch;margin:0}
+.wheelwrap{display:grid;grid-template-columns:minmax(0,440px) minmax(0,1fr);gap:32px;align-items:center;margin-top:22px}
+.wheel{width:100%;max-width:440px;height:auto;display:block;margin:0 auto;overflow:visible}
+.wseg{cursor:pointer;outline:none;transition:transform .25s ease,opacity .25s ease}
+.wseg path{fill:var(--tc);stroke:var(--paper);stroke-width:3}
+.wseg .wz{font:44px var(--f-kai);fill:var(--paper);pointer-events:none}
+.wseg .we{font:600 10.5px var(--f-body);letter-spacing:.12em;text-transform:uppercase;fill:var(--paper);pointer-events:none;opacity:.9}
+.wheel.picked .wseg{opacity:.7;filter:saturate(.55)}
+.wheel.picked .wseg.on{opacity:1;filter:none}
+.wseg:hover,.wseg:focus-visible{opacity:1!important}
+.wseg:focus-visible path{stroke:var(--ink);stroke-width:3}
+.hub circle{fill:var(--card);stroke:var(--rule)}
+.hub .hz{font:58px var(--f-brush);fill:var(--seal)}
+.hub .hl{font:italic 13px var(--f-display);fill:var(--ink-2)}
+.hub .hs{font:600 9.5px var(--f-body);letter-spacing:.12em;text-transform:uppercase;fill:var(--ink-2)}
+.arc-lbl{font:11px var(--f-body);fill:var(--ink-2)}
+.arc-path{fill:none;stroke:var(--ink-2);stroke-width:1;opacity:.5}
+.tpanel{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:22px;display:grid;gap:16px;min-width:0}
+.tpanel .hd{display:flex;gap:16px;align-items:center}
+.tpanel .big{font:64px/1 var(--f-kai);color:var(--tc);white-space:nowrap}
+@media (max-width:520px){.tpanel .big{font-size:42px}}
+.tpanel h3{font-size:26px}
+.tpanel .py2{color:var(--ink-2);font-size:13.5px}
+.tpanel p{margin:0;max-width:60ch}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;list-style:none;margin:0;padding:0}
+.flow li{display:flex;align-items:center;gap:6px;font-size:13px}
+.flow li span{border:1px solid var(--rule);background:var(--paper);border-radius:6px;padding:4px 9px}
+.flow li.key span{border-color:var(--tc);box-shadow:inset 0 0 0 1px var(--tc);font-weight:600}
+.flow li+li::before{content:"→";color:var(--ink-2)}
+.oxbar{position:relative;height:12px;border-radius:6px;background:var(--rule)}
+.oxbar i{position:absolute;top:0;bottom:0;border-radius:6px;background:var(--tc)}
+.oxbar i.micro{background:repeating-linear-gradient(90deg,var(--tc) 0 6px,transparent 6px 10px)}
+.oxax{display:flex;justify-content:space-between;font:11px var(--f-mono);color:var(--ink-2);margin-top:4px}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.facts div{display:grid;gap:2px;font-size:14px}
+.tries{display:flex;flex-wrap:wrap;gap:6px}
+.tries button{border:1px solid var(--rule);background:var(--paper);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13.5px}
+.tries button:hover{border-color:var(--tc)}
+.tries .han{color:var(--ink-2);margin-left:4px}
+.basics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:30px}
+.basics div{border-top:2px solid var(--rule);padding-top:10px;font-size:14px;color:var(--ink-2)}
+.basics b{display:block;color:var(--ink);font-family:var(--f-display);font-weight:400;font-size:18px;margin-bottom:4px}
+@media (max-width:880px){.wheelwrap{grid-template-columns:1fr}.basics{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.wseg{transition:none}}
+
+
+.pairform{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:18px}
+.pairrow{display:flex;gap:8px;flex-wrap:wrap}
+.pairrow input{flex:1;min-width:0;border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;padding:10px 16px;font:15px var(--f-body)}
+.pairrow input::placeholder{color:var(--ink-2)}
+#pairOut{margin-top:18px}
+.pstatus{color:var(--ink-2);font-size:14px;padding:6px 0}
+.picks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.pick{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:16px;display:grid;gap:8px;align-content:start}
+.pick .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.pick .zh{font:30px/1.1 var(--f-kai);color:var(--tc)}
+.pick .en{font:17px/1.2 var(--f-display)}
+.pick .why{font-size:14px;margin:0}
+.pick .meta2{font:12px var(--f-mono);color:var(--ink-2)}
+.pick button.linkbtn{justify-self:start}
+.ptip{margin-top:12px;font-size:14px;color:var(--ink-2)}
+.src{display:inline-block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--ink-2);border:1px solid var(--rule);border-radius:999px;padding:2px 8px;margin-bottom:10px}
+.rules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:26px}
+.rules div{display:grid;gap:4px;font-size:13.5px;color:var(--ink-2);border-top:2px solid var(--rule);padding-top:10px}
+.rules b{color:var(--ink);font-weight:600;font-size:14px}
+@media (max-width:880px){.picks{grid-template-columns:1fr}.rules{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.navcount{font:600 11px var(--f-mono);background:var(--seal);color:var(--on-seal);border-radius:999px;padding:0 6px;margin-left:4px}
+.navcount:empty{display:none}
+.shelfctl{display:grid;gap:10px;border:1px solid var(--rule);border-radius:8px;padding:12px;background:var(--paper)}
+.shelfctl .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.shelfctl .jarbtn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:500}
+.shelfctl .jarbtn svg{width:16px;height:20px}
+.shelfctl label{font-size:12px;color:var(--ink-2);display:grid;gap:3px}
+.shelfctl input,.shelfctl select,.shelfctl textarea{font:14px var(--f-body);color:var(--ink);background:var(--card);border:1px solid var(--rule);border-radius:6px;padding:6px 8px}
+.shelfctl input[type=number]{width:84px}
+.shelfctl textarea{width:100%;min-height:54px;resize:vertical}
+.stars{display:inline-flex;gap:2px}
+.stars button{border:0;background:none;cursor:pointer;font-size:20px;line-height:1;color:var(--rule);padding:0 1px}
+.stars button.on{color:var(--seal)}
+.tcard .mine{position:absolute;bottom:8px;right:8px;font:600 10px var(--f-body);letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 7px;background:var(--seal);color:var(--on-seal)}
+.tcard .mine.wish{background:transparent;color:var(--seal);border:1px dashed var(--seal)}
+.tcard .mine.tried{background:var(--ink-2);color:var(--paper)}
+.shelfstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.shelfstats>div{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:12px}
+.shelfstats b{display:block;font:500 26px var(--f-mono);font-variant-numeric:tabular-nums}
+.shelfstats span{font-size:12px;color:var(--ink-2)}
+.sixdots{display:flex;gap:4px;margin-top:6px}
+.sixdots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--tc);display:inline-block}
+.sixdots i.on{background:var(--tc)}
+.shelfbar{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.shelfio{display:flex;gap:8px}
+.filebtn{display:inline-flex;align-items:center}
+.shelfgroup{margin-top:18px}
+.shelfgroup h3{font:20px var(--f-display);display:flex;gap:10px;align-items:baseline;margin-bottom:2px}
+.shelfgroup h3 .han{font:22px var(--f-kai);color:var(--seal)}
+.shelfgroup h3 small{font:12px var(--f-mono);color:var(--ink-2)}
+.shelfrow{--wood:#9C7448;--wood2:#7A5634;display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));grid-auto-rows:150px;padding:0 10px;border-radius:6px;
+  background:linear-gradient(var(--card),var(--card)) padding-box;background-image:repeating-linear-gradient(to bottom,transparent 0 132px,var(--wood) 132px 142px,var(--wood2) 142px 150px)}
+.jar{background:none;border:0;padding:6px 4px 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:132px;position:relative}
+.jar svg{width:78px;height:auto;display:block;filter:drop-shadow(0 2px 1px rgba(0,0,0,.18));transition:transform .15s}
+.jar:hover svg,.jar:focus-visible svg{transform:translateY(-4px)}
+.jar .jg{font:10.5px var(--f-mono);color:var(--ink-2);white-space:nowrap}
+.jar.wish svg{opacity:.75}
+.shelfempty{border:1px dashed var(--rule);border-radius:8px;padding:28px;text-align:center;color:var(--ink-2);display:grid;gap:10px;justify-items:center}
+.shelfmapwrap{margin-top:28px}
+.shelfmapwrap .mapbox{max-width:640px}
+.sprov{fill:var(--land);stroke:var(--paper);stroke-width:1}
+.sprov.has{cursor:pointer}
+.sdot{stroke:var(--paper);stroke-width:1.5}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:999px;font-size:14px;z-index:20;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (max-width:620px){.shelfstats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){.jar svg{transition:none}}
+.totd{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:24px;align-items:center;border:1px solid var(--rule);border-radius:10px;background:var(--card);padding:clamp(16px,3vw,26px);margin-bottom:34px;position:relative;overflow:hidden}
+.totd::before{content:attr(data-term);position:absolute;right:-6px;top:-18px;font:clamp(90px,14vw,150px)/1 var(--f-kai);color:var(--tc);opacity:.08;pointer-events:none;letter-spacing:-.05em}
+.totd .tk{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--seal)}
+.totd .tk .term{font:16px var(--f-kai);letter-spacing:0;text-transform:none;color:var(--ink-2)}
+.totd .tz{font:clamp(40px,6vw,58px)/1.05 var(--f-kai);margin-top:8px}
+.totd .te{font:clamp(20px,2.6vw,26px)/1.2 var(--f-display)}
+.totd .why{margin:10px 0 0;max-width:58ch}
+.totd .tn{font-size:14px;color:var(--ink-2);margin:6px 0 0}
+.totd .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.totd .hemi{font-size:12.5px;color:var(--ink-2);margin-top:12px}
+.totd .hemi button{background:none;border:0;padding:0;color:var(--ink-2);text-decoration:underline;cursor:pointer;font-size:12.5px}
+.totd .art{max-width:300px}
+.totd .art svg{display:block;width:100%;height:auto}
+@media (max-width:720px){.totd{grid-template-columns:1fr}.totd .art{max-width:260px}}
+/* quiz */
+.quiz{border:1px solid var(--rule);border-radius:8px;background:var(--card);padding:clamp(18px,4vw,34px);display:grid;gap:20px}
+.qprog{display:flex;gap:6px}
+.qprog i{flex:1;height:4px;border-radius:2px;background:var(--rule)}
+.qprog i.on{background:var(--seal)}
+.qq{font:clamp(22px,3vw,28px)/1.2 var(--f-display)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.opt{border:1px solid var(--rule);background:var(--paper);border-radius:8px;padding:14px 16px;text-align:left;cursor:pointer;font-size:15px}
+.opt:hover{border-color:var(--seal)}
+.qnav{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-2)}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:999px;padding:9px 18px;cursor:pointer;font-weight:500}
+.btn.ghost{background:transparent;color:var(--ink)}
+.linkbtn{background:none;border:0;color:var(--ink-2);cursor:pointer;text-decoration:underline;padding:0}
+.result{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,260px);gap:24px;align-items:center}
+.result .persona{font:clamp(26px,4vw,36px)/1.1 var(--f-display);display:flex;align-items:center;gap:12px}
+.pzh{font:clamp(40px,6vw,56px)/1 var(--f-kai);color:var(--seal)}
+.explore{grid-column:1/-1;margin-top:8px}
+.explore .cards{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.result .kicker{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--seal)}
+.result p{margin:8px 0 0;max-width:58ch}
+.match{display:flex;gap:10px;align-items:baseline;margin-top:14px;flex-wrap:wrap}
+.match .zh{font:34px var(--f-kai);color:var(--tc)}
+.match .pct{font:500 14px var(--f-mono);color:var(--ink-2)}
+.runners{margin-top:12px;font-size:13.5px;color:var(--ink-2)}
+.runners button{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-size:13.5px}
+.rlegend{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--ink-2);margin-top:4px}
+.rlegend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+
+footer summary{cursor:pointer;font-weight:600;color:var(--ink)}
+footer{margin-top:48px;padding-block:22px 40px;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-2)}
+footer ul{padding-left:18px;margin:8px 0 0;columns:2 280px}
+footer a{color:var(--ink-2)}
+
+@media (max-width:880px){
+  .atlas{grid-template-columns:1fr;grid-template-areas:"map" "cards" "spec"}
+  .atlas .spec{position:static;max-height:none;overflow:visible}
+  .colours{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .result{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .colours{grid-template-columns:1fr}
+  .flav{grid-template-columns:1fr;justify-items:center}
+  .brew{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .seal{width:60px;height:60px;font-size:44px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+
+/* ratings */
+.findrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.findrow input{flex:1 1 220px}
+.sortwrap select{border:1px solid var(--rule);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 12px;font:14px var(--f-body)}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.rbadge{font-size:12px;color:var(--ink);font-weight:600}.rbadge small{color:var(--ink-2);font-weight:400;font-size:11px}
+.rsum{display:inline-flex;gap:6px;align-items:center;margin-top:6px;font-size:13px;color:var(--ink-2);text-decoration:none}
+.rsum b{color:var(--ink)}.rsum:empty{display:none}
+.rstars{display:inline-flex;letter-spacing:1px}.rstars i{font-style:normal;color:var(--rule)}.rstars i.on{color:var(--seal)}
+.rstars i.half{background:linear-gradient(90deg,var(--seal) 50%,var(--rule) 50%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.reviews{display:grid;gap:12px;border-top:1px solid var(--rule);padding-top:16px;scroll-margin-top:70px}
+.reviews .lab{margin:0}
+.rnote{color:var(--ink-2);font-size:13px;margin:0}
+.rsumbox{display:flex;gap:22px;flex-wrap:wrap;align-items:center}
+.rbig{display:grid;justify-items:start;gap:2px}.rbig b{font:400 40px/1 var(--f-display)}.rbig span{font-size:12.5px;color:var(--ink-2)}
+.rbars{display:grid;gap:3px;flex:1 1 200px;max-width:320px}
+.rbars div{display:grid;grid-template-columns:12px 1fr 26px;gap:8px;align-items:center;font-size:12px;color:var(--ink-2)}
+.rbars i{height:7px;border-radius:4px;background:var(--paper);border:1px solid var(--rule);overflow:hidden}.rbars i b{display:block;height:100%;background:var(--seal)}
+.ryou{display:flex;gap:10px;flex-wrap:wrap;align-items:center;border:1px solid var(--rule);border-radius:8px;padding:10px 12px;background:var(--paper)}
+.stars.big button{font-size:30px}.stars.big button:hover,.stars.big button:focus-visible{transform:scale(1.12)}
+.stars.ghost button.on{color:var(--ink-2)}
+.stars button[disabled]{cursor:wait;opacity:.7}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="seal" aria-hidden="true">茶</div>
+    <div>
+      <h1>Tea Time</h1>
+      <p><span id="count">73</span> teas of China and Taiwan: where they grow, how they taste, how to brew them, what to eat with them, and which one you are.</p>
+    </div>
+  </header>
+</div>
+<nav class="chap" aria-label="Sections"><div class="wrap" style="display:flex;gap:4px;width:100%">
+  <a href="#colours" data-view="colours"><span class="han">色</span>What is tea</a>
+  <a href="#atlas" data-view="atlas"><span class="han">图</span>Atlas</a>
+  <a href="#shelf" data-view="shelf"><span class="han">柜</span>My shelf <span class="navcount" id="navcount"></span></a>
+  <a href="#pairing" data-view="pairing"><span class="han">配</span>Pairing</a>
+  <a href="#test" data-view="test"><span class="han">性</span>Tea personality</a>
+</div></nav>
+
+<main class="wrap">
+  <section id="colours">
+    <div class="totd" id="totd" aria-live="polite"></div>
+    <div class="sec-head"><h2>What is tea?</h2><span class="han">一叶六色</span></div>
+    <p class="intro-lead">Every true tea comes from one plant, <em>Camellia sinensis</em>. What happens to the leaf after picking decides which of six colours it becomes.</p>
+    <p class="intro-sub">Chinese tea is sorted into six types, named for the colour of the leaf or the brewed liquor. Tap a colour on the wheel to see how it's made, what it tastes like and which teas to try first.</p>
+    <div class="wheelwrap">
+      <div id="wheel"></div>
+      <div class="tpanel" id="tpanel" aria-live="polite"></div>
+    </div>
+    <div class="basics">
+      <div><b>One plant</b>Green, white, oolong, black and Pu'er all come from Camellia sinensis. Herbal "teas" like chamomile are infusions, not tea.</div>
+      <div><b>Oxidation is the dial</b>Once a leaf is bruised it browns, like a cut apple. Stopping that early keeps tea green; letting it run makes it red.</div>
+      <div><b>Red, not black</b>What English calls black tea, China calls red tea (红茶) for its liquor. China's "black" tea (黑茶) is dark, aged tea like Pu'er.</div>
+    </div>
+  </section>
+
+  <section id="atlas">
+    <div class="sec-head"><h2>Tea map</h2><span class="han">茶区图</span>
+      <p>Each bubble counts the teas from a province. Tap one to zoom in and see every tea placed by county, then pick a card.</p></div>
+    <div class="chips" id="chips" role="toolbar" aria-label="Filter by tea type"></div>
+    <div class="tierrow"><div class="seg2" role="group" aria-label="Which teas to show" id="tier">
+      <button data-t="all" aria-pressed="true">All teas</button><button data-t="full" aria-pressed="false">Full profiles</button><button data-t="idx" aria-pressed="false">Listed teas</button><button data-t="mine" aria-pressed="false">My shelf</button></div>
+      <span class="hint" id="tierHint">Full profiles have tasting notes, history and pairings. Listed teas come from published registers: name, place, type and source, plus history wherever a source records one.</span></div>
+    <div class="atlas">
+      <div class="mapcol"><div class="mapbox" id="map"></div>
+        <div class="crumb" id="crumb"></div></div>
+      <div class="cardcol">
+        <div class="find"><label for="q" class="lab">Find a tea</label><div class="findrow"><input id="q" type="search" placeholder="Name, 中文, pinyin or province" autocomplete="off">
+          <span class="sortwrap" hidden><label for="sortSel" class="vh">Sort teas</label><select id="sortSel"><option value="default">Suggested order</option><option value="top">Top rated</option><option value="most">Most rated</option></select></span></div></div>
+        <div class="cardhead" id="cardhead" aria-live="polite"></div>
+        <div class="cards" id="index"></div>
+        <div class="more"><button class="btn ghost" id="moreBtn" hidden>Show 40 more</button></div>
+      </div>
+      <article class="spec" id="spec" aria-live="polite"></article>
+    </div>
+  </section>
+
+
+  <section id="pairing">
+    <div class="sec-head"><h2>What are you eating?</h2><span class="han">茶配</span>
+      <p>Name a dish, any cuisine, and get three teas from the atlas that suit it, with the reason for each.</p></div>
+    <form class="pairform" id="pairForm" autocomplete="off">
+      <label for="food" class="lab">Dish or ingredient</label>
+      <div class="pairrow"><input id="food" type="text" placeholder="e.g. margherita pizza, beef rendang, cheesecake" maxlength="120">
+        <button class="btn" id="pairGo" type="submit">Suggest teas</button><button class="small" id="pairStop" type="button" hidden>Stop</button></div>
+      <div class="chips" id="foodChips" style="margin:12px 0 0"></div>
+    </form>
+    <div id="pairOut" aria-live="polite"></div>
+    <div class="rules">
+      <div><b>Match weight</b><span>Delicate food, delicate tea. Light greens and whites with seafood and salads; dark and roasted teas with red meat and rich sauces.</span></div>
+      <div><b>Cut the fat</b><span>Roasted oolongs and Pu'er cleanse the palate after fried, fatty or creamy food.</span></div>
+      <div><b>Echo a flavour</b><span>Smoky with smoky, fruity with fruit desserts, nutty greens with nuts and grains.</span></div>
+      <div><b>Calm the heat</b><span>With chilli, pick a smooth, low-bitterness tea and brew it a little cooler.</span></div>
+    </div>
+  </section>
+
+  <section id="shelf">
+    <div class="sec-head"><h2>My tea shelf</h2><span class="han">茶柜</span>
+      <p>Your collection, saved in this browser. Add teas from any card in the Atlas, then track how much you have, what you'd like to try and what you thought.</p></div>
+    <div class="shelfstats" id="shelfstats"></div>
+    <div class="shelfbar">
+      <div class="seg2" role="group" aria-label="Arrange jars by" id="shelfSort"><button data-s="status" aria-pressed="true">By status</button><button data-s="type" aria-pressed="false">By colour</button><button data-s="prov" aria-pressed="false">By province</button></div>
+      <div class="shelfio"><button class="small" id="expBtn">Export</button><label class="small filebtn" for="impFile">Import</label><input type="file" id="impFile" accept=".json,application/json" hidden></div>
+    </div>
+    <div id="shelfNote" class="hint" aria-live="polite"></div>
+    <div id="shelves"></div>
+    <div class="shelfmapwrap"><p class="lab">Your tea map</p><div class="mapbox" id="shelfmap"></div>
+      <p class="hint">Provinces darken as your collection grows there. Tap one to see those teas in the Atlas.</p></div>
+  </section>
+
+  <section id="test">
+    <div class="sec-head"><h2>Which tea are you?</h2><span class="han">茶性测试</span>
+      <p>Twelve quick questions. Your answers build a flavour profile, match you to one of twelve tea styles and the closest teas in the atlas, then point you to listed teas in the same style.</p></div>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <footer><details><summary>Sources and notes</summary>
+    <p><strong>Sources checked.</strong> History and brewing details were cross-checked against Chinese-language sources, including China's national intangible heritage register (中国非物质文化遗产网), Xinhua, The Paper (澎湃新闻), People's Daily, Lugu Township Office (Taiwan) and Taiwan's Tea Research and Extension Station reporting. Where legends differ, the page says so. Entries whose specific history no Chinese source confirmed are marked "General entry" on their card and kept to basics. Food pairings are suggestions, not sourced facts.</p>
+    <p><strong>Listed teas.</strong> The 850 listed teas come from the published registers and lists below. Each card links to the list it came from. English names are pinyin transliterations.</p>
+    <ul id="xsrc"></ul>
+    <ul>
+      <li><a href="https://www.ihchina.cn/project_details/14618.html" target="_blank" rel="noopener">祁门红茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14607.html" target="_blank" rel="noopener">太平猴魁制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14610.html" target="_blank" rel="noopener">碧螺春制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14616.html" target="_blank" rel="noopener">恩施玉露制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14373.html" target="_blank" rel="noopener">武夷岩茶（大红袍）制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://m.thepaper.cn/baijiahao_10500451" target="_blank" rel="noopener">冯绍裘与滇红 · 澎湃新闻</a></li>
+      <li><a href="https://news.qq.com/rain/a/20260526A08E4S00" target="_blank" rel="noopener">认识黄山毛峰 · 腾讯新闻</a></li>
+      <li><a href="https://e.thecover.cn/shtml/hxdsb/20241031/220512.shtml" target="_blank" rel="noopener">蒙顶山与吴理真 · 华西都市报</a></li>
+      <li><a href="https://paper.people.com.cn/rmrb/html/2023-09/09/nw.D110000renmrb_20230909_2-07.htm" target="_blank" rel="noopener">安化黑茶 · 人民日报</a></li>
+      <li><a href="https://www.rmzxw.com.cn/c/2021-08-20/2937639.shtml" target="_blank" rel="noopener">怡保与六堡茶 · 人民政协网</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=3326559" target="_blank" rel="noopener">东方旧美人 · 潮新闻</a></li>
+      <li><a href="https://www.foodnext.net/news/industry/paper/5470246589" target="_blank" rel="noopener">台茶18号红玉 · 食力</a></li>
+      <li><a href="https://www.lugu.gov.tw/en/LuguService/QaframeDetail/IMQAdiz7-5266-ooIa-GKZN-0004uWqe5Db3" target="_blank" rel="noopener">冻顶茶起源 · 鹿谷乡公所</a></li>
+      <li><a href="https://www.jiemian.com/article/1041035.html" target="_blank" rel="noopener">各类茶冲泡水温与茶水比 · 界面新闻</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14612.html" target="_blank" rel="noopener">安吉白茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://paper.people.com.cn/rmrbhwb/html/2013-06/06/content_1251596.htm" target="_blank" rel="noopener">都匀毛尖得名 · 人民日报海外版</a></li>
+      <li><a href="https://cn.chinadaily.com.cn/a/202505/23/WS682fdc45a3102053770348e6.html" target="_blank" rel="noopener">日照南茶北引 · 中国日报</a></li>
+      <li><a href="https://m.thepaper.cn/baijiahao_17337168" target="_blank" rel="noopener">南京雨花茶 · 澎湃新闻</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14604.html" target="_blank" rel="noopener">福州茉莉花茶窨制工艺 · ihchina.cn</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=3571490" target="_blank" rel="noopener">平阳黄汤 · 潮新闻</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/23784.html" target="_blank" rel="noopener">漳平水仙茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://news.ifeng.com/c/8OKzZtNN5QA" target="_blank" rel="noopener">永春佛手 · 凤凰网</a></li>
+      <li><a href="https://www.news.cn/tw/20250409/d101d8f0476c48ac91b83a4eb4654993/c.html" target="_blank" rel="noopener">文山包种与坪林 · 新华网</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=3300110" target="_blank" rel="noopener">木栅铁观音 · 潮新闻</a></li>
+      <li><a href="https://www.foodnext.net/column/columnist/paper/4975392932" target="_blank" rel="noopener">金萱 · 食力</a></li>
+      <li><a href="https://paper.people.com.cn/hwbwap/html/2024-07/13/content_26068912.htm" target="_blank" rel="noopener">桐木村与金骏眉 · 人民日报海外版</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/23782.html" target="_blank" rel="noopener">坦洋工夫茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=3047653" target="_blank" rel="noopener">九曲红梅 · 潮新闻</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/23783.html" target="_blank" rel="noopener">宁红茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14624.html" target="_blank" rel="noopener">千两茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14625.html" target="_blank" rel="noopener">南路边茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://paper.people.com.cn/rmrbwap/html/2023-12/21/nw.D110000renmrb_20231221_5-11.htm" target="_blank" rel="noopener">泾阳茯茶 · 人民日报</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14627.html" target="_blank" rel="noopener">赵李桥砖茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14611.html" target="_blank" rel="noopener">紫笋茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/28605.html" target="_blank" rel="noopener">径山茶宴 · ihchina.cn</a></li>
+      <li><a href="https://www.rmzxw.com.cn/c/2023-01-06/3271052.shtml" target="_blank" rel="noopener">鸭屎香（银花香）· 人民政协网</a></li>
+      <li><a href="https://www.huxiu.com/article/565303.html" target="_blank" rel="noopener">武夷四大名丛 · 虎嗅</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=3447600" target="_blank" rel="noopener">莫干黄芽 · 潮新闻</a></li>
+      <li><a href="https://www.chinanews.com.cn/cj/2019/10-23/8986824.shtml" target="_blank" rel="noopener">老班章 · 中国新闻网</a></li>
+      <li><a href="https://paper.people.com.cn/hwbwap/html/2023-07/01/content_26001630.htm" target="_blank" rel="noopener">紫阳茶 · 人民日报海外版</a></li>
+      <li><a href="https://paper.people.com.cn/mszk/html/2023-03/06/content_25969974.htm" target="_blank" rel="noopener">崂山茶 · 人民日报</a></li>
+      <li><a href="https://www.thepaper.cn/newsDetail_forward_30715677" target="_blank" rel="noopener">宜红工夫茶 · 澎湃新闻</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=3541545" target="_blank" rel="noopener">大禹岭 · 潮新闻</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=3254264" target="_blank" rel="noopener">惠明茶 · 潮新闻</a></li>
+      <li><a href="https://paper.people.com.cn/rmrb/html/2023-04/10/nw.D110000renmrb_20230410_3-20.htm" target="_blank" rel="noopener">遂川狗牯脑 · 人民日报</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=3058523" target="_blank" rel="noopener">开化龙顶 · 潮新闻</a></li>
+      <li><a href="https://www.thepaper.cn/newsDetail_forward_11826962" target="_blank" rel="noopener">金坛雀舌 · 澎湃新闻</a></li>
+      <li><a href="https://m.voc.com.cn/xhn/news/202509/30461527.html" target="_blank" rel="noopener">古丈毛尖 · 华声在线</a></li>
+      <li><a href="https://news.cnhnb.com/mzhuanti/detail/435914" target="_blank" rel="noopener">黄茶产区与分类 · 惠农网</a></li>
+      <li><a href="https://smiletaiwan.cw.com.tw/article/4386" target="_blank" rel="noopener">三峡碧螺春 · 微笑台湾</a></li>
+      <li><a href="https://www.chinanews.com.cn/sh/2022/10-06/9867318.shtml" target="_blank" rel="noopener">碧潭飘雪 · 中国新闻网</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/26422.html" target="_blank" rel="noopener">福鼎白茶制作技艺（白琳工夫）· ihchina.cn</a></li>
+      <li><a href="https://www.peopleapp.com/rmharticle/30044854831" target="_blank" rel="noopener">越红工夫茶 · 人民日报客户端</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/14626.html" target="_blank" rel="noopener">下关沱茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.chinanews.com.cn/cj/2021/05-13/9476134.shtml" target="_blank" rel="noopener">冰岛老寨 · 中国新闻网</a></li>
+      <li><a href="https://paper.people.com.cn/rmrbwap/html/2023-09/18/nw.D110000renmrb_20230918_1-08.htm" target="_blank" rel="noopener">景迈山古茶林列入世界遗产 · 人民日报</a></li>
+      <li><a href="https://www.epochtimes.com/gb/9/10/4/n2677903.htm" target="_blank" rel="noopener">李白与仙人掌茶 · 大纪元</a></li>
+      <li><a href="https://tidenews.com.cn/news.html?id=2963486" target="_blank" rel="noopener">敬亭绿雪、阳羡雪芽、峨眉雪芽、绿雪芽 · 潮新闻</a></li>
+      <li><a href="https://www.ihchina.cn/project_details/28514.html" target="_blank" rel="noopener">婺源绿茶制作技艺 · ihchina.cn</a></li>
+      <li><a href="https://www.chinanews.com.cn/cj/2022/05-07/9748150.shtml" target="_blank" rel="noopener">白沙绿茶 · 中国新闻网</a></li>
+      <li><a href="https://www.huxiu.com/article/909408.html" target="_blank" rel="noopener">普陀佛茶 · 虎嗅</a></li>
+      <li><a href="https://m.bjnews.com.cn/detail/174545005919419.html" target="_blank" rel="noopener">唐代阳羡贡茶 · 新京报</a></li>
+      <li><a href="https://www.jiemian.com/article/1174385.html" target="_blank" rel="noopener">凤凰单丛十大香型 · 界面新闻</a></li>
+      <li><a href="https://smiletaiwan.cw.com.tw/article/6294" target="_blank" rel="noopener">台东红乌龙 · 微笑台湾</a></li>
+      <li><a href="https://uptogo.com.tw/?p=1596464" target="_blank" rel="noopener">台茶8号阿萨姆 · 上图购</a></li>
+      <li><a href="https://www.peopleapp.com/rmharticle/30051902379" target="_blank" rel="noopener">五指山红茶 · 人民日报客户端</a></li>
+      <li><a href="https://www.jiemian.com/article/1263239.html" target="_blank" rel="noopener">昔归与冰岛 · 界面新闻</a></li>
+      <li><a href="https://i.ifeng.com/c/8wyHEiJDdoj" target="_blank" rel="noopener">曼松贡茶 · 凤凰网</a></li>
+      <li><a href="https://m.jiemian.com/article/1715163.html" target="_blank" rel="noopener">柑普与小青柑 · 界面新闻</a></li>
+      <li><a href="https://www.sohu.com/a/999138125_486276" target="_blank" rel="noopener">英红九号 · 搜狐</a></li>
+    </ul>
+  </details></footer>
+</main>
+
+<script>
+/*__DATA__*/
+const AX=[["floral","Floral"],["fruity","Fruity"],["vegetal","Vegetal"],["roast","Roasted"],["earthy","Earthy"],["sweet","Sweet"]];
+const TYPE_ORDER=["green","white","yellow","oolong","red","dark"];
+const T=DATA.teas;
+const TB={green:{temp:[80,85],g:3,time:"30 s",inf:"3–4",western:"3 g · 250 ml · 2–3 min"},white:{temp:[85,90],g:5,time:"40 s",inf:"5–6",western:"3 g · 250 ml · 3–4 min"},
+ yellow:{temp:[80,85],g:3,time:"30 s",inf:"3–4",western:"3 g · 250 ml · 2–3 min"},oolong:{temp:[95,100],g:6,time:"20 s",inf:"6–8",western:"3 g · 250 ml · 3 min"},
+ red:{temp:[90,95],g:5,time:"10 s",inf:"5",western:"3 g · 250 ml · 3 min"},dark:{temp:[95,100],g:7,time:"10 s",inf:"8–10",western:"4 g · 250 ml · 3–4 min, rinse first"}};
+const XT=DATA.X.map(x=>({...TB[x.type],id:x.i,idx:true,zh:x.zh,py:x.py,en:x.en,type:x.type,scented:x.scented,prov:x.prov,place:x.place,region:x.place,group:x.group,line:x.line,s:x.s,shape:x.shape,cty:x.cty,cs:x.cs,cx:x.cx,cy:x.cy,lv:x.lv,h:x.h,hs:x.hs,hx:x.hx}));
+const ALL=T.concat(XT);
+const byId=Object.fromEntries(ALL.map(t=>[t.id,t]));
+let sel="longjing", filter="all", tier="all", prov=null, cty=null, page=1;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const $=id=>document.getElementById(id);
+
+/* ── radar ── */
+function radar(sets,size){
+  const c=size/2, R=size/2-34, n=AX.length;
+  const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[c+Math.cos(a)*R*v/5,c+Math.sin(a)*R*v/5]};
+  let s=`<svg class="radar" viewBox="0 0 ${size} ${size}" width="100%" style="max-width:${size}px" role="img" aria-label="Flavour radar">`;
+  for(const lv of [1,2,3,4,5]) s+=`<polygon class="grid" points="${AX.map((_,i)=>pt(i,lv).join(",")).join(" ")}"/>`;
+  AX.forEach(([k,l],i)=>{const [x,y]=pt(i,5),[lx,ly]=pt(i,6.3);
+    s+=`<line class="ax" x1="${c}" y1="${c}" x2="${x}" y2="${y}"/><text x="${lx}" y="${ly+3}" text-anchor="middle">${l}</text>`});
+  for(const st of sets) s+=`<polygon class="${st.cls}" points="${AX.map(([k],i)=>pt(i,Math.max(.15,st.f[k])).join(",")).join(" ")}"/>`;
+  return s+"</svg>";
+}
+
+/* ── map: province bubbles → zoom ── */
+const PM=DATA.PM;
+function buildMap(){
+  let s=`<svg viewBox="0 0 ${DATA.W} ${DATA.H}" id="mapsvg" role="group" aria-label="Map of tea provinces in China and Taiwan">`;
+  for(const p of DATA.provinces) s+=`<path class="prov${PM[p.en]?" tea hasbub":""}" data-p="${PM[p.en]?p.en:""}" d="${p.d}"><title>${esc(p.en)} ${p.zh}</title></path>`;
+  s+=`<path class="qh" d="${DATA.qhPath}"/>`;
+  const q=DATA.qhPath.match(/M(\d+),(\d+)/); s+=`<text class="qhl" x="${+q[1]}" y="${+q[2]-8}">Qinling–Huai line · northern edge of the tea belt</text>`;
+  s+=`<g id="clu"></g>`;
+  for(const t of T){
+    s+=`<g class="pin c-${t.type}" data-id="${t.id}" data-p="${esc(t.prov)}" tabindex="0" role="button" aria-label="${esc(t.en)}, ${esc(DATA.types[t.type].en)} tea">
+      <circle class="ring" cx="${t.zx??t.ox}" cy="${t.zy??t.oy}" r="10"/><circle class="m" cx="${t.zx??t.ox}" cy="${t.zy??t.oy}" r="5.5"/>
+      <text class="lbl" x="${t.zx??t.ox}" y="${t.zy??t.oy}">${esc(t.en)} ${t.zh}</text></g>`;
+  }
+  for(const en in PM){const m=PM[en];
+    s+=`<g class="bub" data-p="${en}" tabindex="0" role="button"><circle cx="${m.ax}" cy="${m.ay}" r="12"/><text x="${m.ax}" y="${m.ay+4}" text-anchor="middle">0</text>
+      <text class="bl" x="${m.ax}" y="${m.ay-18}" text-anchor="middle">${en}</text></g>`;}
+  s+="</svg>";
+  $("map").innerHTML=s+`<div class="legend-note" id="legend"></div>`;
+  const open=en=>{prov=en;cty=null;page=1;if(byId[sel].prov!==en){const f=ALL.find(t=>t.prov===en&&passes(t));if(f)sel=f.id}render();$("map").scrollIntoView({block:"nearest"})};
+  $("map").querySelectorAll(".bub,.prov.hasbub").forEach(g=>{
+    g.addEventListener("click",()=>{ if(!$("mapsvg").classList.contains("zoomed")) open(g.dataset.p); else if(g.dataset.p&&g.dataset.p!==prov) open(g.dataset.p); });
+    g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open(g.dataset.p)}});
+  });
+  $("map").querySelectorAll(".pin").forEach(g=>{
+    g.addEventListener("click",()=>select(g.dataset.id));
+    g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();select(g.dataset.id)}});
+  });
+}
+function passes(t,ignoreProv,ignoreCty){
+  if(filter!=="all"&&t.type!==filter) return false;
+  if(tier==="full"&&t.idx) return false;
+  if(tier==="idx"&&!t.idx) return false;
+  if(tier==="mine"&&!SHELF[t.id]) return false;
+  if(!hit(t)) return false;
+  if(!ignoreProv&&prov&&t.prov!==prov) return false;
+  if(!ignoreProv&&!ignoreCty&&cty&&t.cty!==cty) return false;
+  return true;
+}
+function paintMap(){
+  const svg=$("mapsvg"); const counts={}; let tot=0;
+  for(const t of ALL) if(passes(t,true)){counts[t.prov]=(counts[t.prov]||0)+1;tot++;}
+  svg.querySelectorAll(".bub").forEach(g=>{const n=counts[g.dataset.p]||0;g.classList.toggle("zero",!n);
+    g.querySelector("circle").setAttribute("r",(9+Math.sqrt(n)*2.4).toFixed(1));g.querySelector("text").textContent=n;
+    g.setAttribute("aria-label",`${g.dataset.p}: ${n} teas. Zoom in`);});
+  if(prov&&PM[prov]){
+    // listed teas in this province, grouped by county
+    const groups=new Map();
+    for(const t of XT){ if(t.prov!==prov||!passes(t,false,true)) continue; const g=groups.get(t.cty)||{cs:t.cs,x:t.cx,y:t.cy,lv:t.lv,ids:[]}; g.ids.push(t.id); groups.set(t.cty,g); }
+    const [x0,y0,x1,y1]=PM[prov].box, pad=22, w=x1-x0+pad*2, h=y1-y0+pad*2;
+    const ar=DATA.W/DATA.H; let vw=w, vh=h; if(vw/vh>ar) vh=vw/ar; else vw=vh*ar;
+    let cxv=(x0+x1)/2, cyv=(y0+y1)/2;
+    const cg=cty&&groups.get(cty);
+    let focus=null;
+    if(cty){ // zoom further into the chosen county
+      const fulls=T.filter(t=>t.cty===cty&&t.prov===prov);
+      focus=cg?{x:cg.x,y:cg.y}:fulls.length?{x:fulls.reduce((a,t)=>a+(t.zx??t.ox),0)/fulls.length,y:fulls.reduce((a,t)=>a+(t.zy??t.oy),0)/fulls.length}:null;
+      if(focus){ vw=vw/3; vh=vh/3; cxv=focus.x; cyv=focus.y; }
+    }
+    const vx=cxv-vw/2, vy=cyv-vh/2, k=DATA.W/vw;
+    svg.setAttribute("viewBox",`${vx.toFixed(1)} ${vy.toFixed(1)} ${vw.toFixed(1)} ${vh.toFixed(1)}`); svg.classList.add("zoomed");
+    svg.querySelectorAll(".prov").forEach(p=>{p.classList.toggle("cur",p.dataset.p===prov);p.classList.toggle("dimp",p.dataset.p!==prov);p.style.strokeWidth=(1/k).toFixed(2)});
+    svg.querySelectorAll(".pin").forEach(g=>{const t=byId[g.dataset.id],inp=t.prov===prov&&passes(t,false,true);
+      g.classList.toggle("inprov",inp); g.classList.toggle("sel",t.id===sel); g.classList.toggle("faint",!!cty&&t.cty!==cty);
+      const [m,r,l]=[g.querySelector(".m"),g.querySelector(".ring"),g.querySelector(".lbl")];
+      m.setAttribute("r",(5.5/k).toFixed(2)); m.style.strokeWidth=(2/k).toFixed(2); r.setAttribute("r",(10/k).toFixed(2)); r.style.strokeWidth=(2/k).toFixed(2);
+      const cx=+m.getAttribute("cx"), right=cx<vx+vw*0.62; l.setAttribute("x",(cx+(right?14:-14)/k).toFixed(1)); l.setAttribute("y",(+m.getAttribute("cy")+4/k).toFixed(1));
+      l.setAttribute("text-anchor",right?"start":"end"); l.style.fontSize=(12/k).toFixed(2)+"px"; l.style.strokeWidth=(3.5/k).toFixed(2)+"px";
+      if(t.id===sel&&inp) g.parentNode.appendChild(g);});
+    const dot=(t,x,y,cs)=>`<g class="one c-${t.type}${t.id===sel?" sel":""}" data-id="${t.id}" tabindex="0" role="button" aria-label="${esc(t.en)}, listed ${esc(DATA.types[t.type].en)} tea, ${esc(cs)}">
+          <circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${(4.5/k).toFixed(2)}" style="stroke-width:${(2.2/k).toFixed(2)}"/>
+          <text class="cl" x="${(x+8/k).toFixed(2)}" y="${(y+3.5/k).toFixed(2)}" style="font-size:${(11/k).toFixed(2)}px;stroke-width:${(3/k).toFixed(2)}px">${esc(t.en)} ${t.zh}</text></g>`;
+    const pinPts=T.filter(t=>t.prov===prov&&passes(t,false,true)).map(t=>({x:t.zx??t.ox,y:t.zy??t.oy}));
+    let cl="", top="";
+    for(const [key,g] of [...groups].sort((a,b)=>b[1].ids.length-a[1].ids.length)){
+      const n=g.ids.length;
+      if(key===cty){ // fan the chosen county's teas out in a spiral, each one tappable
+        const sp=10.5/k;
+        top+=`<text class="spl" x="${g.x}" y="${(g.y-sp*Math.sqrt(n)-12/k).toFixed(2)}" text-anchor="middle" style="font-size:${(12/k).toFixed(2)}px;stroke-width:${(3.5/k).toFixed(2)}px">${esc(g.cs)} · ${n}</text>`;
+        g.ids.forEach((id,i)=>{const a=i*2.39996, rr=sp*Math.sqrt(i+.6); cl+=dot(byId[id],g.x+Math.cos(a)*rr,g.y+Math.sin(a)*rr,g.cs);});
+        continue; }
+      if(n===1&&g.lv!=="prov"){ cl+=dot(byId[g.ids[0]],g.x,g.y,g.cs); continue; }
+      const r=Math.min(7+Math.sqrt(n)*2.3,17)/k;
+      // nudge the badge clear of full-profile dots so neither hides the other
+      let bx=g.x, by=g.y; const near=pinPts.filter(q=>Math.hypot(q.x-g.x,q.y-g.y)<r+12/k);
+      if(near.length){ let dx=near.reduce((a,q)=>a+(g.x-q.x),0), dy=near.reduce((a,q)=>a+(g.y-q.y),0); let L=Math.hypot(dx,dy); if(L<1e-6){dx=-1;dy=-1;L=Math.SQRT2} dx/=L; dy/=L;
+        for(let step=1;step<=12;step++){ bx=g.x+dx*step*7/k; by=g.y+dy*step*7/k; if(pinPts.every(q=>Math.hypot(q.x-bx,q.y-by)>=r+8/k)) break; } }
+      const moved=bx!==g.x||by!==g.y;
+      cl=`<g class="clu${g.lv==="prov"?" loose":""}" data-c="${esc(key)}" tabindex="0" role="button" aria-label="${esc(g.cs)}: ${n} listed teas. Tap to spread them out">
+        ${moved?`<line class="lead" x1="${g.x}" y1="${g.y}" x2="${bx.toFixed(2)}" y2="${by.toFixed(2)}" style="stroke-width:${(1.2/k).toFixed(2)}"/><circle class="anchor" cx="${g.x}" cy="${g.y}" r="${(2/k).toFixed(2)}"/>`:""}
+        <circle cx="${bx.toFixed(2)}" cy="${by.toFixed(2)}" r="${r.toFixed(2)}" style="stroke-width:${(1.6/k).toFixed(2)}"/>
+        <text x="${bx.toFixed(2)}" y="${(by+3.6/k).toFixed(2)}" text-anchor="middle" style="font-size:${(10/k).toFixed(2)}px">${n}</text>
+        <text class="cl" x="${bx.toFixed(2)}" y="${(by-r-4/k).toFixed(2)}" text-anchor="middle" style="font-size:${(10.5/k).toFixed(2)}px;stroke-width:${(3/k).toFixed(2)}px">${esc(g.cs)}</text></g>`+cl;
+    }
+    $("clu").innerHTML=cl+top;
+    $("clu").querySelectorAll(".one").forEach(g=>{const act=()=>select(g.dataset.id);g.addEventListener("click",act);g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();act()}});});
+    $("clu").querySelectorAll(".clu").forEach(g=>{const act=()=>{cty=cty===g.dataset.c?null:g.dataset.c;page=1;
+        if(cty&&byId[sel].cty!==cty){const f=ALL.find(t=>t.cty===cty&&passes(t));if(f)sel=f.id} render();};
+      g.addEventListener("click",act); g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();act()}});});
+    const nFull=T.filter(t=>t.prov===prov&&passes(t)).length, nAll=ALL.filter(t=>passes(t)).length;
+    $("legend").textContent=`${nAll} teas in ${prov} · ${nFull} on the map`;
+    const cs=cty?(ALL.find(t=>t.cty===cty)||{}).cs:"";
+    $("crumb").innerHTML=`<button class="back" id="backAll">← All provinces</button><span class="han">${PM[prov].zh}</span><b>${prov}</b>${cty?`<button class="back" id="clrCty">${esc(cs)} ✕</button>`:""}<span class="hint">Filled dots are full profiles, hollow dots are listed teas. Numbers group several listed teas in one county; tap one to zoom in and spread them out. A dashed circle holds teas whose sources give no exact place.</span>`;
+    $("backAll").addEventListener("click",()=>{prov=null;cty=null;page=1;render()});
+    if(cty) $("clrCty").addEventListener("click",()=>{cty=null;page=1;render()});
+  } else {
+    svg.setAttribute("viewBox",`0 0 ${DATA.W} ${DATA.H}`); svg.classList.remove("zoomed"); $("clu").innerHTML="";
+    svg.querySelectorAll(".prov").forEach(p=>{p.classList.remove("cur","dimp");p.style.strokeWidth=""});
+    $("legend").textContent=`${tot} teas · ${Object.keys(counts).length} provinces`;
+    $("crumb").innerHTML=`<span class="hint">Tap a bubble or a province to zoom in.</span>`;
+  }
+}
+
+/* ── chips & index ── */
+function buildChips(){
+  let s=`<button class="chip" data-f="all" aria-pressed="true">All teas</button>`;
+  for(const k of TYPE_ORDER){const ty=DATA.types[k];
+    s+=`<button class="chip c-${k}" data-f="${k}" aria-pressed="false"><span class="dot"></span>${ty.en} <span class="han">${ty.zh}</span></button>`;}
+  $("chips").innerHTML=s;
+  $("chips").querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>setFilter(b.dataset.f)));
+}
+function setFilter(f){
+  filter=f;
+  $("chips").querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f===f));
+  page=1; render();
+}
+function cardHTML(t){const ty=DATA.types[t.type];
+  return `<button class="tcard c-${t.type}" data-id="${t.id}" aria-label="${esc(t.en)}, ${esc(ty.en)} tea${t.idx?", listed tea":""}">
+    <span class="stamp" aria-hidden="true">${ty.zh[0]}</span>${t.idx?`<span class="lst">Listed</span>`:""}${SHELF[t.id]?`<span class="mine ${SHELF[t.id].st}" title="${ST[SHELF[t.id].st].en}">${ST[SHELF[t.id].st].mark}</span>`:""}
+    <span class="tart">${art(t,"c")}</span>
+    <span class="tzh">${t.zh}</span><span class="ten">${esc(t.en)}</span>
+    <span class="tmeta">${t.cs&&t.lv!=="prov"?esc(t.cs)+" · ":""}${esc(t.prov)}</span>${ratingBadge(t.id)}</button>`}
+function buildIndex(){
+  const base=(a,b)=>(a.idx?1:0)-(b.idx?1:0)||TYPE_ORDER.indexOf(a.type)-TYPE_ORDER.indexOf(b.type);
+  const sorter=sortBy==="top"?(a,b)=>bayes(REV.agg[b.id])-bayes(REV.agg[a.id])||base(a,b):sortBy==="most"?(a,b)=>((REV.agg[b.id]||{}).n||0)-((REV.agg[a.id]||{}).n||0)||base(a,b):base;
+  const list=ALL.filter(t=>passes(t)).sort(sorter);
+  const shown=list.slice(0,page*40);
+  $("index").innerHTML=shown.map(cardHTML).join("");
+  const nf=list.filter(t=>!t.idx).length;
+  $("cardhead").textContent=list.length?`Showing ${shown.length} of ${list.length} teas${cty?" in "+((ALL.find(t=>t.cty===cty)||{}).cs||"")+",":""}${prov?" in "+prov:""} · ${nf} full profiles, ${list.length-nf} listed`:"No teas match. Clear the search or pick another type.";
+  $("moreBtn").hidden=shown.length>=list.length;
+  $("index").querySelectorAll(".tcard").forEach(b=>{b.classList.toggle("sel",b.dataset.id===sel);b.addEventListener("click",()=>{select(b.dataset.id);
+    if(window.matchMedia("(max-width:880px)").matches) $("spec").scrollIntoView({behavior:"smooth",block:"start"});})});
+}
+
+/* ── tea illustrations: dry leaf on a porcelain dish + a cup of the brew ── */
+const SHAPES={
+ flat:["longjing","zhuyeqing","jintan"],
+ needle:["yulu","yuhua","xinyang","guzhang","kaihua","anji","lushan","rizhao","laoshan","ziyang","jingshan","shucheng"],
+ spiral:["biluochun","sanxia","ganlu","duyun","gouguanao","huiming","mogan","huangtang","beigang","luyuan","weishan"],
+ budleaf:["maofeng","huoshan","guzhu"],
+ bud:["yinzhen","junshan","mengding"],
+ melon:["guapian"], longflat:["houkui"],
+ leafy:["mudan","shoumei","gongmei","yueguangbai","dayeqing","huangdacha"],
+ ball:["tieguanyin","dongding","alishan","lishan","jinxuan","dayuling","shanlinxi","sijichun","cuiyu","hongshui","muzha","benshan","maoxie","huangjingui","foshou"],
+ twisted:["dahongpao","rougui","shuixian","shuijingui","baijiguan","tieluohan","bantianyao","dancong","yashixiang","lingtou","songzhong","baxian","baiyaqilan","baozhong","dongfang"],
+ wiry:["keemun","ninghong","yihong","chuanhong","tanyang","zhenghe","huhong","yuehong","jiuqu","yinghong","hongyu","lapsang","mixiang"],
+ golden:["dianhong","jinjunmei","zunyihong","bailin"],
+ cake:["shengpu","laobanzhang","bingdao","shupu"], tuo:["xiaguan"],
+ brick:["fuzhuan","jingyang","heizhuan","qingzhuan","mizhuan","zangcha"], log:["qianliang"], square:["zhangping"],
+ loose:["liubao","tianjian","anqcha"], jasmine:["jasmine","bitan"]
+};
+const SHAPE_OF={}; for(const k in SHAPES) for(const id of SHAPES[k]) SHAPE_OF[id]=k;
+const PAL={green:["#5F7F2E","#7A9640","#4D6A27","#8EA858"],white:["#B9BBA8","#D6D5C6","#9FA58F","#E6E4D8"],yellow:["#A79A3B","#BFAE55","#8C8432","#C9B85E"],
+ olight:["#3E6A36","#527F45","#2E5730","#5E8A4B"],oroast:["#3A2A1F","#563A28","#2A1D16","#6B4630"],red:["#2A1C17","#3B2720","#4A3226","#33231C"],
+ gold:["#C8892F","#D9A048","#B5762A","#3A2720"],dark:["#3B2A20","#4C3628","#2C2019","#5A4030"],sheng:["#5B5433","#6E6640","#4A452B","#8A7A4A"],
+ ripe:["#3A2418","#4A2E1E","#2C1B12","#553422"],moon:["#2B2B28","#D9D8CA","#3A3A34","#E8E6DA"],beauty:["#7A5A2E","#C9B37A","#4E6A3A","#E3DCC8"]};
+const LIQ={green:"#D7E39A",white:"#F0D99B",yellow:"#E8C65A",olight:"#E6BE58",oroast:"#B9662C",red:"#A3401F",gold:"#B85A22",dark:"#7A3518",sheng:"#D99A35",ripe:"#561E10",moon:"#EFCB84",beauty:"#D9892F"};
+function palKey(t){
+  if(t.id==="yueguangbai")return"moon"; if(t.id==="dongfang")return"beauty";
+  if(t.type==="oolong")return (t.f?t.f.roast>=3:["wuyi","wuyihist"].includes(t.group))?"oroast":"olight";
+  if(t.type==="red")return (SHAPE_OF[t.id]||t.shape)==="golden"?"gold":"red";
+  if(t.type==="dark")return ["shupu","laochatou","xiaoqinggan"].includes(t.id)?"ripe":(["shengpu","laobanzhang","bingdao","xiaguan","jingmai","xigui","mansong","nannuoshan","jincha"].includes(t.id)?"sheng":"dark");
+  return t.type;
+}
+function rng(id){let x=0;for(const c of id)x=(x*31+c.charCodeAt(0))>>>0;return()=>{x=(x*1664525+1013904223)>>>0;return x/4294967296}}
+function art(t,pre){
+  const R=rng(t.id), pk=palKey(t), P=PAL[pk], shape=SHAPE_OF[t.id]||t.shape||"needle", gid=pre+"_"+t.id;
+  const pick=a=>a[Math.floor(R()*a.length)], f1=v=>v.toFixed(1);
+  const pressed=["cake","tuo","brick","log","square","citrus"].includes(shape);
+  // heap: points denser in the middle, drawn back to front
+  const heap=(n,rx=34,ry=11,cx=64,cy=62)=>{const a=[];for(let i=0;i<n;i++){a.push([cx+(R()+R()-1)*rx,cy+(R()+R()-1)*ry-(1-Math.abs(R()+R()-1))*4])}return a.sort((p,q)=>p[1]-q[1])};
+  const leaf=(L,W,fill,x,y,r,stroke="rgba(0,0,0,.28)")=>`<path d="M${-L/2},0 Q0,${-W} ${L/2},0 Q0,${W} ${-L/2},0Z" fill="${fill}" stroke="${stroke}" stroke-width=".5" transform="translate(${f1(x)},${f1(y)}) scale(1,.72) rotate(${Math.floor(R()*180)})"/>`;
+  const strand=(path,col,w,x,y)=>`<path d="${path}" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round" transform="translate(${f1(x)},${f1(y)}) scale(1,.75) rotate(${Math.floor(R()*180)})"/>`;
+  let g="";
+  switch(shape){
+    case"flat":for(const[x,y]of heap(42,36,12))g+=leaf(24,4.6,pick(P),x,y);break;
+    case"longflat":for(const[x,y]of heap(9,24,7))g+=leaf(46,7,pick(P),x,y);break;
+    case"needle":for(const[x,y]of heap(64,36,12))g+=leaf(22,2,pick(P),x,y,"rgba(0,0,0,.2)");break;
+    case"spiral":{const Q=P.concat(["#A9B98A","#B7C49A"]);for(const[x,y]of heap(95,36,12))g+=`<path d="M-3.2,0 C-3.2,-3 3.2,-3 3.2,0 C3.2,2.2 0,2.6 -.6,.6" fill="${pick(Q)}" stroke="rgba(0,0,0,.25)" stroke-width=".5" transform="translate(${f1(x)},${f1(y)}) rotate(${Math.floor(R()*360)})"/>`;}break;
+    case"budleaf":for(const[x,y]of heap(38,36,12))g+=leaf(14,3.6,pick(P),x,y)+leaf(9,3.4,pick(P),x+3,y+1);break;
+    case"bud":{const Q=t.type==="white"?["#D8DCCB","#C8CDB6","#E6E7DA","#B9C0A6"]:["#C9BC6A","#D6CA82","#B8AA55","#E0D59A"];for(const[x,y]of heap(46,36,12))g+=leaf(22,4.6,pick(Q),x,y,"rgba(90,90,70,.35)");}break;
+    case"melon":for(const[x,y]of heap(42,36,12))g+=leaf(16,6,pick(P),x,y);break;
+    case"leafy":for(const[x,y]of heap(30,36,12)){const big=R()<.75;g+=leaf(big?22:14,big?8:3.5,big?pick(P):(t.type==="white"?"#E6E5DA":pick(P)),x,y)}break;
+    case"ball":for(const[x,y]of heap(80,36,12)){const r=2.6+R()*1.6,c=pick(P);g+=`<path d="M${-r},0 C${-r},${-r*1.1} ${r},${-r*1.1} ${r},0 C${r},${r*.8} ${r*.2},${r} ${-r*.3},${r*.9} C${-r*.9},${r*.7} ${-r},${r*.4} ${-r},0Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width=".5" transform="translate(${f1(x)},${f1(y)}) rotate(${Math.floor(R()*360)})"/>`}break;
+    case"twisted":for(const[x,y]of heap(48,36,12))g+=strand("M-9,0 C-4,-3.5 4,3.5 9,0",pick(P),3.4,x,y);break;
+    case"wiry":for(const[x,y]of heap(80,36,12))g+=strand("M-7,0 C-3,-2.5 2,2.5 7,-.5",R()<.12?"#B9822E":pick(P),1.9,x,y);break;
+    case"golden":for(const[x,y]of heap(72,36,12))g+=strand("M-7,0 C-3,-2.5 2,2.5 7,-.5",R()<.65?pick(P.slice(0,3)):P[3],2.3,x,y);break;
+    case"loose":for(const[x,y]of heap(48,36,12))g+=strand("M-7,0 C-2,-4 3,3 7,-1",pick(P),3.6,x,y);break;
+    case"jasmine":for(const[x,y]of heap(58,36,12))g+=leaf(18,1.8,pick(PAL.green),x,y,"rgba(0,0,0,.2)");
+      for(const[x,y]of heap(9,26,8))g+=`<g transform="translate(${f1(x)},${f1(y)}) rotate(${Math.floor(R()*180)})"><ellipse cx="-1.6" cy="0" rx="2.4" ry="1.3" fill="#F2EBD3" stroke="rgba(120,100,60,.35)" stroke-width=".4"/><ellipse cx="1.6" cy=".4" rx="2.2" ry="1.2" fill="#EADFBE" stroke="rgba(120,100,60,.35)" stroke-width=".4"/></g>`;break;
+    case"cake":{const cx=64,cy=58;g+=`<ellipse cx="${cx}" cy="${cy+6}" rx="40" ry="15" fill="${P[2]}"/><rect x="${cx-40}" y="${cy}" width="80" height="6" fill="${P[2]}"/><ellipse cx="${cx}" cy="${cy}" rx="40" ry="15" fill="${P[0]}" stroke="rgba(0,0,0,.25)"/>`;
+      for(let i=0;i<70;i++){const a=R()*Math.PI*2,d=Math.sqrt(R());g+=strand("M-3.5,0 Q0,-1.5 3.5,0",pick(P),1.4,cx+Math.cos(a)*d*36,cy+Math.sin(a)*d*13)}g+=`<ellipse cx="${cx}" cy="${cy}" rx="5" ry="2" fill="rgba(0,0,0,.28)"/>`}break;
+    case"tuo":{const cx=64,cy=68;g+=`<path d="M${cx-28},${cy} C${cx-28},${cy-30} ${cx+28},${cy-30} ${cx+28},${cy} C${cx+28},${cy+6} ${cx-28},${cy+6} ${cx-28},${cy}Z" fill="${P[0]}" stroke="rgba(0,0,0,.3)"/>`;
+      for(let i=0;i<45;i++){const x=cx+(R()*2-1)*24,y=cy-2-R()*20*(1-Math.abs(x-cx)/30);g+=strand("M-3,0 Q0,-1.4 3,0",pick(P),1.4,x,y)}g+=`<path d="M${cx-18},${cy-14} C${cx-10},${cy-22} ${cx+6},${cy-23} ${cx+14},${cy-18}" stroke="rgba(255,255,255,.18)" stroke-width="3" fill="none" stroke-linecap="round"/>`}break;
+    case"brick":{const gold=["fuzhuan","jingyang"].includes(t.id),fine=t.id==="mizhuan";
+      g+=`<path d="M26,58 L40,46 L104,46 L90,58Z" fill="${P[0]}" stroke="rgba(0,0,0,.3)"/><path d="M26,58 L90,58 L90,72 L26,72Z" fill="${P[2]}" stroke="rgba(0,0,0,.3)"/><path d="M90,58 L104,46 L104,60 L90,72Z" fill="${P[1]}" stroke="rgba(0,0,0,.3)"/>`;
+      for(let i=0;i<(fine?120:44);i++){const u=R(),v=R(),x=26+u*64+v*14,y=58-v*12;g+=fine?`<circle cx="${f1(x)}" cy="${f1(y)}" r=".6" fill="${pick(P)}"/>`:strand("M-3,0 Q0,-1.3 3,0",pick(P),1.3,x,y)}
+      if(gold)for(let i=0;i<34;i++){const u=R(),v=R();g+=`<circle cx="${f1(26+u*64+v*14)}" cy="${f1(R()<.6?58-v*12:59+R()*12)}" r="${f1(.7+R()*.7)}" fill="#E2B13C"/>`}
+      if(fine)g+=`<path d="M34,56 L44,48 L98,48 L88,56Z" fill="none" stroke="rgba(255,255,255,.25)" stroke-dasharray="2 1.5"/>`}break;
+    case"log":{g+=`<path d="M20,52 L100,44 L102,70 L22,78Z" fill="#A5834B" stroke="rgba(0,0,0,.3)"/>`;for(let i=0;i<10;i++){const x=22+i*8;g+=`<path d="M${x},${52-i*.8} L${x+8},${78-i*.8-0.8} M${x+8},${52-(i+1)*.8} L${x},${78-i*.8}" stroke="#6E532C" stroke-width="1.1"/>`}
+      g+=`<ellipse cx="101" cy="57" rx="6" ry="13" fill="${P[1]}" stroke="rgba(0,0,0,.35)"/><ellipse cx="101" cy="57" rx="3" ry="7" fill="${P[2]}"/>`}break;
+    case"citrus":for(const[cx,cy,r]of[[42,60,13],[70,56,14],[90,64,12]]){g+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#5E7A2E" stroke="rgba(0,0,0,.3)"/><circle cx="${cx-r*.35}" cy="${cy-r*.35}" r="${r*.45}" fill="#7E9A40" opacity=".55"/>`;
+      for(let i=0;i<14;i++){const a=R()*Math.PI*2,d=R()*r*.85;g+=`<circle cx="${f1(cx+Math.cos(a)*d)}" cy="${f1(cy+Math.sin(a)*d)}" r=".6" fill="#3E5520"/>`}
+      g+=`<ellipse cx="${cx}" cy="${cy-r*.62}" rx="${r*.42}" ry="${r*.18}" fill="#4A2E1E" stroke="rgba(0,0,0,.35)" stroke-width=".5"/>`}break;
+    case"square":for(const[ox,oy]of[[34,54],[66,62]]){g+=`<path d="M${ox},${oy} L${ox+10},${oy-8} L${ox+36},${oy-8} L${ox+26},${oy}Z" fill="${P[0]}" stroke="rgba(0,0,0,.3)"/><path d="M${ox},${oy} L${ox+26},${oy} L${ox+26},${oy+8} L${ox},${oy+8}Z" fill="${P[2]}" stroke="rgba(0,0,0,.3)"/><path d="M${ox+26},${oy} L${ox+36},${oy-8} L${ox+36},${oy} L${ox+26},${oy+8}Z" fill="${P[1]}" stroke="rgba(0,0,0,.3)"/>`;
+      for(let i=0;i<14;i++){const u=R(),v=R();g+=strand("M-2.5,0 Q0,-1 2.5,0",pick(P),1.2,ox+u*26+v*10,oy-v*8)}}break;
+  }
+  const liq=t.scented===true?LIQ.green:LIQ[pk];
+  const vessel=pressed
+    ?`<ellipse cx="64" cy="86" rx="56" ry="9" fill="rgba(0,0,0,.10)"/>
+      <path d="M8,82 L24,50 L118,50 L106,82Z" fill="#D2B482" stroke="#A88B5C"/>
+      <path d="M8,82 L106,82 L106,86 L8,86Z" fill="#B8975F"/>
+      ${[0,1,2,3,4,5,6,7,8,9,10].map(i=>`<path d="M${8+i*9.8},82 L${24+i*9.4},50" stroke="rgba(120,90,50,.28)" stroke-width=".8"/>`).join("")}`
+    :`<ellipse cx="64" cy="82" rx="56" ry="9" fill="rgba(0,0,0,.10)"/>
+      <path d="M6,64 C26,36 104,34 124,58 C108,90 30,94 6,64Z" fill="#CFDCCB" stroke="#A9B8A4"/>
+      <path d="M13,63 C32,43 98,42 116,58 C100,82 34,86 13,63Z" fill="#E6EDE1"/>`;
+  return `<svg viewBox="2 30 158 74" role="img" aria-label="${esc(t.en)}: dry leaf and brewed colour">
+   <defs><clipPath id="${gid}c"><path d="M13,63 C32,43 98,42 116,58 C100,82 34,86 13,63Z"/></clipPath>
+   <linearGradient id="${gid}l" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="${liq}" stop-opacity="0"/></linearGradient></defs>
+   ${vessel}
+   ${pressed?g:`<g clip-path="url(#${gid}c)">${g}</g>`}
+   <ellipse cx="136" cy="99" rx="17" ry="4" fill="rgba(0,0,0,.12)"/>
+   <path d="M120,70 C120,86 126,97 136,97 C146,97 152,86 152,70Z" fill="#F7F5EE" stroke="#CDC6B5"/>
+   <rect x="131" y="96" width="10" height="2.5" rx="1" fill="#E9E4D6" stroke="#CDC6B5" stroke-width=".6"/>
+   <ellipse cx="136" cy="70" rx="16" ry="4.6" fill="#F7F5EE" stroke="#CDC6B5"/>
+   <ellipse cx="136" cy="70.6" rx="13.6" ry="3.4" fill="${liq}"/>
+   <ellipse cx="136" cy="70.6" rx="13.6" ry="3.4" fill="url(#${gid}l)"/>
+  </svg>`;
+}
+
+/* ── specimen ── */
+function thermo(t,lo=60,hi=100){
+  const p=v=>((v-lo)/(hi-lo))*100;
+  const single=t.temp[0]===t.temp[1];
+  const left=single?p(t.temp[0])-2:p(t.temp[0]), w=single?4:p(t.temp[1])-p(t.temp[0]);
+  return `<div class="therm"><div class="track"></div><div class="rng" style="left:${left}%;width:${w}%"></div></div>
+    <div class="therm-ax"><span>60°C</span><span>70</span><span>80</span><span>90</span><span>100°C</span></div>`;
+}
+const tempTxt=t=>t.temp[0]===t.temp[1]?`${t.temp[0]}°C`:`${t.temp[0]}–${t.temp[1]}°C`;
+const srcUL=(...ix)=>`<ul class="srcs">${[...new Set(ix)].flatMap(i=>DATA.XS[i].links).map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("")}</ul>`;
+const GROUPNAME={wuyi:"Wuyi rock tea cultivars",wuyihist:"Wuyi's historic named bushes",dancong:"Phoenix Dancong strains",puer:"Pu'er tea mountains",ttes:"Taiwan's bred cultivars"};
+function histHTML(t){ const G=DATA.XG[t.group];
+  let h=`<div><p class="lab">History</p>`;
+  if(t.h) h+=`<p class="hist">${esc(t.h)}</p>${srcUL(t.hs,...(t.hx||[]))}`;
+  if(G) h+=`<p class="hist ghist"><span class="gl">${esc(GROUPNAME[t.group]||"Background")}</span>${esc(G.t)}</p>${srcUL(G.s)}`;
+  if(!t.h) h+=`<p class="gen">No individual record found: the sources checked don't give a history for this tea itself${G?", so only its group's background is shown":""}.</p>`;
+  return h+`</div>`; }
+let specFor=null;
+function renderSpec(){
+  if(specFor===sel) return; specFor=sel;
+  const t=byId[sel], ty=DATA.types[t.type];
+  const el=$("spec"); el.className="spec c-"+t.type;
+  if(t.idx){ const S=DATA.XS[t.s];
+    el.innerHTML=`<div class="spec-art">${art(t,"s")}</div>
+    <div class="spec-top"><div><div class="zh">${t.zh}</div><div class="en">${esc(t.en)}</div><div class="py">${esc(t.py)}</div><a class="rsum" id="rsum" href="#reviews"></a></div>
+      <div class="badge"><b>${ty.zh}</b><span>${ty.en}</span></div></div>
+    <div class="shelfctl" id="shelfctl"></div>
+    ${t.scented?`<div class="scent">Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types.</div>`:""}
+    <div class="meta">${esc(t.place||"")}${t.place?" · ":""}${esc(t.prov)}${t.lv==="county"&&t.place&&!t.place.includes(t.cs)?` · map: ${esc(t.cty)}`:""}${t.lv==="pref"?` · placed at ${esc(t.cty)}`:""}${t.lv==="prov"?" · exact place not given":""}</div>
+    <div><p class="lab">About</p><p class="srcline">${esc(t.line)}</p>
+      <ul class="srcs">${S.links.map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("")}</ul></div>
+    ${histHTML(t)}
+    <p class="idxnote">Listed tea: confirmed by name, place and type in the sources above. Tasting notes and pairings aren't written yet, so brewing below uses the standard for ${esc(ty.en.toLowerCase())} tea.</p>
+    <div><p class="lab">Brew it · ${esc(ty.en.toLowerCase())} tea standard</p>
+      <div class="brew"><div><b>${tempTxt(t)}</b><span>Water</span></div><div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
+        <div><b>${esc(t.time)}</b><span>First steep</span></div><div><b>${esc(t.inf)}</b><span>Infusions</span></div></div>
+      ${thermo(t)}<div class="brewer" id="brewer"></div></div>
+    <div class="reviews" id="reviews"></div>`;
+    initBrew(t); paintShelfCtl(t); paintRsum(t); paintReviews(t); return; }
+  el.innerHTML=`
+  <div class="spec-art">${art(t,"s")}</div>
+  <div class="spec-top"><div><div class="zh">${t.zh}</div><div class="en">${esc(t.en)}</div>
+    <div class="py">${esc(t.py)} · ${esc(t.alt)}</div><a class="rsum" id="rsum" href="#reviews"></a></div>
+    <div class="badge"><b>${ty.zh}</b><span>${ty.en}</span></div></div>
+  <div class="shelfctl" id="shelfctl"></div>
+  ${t.scented?`<div class="scent">${typeof t.scented==="string"?esc(t.scented):"Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types."}</div>`:""}
+  <div class="meta">${esc(t.region)} · ${esc(t.prov)} · Harvest: ${esc(t.harvest)}</div>
+  <div><p class="lab">Flavour profile</p><div class="flav">
+    ${radar([{cls:"shape",f:t.f}],190)}
+    <div><div class="notes">${esc(t.notes)}</div>
+      <div class="bodybar">Light<i style="--w:${t.body/5*100}%"></i>Full body</div></div></div></div>
+  <div><p class="lab">Brew it</p>
+    <div class="brew">
+      <div><b>${tempTxt(t)}</b><span>Water</span></div>
+      <div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
+      <div><b>${esc(t.time)}</b><span>First steep</span></div>
+      <div><b>${esc(t.inf)}</b><span>Infusions</span></div>
+    </div>
+    ${thermo(t)}
+    <div class="brewer" id="brewer"></div></div>
+  <div><p class="lab">Pairs well with</p><div class="pair">${t.pair.map(p=>`<span>${esc(p)}</span>`).join("")}</div></div>
+  <div><p class="lab">History</p><p class="hist">${esc(t.history)}</p>
+    ${t.rh?`<p class="hist ghist"><span class="gl">From the record</span>${esc(t.rh)}</p>${srcUL(...t.rs)}`:""}
+    ${t.gen?`<p class="gen">General entry: no Chinese-language source confirmed this tea's specific history yet, so it is kept to well-established basics.</p>`:""}</div>
+  <div class="reviews" id="reviews"></div>`;
+  initBrew(t); paintShelfCtl(t); paintRsum(t); paintReviews(t);
+}
+
+/* ── brew timer ── */
+const B={id:null,mode:"gongfu",idx:0,plan:[],dur:0,left:0,end:0,run:false,over:false,done:new Set(),tick:null,lock:null};
+const fmt=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+function gongfuPlan(t){
+  const base=parseInt(t.time)||20, inc=base<=15?5:(base<=30?10:15);
+  const n=Math.min(10,Math.max(...String(t.inf).match(/\d+/g).map(Number)));
+  const rinse=t.type==="dark"||(t.type==="oolong"&&!["baozhong","dongfang"].includes(t.id))||t.id==="shoumei";
+  const p=[]; if(rinse) p.push({label:"Rinse",sec:5,rinse:true});
+  for(let i=0;i<n;i++) p.push({label:String(i+1),sec:base+i*inc});
+  return p;
+}
+function westernPlan(t){
+  const m=t.western.match(/(\d+(?:\.\d+)?)(?:–(\d+(?:\.\d+)?))?\s*min/);
+  const a=m?+m[1]:3, b=m&&m[2]?+m[2]:a, sec=Math.round(((a+b)/2)*60/15)*15;
+  return [{label:"Mug",sec}];
+}
+function coolHint(t){
+  const lo=t.temp[0];
+  if(lo>=98) return "Pour straight off the boil.";
+  const mins=lo>=95?1:lo>=90?2:lo>=85?3:lo>=80?5:7;
+  return `Boil, then leave the kettle open about ${mins} min (rough guide for 1 litre).`;
+}
+function initBrew(t){
+  stopTick(); B.id=t.id; B.mode="gongfu"; B.done=new Set(); setPlan(t); drawBrew();
+}
+function setPlan(t){
+  B.plan=B.mode==="gongfu"?gongfuPlan(t):westernPlan(t);
+  B.idx=0; loadStep();
+}
+function loadStep(){B.dur=B.plan[B.idx].sec;B.left=B.dur;B.run=false;B.over=false;}
+function drawBrew(){
+  const t=byId[B.id], el=$("brewer"); if(!el) return;
+  const gw=B.mode==="gongfu";
+  el.innerHTML=`<div class="seg" role="group" aria-label="Brewing style">
+      <button data-m="gongfu" aria-pressed="${gw}">Gongfu · gaiwan</button><button data-m="western" aria-pressed="${!gw}">Western · mug</button></div>
+    <div class="water">Water <b>${tempTxt(t)}</b>. ${coolHint(t)}${gw?"":` <span class="hint">${esc(t.western)}</span>`}</div>
+    ${gw?`<div><div class="hint" style="margin-bottom:6px">Steeps (seconds). Tap one to jump to it.</div><div class="steeps" id="steeps"></div></div>`:""}
+    <div class="clock">
+      <div class="ring" id="ring"><svg viewBox="0 0 132 132"><circle class="bg" cx="66" cy="66" r="58"/><circle class="fg" id="arc" cx="66" cy="66" r="58" stroke-dasharray="${2*Math.PI*58}" stroke-dashoffset="0"/></svg>
+        <div class="read"><div><div class="t" id="tleft">0:00</div><div class="s" id="tstate">Ready</div></div></div></div>
+      <div class="ctrls">
+        <div class="row"><button class="btn" id="go">Start steep</button><button class="small" id="rst">Reset</button></div>
+        <div class="row"><button class="small" id="m5" aria-label="5 seconds shorter">−5 s</button><button class="small" id="p5" aria-label="5 seconds longer">+5 s</button>${gw?`<button class="small" id="nx">Next steep →</button>`:""}</div>
+        <div class="hint" id="tnote" aria-live="polite"></div>
+      </div></div>`;
+  el.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{stopTick();B.mode=b.dataset.m;B.done=new Set();setPlan(t);drawBrew();}));
+  $("go").addEventListener("click",toggleRun);
+  $("rst").addEventListener("click",()=>{stopTick();loadStep();paintBrew();});
+  $("m5").addEventListener("click",()=>adjust(-5));
+  $("p5").addEventListener("click",()=>adjust(5));
+  const nx=$("nx"); if(nx) nx.addEventListener("click",()=>jump(Math.min(B.plan.length-1,B.idx+1)));
+  paintBrew();
+}
+function paintSteeps(){
+  const st=$("steeps"); if(!st) return;
+  st.innerHTML=B.plan.map((p,i)=>`<button data-i="${i}" class="${p.rinse?"rinse ":""}${i===B.idx?"cur ":""}${B.done.has(i)?"done":""}" aria-label="${p.rinse?"Rinse":"Steep "+p.label}, ${p.sec} seconds">${p.rinse?"Rinse":p.label} · ${p.sec}s</button>`).join("");
+  st.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>jump(+b.dataset.i)));
+}
+function paintBrew(){
+  if(!$("tleft")) return;
+  const C=2*Math.PI*58, frac=B.dur?Math.max(0,B.left)/B.dur:0;
+  $("arc").setAttribute("stroke-dashoffset",String(C*(1-frac)));
+  $("ring").classList.toggle("over",B.over);
+  $("tleft").textContent=B.over?"Pour":fmt(B.left);
+  const step=B.plan[B.idx];
+  $("tstate").textContent=B.over?"now":B.run?(step.rinse?"Rinsing":"Steeping"):(B.left<B.dur?"Paused":(step.rinse?"Rinse":B.mode==="gongfu"?"Steep "+step.label:"Ready"));
+  $("go").textContent=B.over?(B.idx<B.plan.length-1?"Start next steep":"Start again"):B.run?"Pause":(B.left<B.dur?"Resume":(step.rinse?"Start rinse":"Start steep"));
+  $("tnote").textContent=B.over?(step.rinse?"Pour off the rinse water and discard it.":"Pour every drop out so the leaf doesn't keep stewing."):
+    (B.mode!=="gongfu"?"One long steep, then take the leaves out.":
+     step.rinse?"A quick rinse wakes up rolled or aged leaf. Discard it.":
+     `Steep ${B.plan.filter(p=>!p.rinse).indexOf(step)+1} of ${B.plan.filter(p=>!p.rinse).length}`);
+  paintSteeps();
+}
+function adjust(d){
+  B.dur=Math.max(5,B.dur+d); B.left=Math.max(0,B.left+d);
+  if(B.run) B.end=Date.now()+B.left*1000;
+  if(B.left>0) B.over=false;
+  B.plan[B.idx].sec=Math.max(5,B.plan[B.idx].sec+d); paintBrew();
+}
+function jump(i){stopTick();B.idx=i;loadStep();paintBrew();}
+function toggleRun(){
+  if(B.over){ if(B.idx<B.plan.length-1){B.idx++;} else {B.idx=0;B.done=new Set();} loadStep(); }
+  if(B.run){stopTick();B.left=Math.max(0,(B.end-Date.now())/1000);B.run=false;paintBrew();return;}
+  primeAudio(); B.run=true; B.end=Date.now()+B.left*1000; wake(true);
+  B.tick=setInterval(()=>{B.left=(B.end-Date.now())/1000; if(B.left<=0){finish();} paintBrew();},200);
+  paintBrew();
+}
+function finish(){stopTick();B.left=0;B.over=true;B.done.add(B.idx);chime();try{navigator.vibrate&&navigator.vibrate([180,80,180])}catch(e){}}
+function stopTick(){if(B.tick)clearInterval(B.tick);B.tick=null;B.run=false;wake(false);}
+let AC=null;
+function primeAudio(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();}catch(e){AC=null}}
+function chime(){
+  if(!AC) return;
+  try{[659.25,880].forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain(),t0=AC.currentTime+i*0.22;
+    o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0.0001,t0);g.gain.exponentialRampToValueAtTime(0.25,t0+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+1.1);
+    o.connect(g).connect(AC.destination);o.start(t0);o.stop(t0+1.2);});}catch(e){}
+}
+async function wake(on){
+  try{ if(on&&!B.lock&&navigator.wakeLock){B.lock=await navigator.wakeLock.request("screen");}
+       else if(!on&&B.lock){await B.lock.release();B.lock=null;} }catch(e){B.lock=null}
+}
+
+/* ── six colours ── */
+function wr(k){const ts=T.filter(t=>t.type===k),lo=Math.min(...ts.map(t=>t.temp[0])),hi=Math.max(...ts.map(t=>t.temp[1]));return lo===hi?lo+"°C":lo+"–"+hi+"°C"}
+const WHEEL=["green","white","yellow","oolong","red","dark"];
+const PROC={
+ green:{flow:["Pick","Spread to cool","Kill-green 杀青","Shape and roll","Dry"],key:2,taste:"Fresh, grassy, nutty or vegetal; light body.",try:["longjing","biluochun","maofeng"]},
+ white:{flow:["Pick","Wither 萎凋","Dry"],key:1,taste:"Hay, honey, melon and flowers; turns date-like with age.",try:["yinzhen","mudan","shoumei"]},
+ yellow:{flow:["Pick","Kill-green","Shape","Sealed yellowing 闷黄","Dry"],key:3,taste:"Mellow, sweet corn and chestnut; gentler than green.",try:["junshan","mengding","huoshan"]},
+ oolong:{flow:["Pick","Wither","Bruise and rest 做青","Kill-green","Roll","Dry or roast"],key:2,taste:"The widest range: floral and creamy when light, fruity and roasted when dark.",try:["tieguanyin","dahongpao","dongding"]},
+ red:{flow:["Pick","Wither","Roll","Oxidise fully 发酵","Dry"],key:3,taste:"Malt, honey, cocoa, dried fruit; full body.",try:["keemun","dianhong","lapsang"]},
+ dark:{flow:["Pick","Kill-green","Roll","Pile-ferment 渥堆","Dry","Press and age"],key:3,taste:"Earthy, woody, smooth; changes for years as it ages.",try:["shupu","liubao","fuzhuan"]}
+};
+let wsel="green";
+function wr(k){const ts=T.filter(t=>t.type===k),lo=Math.min(...ts.map(t=>t.temp[0])),hi=Math.max(...ts.map(t=>t.temp[1]));return lo===hi?lo+"°C":lo+"–"+hi+"°C"}
+function buildColours(){
+  const C=200,R=186,r=96,n=WHEEL.length,gap=1.2*Math.PI/180;
+  const P=(a,rad)=>[C+Math.cos(a)*rad,C+Math.sin(a)*rad].map(v=>v.toFixed(2));
+  let svg=`<svg class="wheel" id="wheelSvg" viewBox="-14 -14 428 428" role="group" aria-label="The six colours of tea">`;
+  WHEEL.forEach((k,i)=>{
+    const a0=-Math.PI/2-Math.PI/n+i*2*Math.PI/n+gap, a1=a0+2*Math.PI/n-2*gap, mid=(a0+a1)/2, ty=DATA.types[k];
+    const [x0,y0]=P(a0,R),[x1,y1]=P(a1,R),[x2,y2]=P(a1,r),[x3,y3]=P(a0,r);
+    const d=`M${x0},${y0}A${R},${R} 0 0 1 ${x1},${y1}L${x2},${y2}A${r},${r} 0 0 0 ${x3},${y3}Z`;
+    const [lx,ly]=P(mid,(R+r)/2);
+    const dx=(Math.cos(mid)*10).toFixed(1), dy=(Math.sin(mid)*10).toFixed(1);
+    svg+=`<g class="wseg c-${k}" data-k="${k}" data-dx="${dx}" data-dy="${dy}" tabindex="0" role="button" aria-label="${ty.en} tea, ${ty.zh}">
+      <path d="${d}"/><text class="wz" x="${lx}" y="${+ly+6}" text-anchor="middle">${ty.zh[0]}</text>
+      <text class="we" x="${lx}" y="${+ly+26}" text-anchor="middle">${ty.en.replace(" (Black)","")}</text></g>`;
+  });
+  svg+=`<g class="hub"><circle cx="${C}" cy="${C}" r="${r-10}"/>
+    <text class="hz" x="${C}" y="${C+8}" text-anchor="middle">茶</text>
+    <text class="hl" x="${C}" y="${C+34}" text-anchor="middle">Camellia sinensis</text>
+    <text class="hs" x="${C}" y="${C-50}" text-anchor="middle">One plant</text></g></svg>`;
+  $("wheel").innerHTML=svg;
+  $("wheel").querySelectorAll(".wseg").forEach(g=>{
+    g.addEventListener("click",()=>pickType(g.dataset.k));
+    g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pickType(g.dataset.k)}});
+  });
+  pickType(wsel);
+}
+function pickType(k){
+  wsel=k; const ty=DATA.types[k], pr=PROC[k], n=ALL.filter(t=>t.type===k).length;
+  const svg=$("wheelSvg"); svg.classList.add("picked");
+  svg.querySelectorAll(".wseg").forEach(g=>{const on=g.dataset.k===k;g.classList.toggle("on",on);
+    g.style.transform=on?`translate(${g.dataset.dx}px,${g.dataset.dy}px)`:"";g.setAttribute("aria-pressed",on)});
+  const micro=k==="dark", ox0=micro?0:ty.ox[0], ox1=micro?100:ty.ox[1];
+  const el=$("tpanel"); el.className="tpanel c-"+k;
+  el.innerHTML=`<div class="hd"><span class="big">${ty.zh}</span><div><h3>${esc(ty.en)} tea</h3><div class="py2">${ty.py} · ${n} teas in the atlas</div></div></div>
+    <p>${esc(ty.step)}.</p>
+    <div><p class="lab">How it's made</p><ol class="flow">${pr.flow.map((s,i)=>`<li class="${i===pr.key?"key":""}"><span>${esc(s)}</span></li>`).join("")}</ol></div>
+    <div><p class="lab">Oxidation</p><div class="oxbar"><i class="${micro?"micro":""}" style="left:${ox0}%;width:${Math.max(3,ox1-ox0)}%"></i></div>
+      <div class="oxax"><span>0%</span><span>50%</span><span>100%</span></div>
+      ${micro?`<div class="hint" style="margin-top:6px">Dark tea is defined by microbes and age, not by oxidation, so it varies.</div>`:""}</div>
+    <div class="facts"><div><span class="lab" style="margin:0">Tastes like</span>${esc(pr.taste)}</div><div><span class="lab" style="margin:0">Water</span><span style="font-family:var(--f-mono)">${wr(k)}</span></div></div>
+    <div><p class="lab">Start with</p><div class="tries">${pr.try.map(id=>`<button data-id="${id}">${esc(byId[id].en)}<span class="han">${byId[id].zh}</span></button>`).join("")}</div></div>
+    <div><button class="btn" id="seeAll">See all ${n} ${esc(ty.en.replace(" (Black)",""))} teas on the map</button></div>`;
+  el.querySelectorAll(".tries button").forEach(b=>b.addEventListener("click",()=>{setFilter("all");select(b.dataset.id);go("atlas")}));
+  $("seeAll").addEventListener("click",()=>{prov=null;setFilter(k);go("atlas")});
+}
+
+/* ── personality test ── */
+// option: [label, flavour weights, body 1–5]
+const Q=[
+ {q:"Pick a morning.",o:[["A rain-washed vegetable garden",{vegetal:3},2],["An orchard at harvest",{fruity:3,sweet:1},3],["A bakery just opening",{roast:3,sweet:2},4],["A misty pine forest",{earthy:3},4],["A lane lined with jasmine",{floral:3},2]]},
+ {q:"What do you reach for at 3 pm?",o:[["Cucumber and lime soda",{vegetal:2,fruity:1},1],["Honey on toast",{sweet:3,floral:1},3],["Salted caramel",{roast:2,sweet:2},4],["85% dark chocolate",{earthy:2,roast:2},5],["A ripe peach",{fruity:3,sweet:1},2]]},
+ {q:"Choose a scent for your room.",o:[["Orchid and magnolia",{floral:3},2],["Fresh-cut grass",{vegetal:3},2],["Campfire and cedar",{roast:3,earthy:1},4],["Old books and leather",{earthy:3},4],["Ripe apricots",{fruity:3},3]]},
+ {q:"How do you take your coffee?",o:[["I don't, water or tea please",{},1],["Flat white",{sweet:1},3],["Long black",{roast:2},4],["Affogato, it's dessert",{sweet:2,roast:1},3],["Ristretto, short and strong",{roast:1,earthy:1},5]]},
+ {q:"Your favourite season?",o:[["Spring",{vegetal:2,floral:1},1],["Summer",{fruity:2,floral:1},2],["Autumn",{roast:2,fruity:1},3],["Winter",{earthy:2,roast:1},5]]},
+ {q:"Pick a texture.",o:[["Silky and barely there",{floral:1,vegetal:1},1],["Creamy",{sweet:2,floral:1},3],["Syrupy",{sweet:2,fruity:1},4],["Thick and chewy",{earthy:2},5],["Crisp and brisk",{vegetal:2},2]]},
+ {q:"Where would you rather be?",o:[["A bamboo grove by a stream",{vegetal:2,floral:1},2],["A cliffside monastery",{roast:2,earthy:1},4],["A tropical orchard",{fruity:2,sweet:1},3],["A high mountain at dawn",{floral:2,sweet:1},3],["An old wooden teahouse",{earthy:2,roast:1},5]]},
+ {q:"Pick a dessert.",o:[["Matcha mochi",{vegetal:2,sweet:1},2],["Honey cake",{sweet:2,fruity:1},3],["Crème brûlée",{roast:2,sweet:2},4],["Poached pear",{fruity:2,floral:1},2],["Black sesame soup",{earthy:2,roast:1},4]]},
+ {q:"Open the spice rack.",o:[["Vanilla",{sweet:2,floral:1},3],["Cinnamon",{roast:1,fruity:1,sweet:1},4],["Smoked paprika",{roast:3},4],["Lemongrass",{vegetal:1,floral:2},2],["Star anise",{earthy:2,sweet:1},4]]},
+ {q:"What's playing?",o:[["Acoustic folk",{vegetal:2},2],["Late-night jazz",{roast:2,fruity:1},4],["A string quartet",{floral:2},2],["Lo-fi beats",{sweet:2},3],["A solo cello",{earthy:2},5]]},
+ {q:"How adventurous are you with taste?",o:[["Classic, I know what I like",{sweet:1},3],["Bright and new, please",{floral:1,fruity:1},2],["Aged and rare",{earthy:2},5],["Smoky and bold",{roast:2},5],["Delicate and subtle",{vegetal:1,floral:1},1]]},
+ {q:"A friend would describe you as…",o:[["Fresh and direct",{vegetal:2},2],["Gentle and sweet",{sweet:2,floral:1},2],["Complex and surprising",{floral:1,fruity:1,roast:1},3],["Warm and generous",{sweet:1,roast:1,fruity:1},4],["Deep and steady",{earthy:2},5]]}
+];
+// personas: tea styles, with a rule for which full-profile teas belong and which listed teas to explore
+const PERSONAS=[
+ {k:"spring",zh:"春",name:"The Spring Poet",style:"Fresh bud green teas",blurb:"Bright, quick and a little lyrical. You notice the first green shoots and want things at their freshest.",in:t=>t.type==="green"&&t.f.vegetal>=3.5&&t.f.roast<2,more:x=>x.type==="green"},
+ {k:"scholar",zh:"儒",name:"The Garden Scholar",style:"Toasty, nutty greens",blurb:"Steady and thoughtful, with a warm streak. Chestnut, toasted grain and a clear finish suit you.",in:t=>t.type==="green"&&t.f.roast>=2,more:x=>x.type==="green"},
+ {k:"moon",zh:"月",name:"The Quiet Observer",style:"White teas, fresh or aged",blurb:"Patient and understated. You notice small things and you get better with time, like aged white tea.",in:t=>t.type==="white",more:x=>x.type==="white"||x.prov==="Fujian"&&x.type!=="oolong"},
+ {k:"gem",zh:"珍",name:"The Hidden Gem",style:"Rare yellow teas",blurb:"Gentle, rare and easy to underestimate. You smooth rough edges and reward people who look closely.",in:t=>t.type==="yellow",more:x=>x.type==="yellow"||x.type==="green"&&/芽|毛尖/.test(x.zh)},
+ {k:"orchid",zh:"兰",name:"The Orchid Dreamer",style:"Light, floral rolled oolongs",blurb:"Graceful and calm, with a soft sweetness. Mountain mist and orchids are your natural habitat.",in:t=>t.type==="oolong"&&t.f.floral>=4&&t.f.roast<2,more:x=>x.type==="oolong"&&(x.prov==="Taiwan"||/安溪|闽南/.test(x.place||"")||x.group==="ttes")},
+ {k:"perfumer",zh:"香",name:"The Perfumer",style:"Phoenix Dancong and aromatic oolongs",blurb:"Intense, expressive and memorable. You change the air in a room and people remember the scent.",in:t=>t.type==="oolong"&&t.prov==="Guangdong",more:x=>x.group==="dancong"},
+ {k:"rock",zh:"岩",name:"The Rock Climber",style:"Roasted oolongs, from Wuyi rock tea to Dong Ding",blurb:"Bold and grounded, with hidden depth. Charcoal roast and mineral 'rock rhyme' are your kind of conversation.",in:t=>t.type==="oolong"&&t.f.roast>=3.5,more:x=>x.group==="wuyi"||x.group==="wuyihist"},
+ {k:"honey",zh:"蜜",name:"The Honey Hunter",style:"Honey-scented, bug-bitten teas",blurb:"Warm, sunny and a little indulgent. You find sweetness where others don't look.",in:t=>t.f.sweet>=4.5&&t.f.fruity>=3.5,more:x=>x.prov==="Taiwan"},
+ {k:"host",zh:"暖",name:"The Warm Host",style:"Malty gongfu black teas",blurb:"Generous and comforting. You're the kettle that's always on, good with food and good with friends.",in:t=>t.type==="red"&&t.f.roast<4,more:x=>x.type==="red"},
+ {k:"campfire",zh:"烟",name:"The Campfire Storyteller",style:"Smoky and fire-dried teas",blurb:"Bold, nostalgic and full of stories. Pine smoke and long evenings are your thing.",in:t=>["lapsang","tianjian","qianliang","heizhuan","zangcha","huazhuan","anqcha"].includes(t.id)||(t.type==="red"&&t.f.roast>=4.5),more:x=>x.type==="dark"&&x.group!=="puer"||x.type==="red"},
+ {k:"wanderer",zh:"山",name:"The Mountain Wanderer",style:"Old-tree raw Pu'er",blurb:"Restless and curious, drawn to wild places. You like a tea with grip that changes in every cup.",in:t=>t.type==="dark"&&["shengpu","laobanzhang","bingdao","xigui","mansong","jingmai","nannuoshan","jincha","xiaguan"].includes(t.id),more:x=>x.group==="puer"},
+ {k:"oldsoul",zh:"陈",name:"The Old Soul",style:"Aged and fermented dark teas",blurb:"Grounded, deep and steady. You take the long view, and you only improve with the years.",in:t=>t.type==="dark",more:x=>x.type==="dark"}
+];
+const FIRST=["honey","campfire","wanderer","perfumer","rock"];
+const PBY=k=>PERSONAS.find(p=>p.k===k);
+function personaOf(t){return FIRST.map(PBY).find(p=>p.in(t))||PERSONAS.find(p=>p.in(t))||
+  PBY({green:"spring",white:"moon",yellow:"gem",red:"host",dark:"oldsoul",oolong:(t.f.roast>=2.5?"rock":"orchid")}[t.type])}
+let qi=0, ans=[];
+function quizStep(){
+  if(qi>=Q.length) return quizResult();
+  const it=Q[qi];
+  $("quiz").className="quiz";
+  $("quiz").innerHTML=`<div class="qprog">${Q.map((_,i)=>`<i class="${i<=qi?"on":""}"></i>`).join("")}</div>
+    <div class="qq">${esc(it.q)}</div>
+    <div class="opts">${it.o.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o[0])}</button>`).join("")}</div>
+    <div class="qnav"><span>Question ${qi+1} of ${Q.length}</span>${qi>0?`<button class="linkbtn" id="qback">Back</button>`:""}</div>`;
+  $("quiz").querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{ans[qi]=+b.dataset.i;qi++;quizStep()}));
+  const bk=$("qback"); if(bk) bk.addEventListener("click",()=>{qi--;quizStep()});
+}
+function profile(){
+  const f=Object.fromEntries(AX.map(([k])=>[k,0])); let body=0;
+  ans.forEach((a,i)=>{const o=Q[i].o[a]; for(const k in o[1]) f[k]+=o[1][k]; body+=o[2];});
+  const mx=Math.max(...Object.values(f))||1;
+  for(const k in f) f[k]=+(f[k]/mx*5).toFixed(2);
+  return {f,body:body/ans.length};
+}
+function scoreAll(u){
+  return T.map(t=>{let d=0; for(const [k] of AX) d+=(u.f[k]-t.f[k])**2; d+=1.5*(u.body-t.body)**2;
+    return {t,pct:Math.round(100*Math.exp(-d/45))}}).sort((a,b)=>b.pct-a.pct);
+}
+function pickPersona(r){ // weighted vote of the 7 closest teas
+  const v={}; r.slice(0,7).forEach((x,i)=>{const p=personaOf(x.t);v[p.k]=(v[p.k]||0)+(7-i)*x.pct});
+  const k=Object.entries(v).sort((a,b)=>b[1]-a[1])[0][0]; return PERSONAS.find(p=>p.k===k);
+}
+function quizResult(){
+  const u=profile(), r=scoreAll(u), per=pickPersona(r);
+  const mine=r.filter(x=>personaOf(x.t)===per); const top=(mine[0]||r[0]).t, ty=DATA.types[top.type];
+  const others=r.filter(x=>x.t!==top).slice(0,3);
+  const pool=XT.filter(per.more); const R=rng(ans.join("")); const explore=[];
+  while(explore.length<Math.min(6,pool.length)){const c=pool[Math.floor(R()*pool.length)]; if(!explore.includes(c)) explore.push(c)}
+  $("quiz").className="quiz c-"+top.type;
+  $("quiz").innerHTML=`<div class="result"><div>
+      <div class="kicker">Your tea style · ${esc(per.style)}</div>
+      <div class="persona"><span class="pzh">${per.zh}</span>${esc(per.name)}</div>
+      <p>${esc(per.blurb)}</p>
+      <div class="match"><span class="zh">${top.zh}</span><strong style="font-size:18px">${esc(top.en)}</strong><span class="pct">${(mine[0]||r[0]).pct}% match</span></div>
+      <p style="font-size:14px;color:var(--ink-2)">${esc(top.notes)}. Brew it at ${tempTxt(top)}.</p>
+      <div class="runners">Also close: ${others.map(x=>`<button data-id="${x.t.id}">${esc(x.t.en)}</button> (${x.pct}%)`).join(", ")}</div>
+      <div class="actions"><button class="btn" id="qmap">Open ${esc(top.en)}</button><button class="btn ghost" id="qagain">Take it again</button></div>
+    </div>
+    <div>${radar([{cls:"shape",f:top.f},{cls:"you",f:u.f}],260)}
+      <div class="rlegend"><span><i style="background:var(--tc)"></i>${esc(top.en)}</span><span><i style="background:var(--seal)"></i>Your answers</span></div></div></div>
+    ${explore.length?`<div class="explore"><p class="lab">Explore further · listed teas in your style</p><div class="cards">${explore.map(cardHTML).join("")}</div></div>`:""}`;
+  const openTea=id=>{prov=null;setFilter("all");select(id);go("atlas")};
+  $("qmap").addEventListener("click",()=>openTea(top.id));
+  $("qagain").addEventListener("click",()=>{qi=0;ans=[];quizStep()});
+  $("quiz").querySelectorAll(".runners button,.explore .tcard").forEach(b=>b.addEventListener("click",()=>openTea(b.dataset.id)));
+}
+
+/* ── my shelf (saved in this browser) ── */
+const SKEY="chaatlas.shelf.v1";
+const ST={have:{en:"On my shelf",zh:"藏",mark:"Mine"},wish:{en:"Want to try",zh:"愿",mark:"Wish"},tried:{en:"Tried before",zh:"品",mark:"Tried"}};
+let SHELF={}, storeOK=true;
+try{const raw=localStorage.getItem(SKEY); if(raw){const o=JSON.parse(raw); if(o&&typeof o==="object") SHELF=o.items||{};}}catch(e){storeOK=false}
+{const MIG=Object.fromEntries(DATA.X.filter(x=>x.o).map(x=>[x.o,x.i])); window.__MIG=MIG; let moved=0;
+ for(const k of Object.keys(SHELF)) if(!byId[k]&&MIG[k]&&!SHELF[MIG[k]]){SHELF[MIG[k]]=SHELF[k];delete SHELF[k];moved++}
+ if(moved) try{localStorage.setItem(SKEY,JSON.stringify({v:1,items:SHELF}))}catch(e){}}
+for(const k of Object.keys(SHELF)) if(!byId[k]) delete SHELF[k];
+function saveShelf(){try{localStorage.setItem(SKEY,JSON.stringify({v:1,items:SHELF}));storeOK=true}catch(e){storeOK=false} paintNav();}
+function paintNav(){const n=Object.keys(SHELF).length;$("navcount").textContent=n?n:"";}
+let toastT; function toast(msg){let el=$("toast"); if(!el){el=document.createElement("div");el.id="toast";el.className="toast";el.setAttribute("role","status");document.body.appendChild(el)}
+  el.textContent=msg; el.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("on"),2200);}
+function jarIcon(){return `<svg viewBox="0 0 16 20" aria-hidden="true"><rect x="5" y="1" width="6" height="3" rx="1" fill="currentColor"/><path d="M3 5h10c1 0 2 1 2 2v9c0 2-2 3-3 3H4c-1 0-3-1-3-3V7c0-1 1-2 2-2z" fill="currentColor" opacity=".85"/></svg>`}
+function paintShelfCtl(t){
+  const el=$("shelfctl"); if(!el) return; const e=SHELF[t.id];
+  if(!e){ el.innerHTML=`<div class="row"><button class="jarbtn" id="addJar">${jarIcon()} Add to my shelf</button>
+      <button class="small" id="addWish">Want to try</button><button class="small" id="addTried">Tried before</button></div>`;
+    const add=st=>{SHELF[t.id]={st,g:st==="have"?50:null,y:null,r:0,n:"",at:Date.now()};saveShelf();toast(`${t.en} · ${ST[st].en}`);paintShelfCtl(t);buildIndex();if(tier==="mine")render();};
+    $("addJar").onclick=()=>add("have"); $("addWish").onclick=()=>add("wish"); $("addTried").onclick=()=>add("tried"); return; }
+  el.innerHTML=`<div class="row"><span class="lab" style="margin:0">On your shelf</span>
+      <select id="shSt" aria-label="Status">${Object.entries(ST).map(([k,v])=>`<option value="${k}" ${e.st===k?"selected":""}>${v.en}</option>`).join("")}</select></div>
+    <div class="row"><label for="shG">Grams left<input id="shG" type="number" min="0" step="5" value="${e.g??""}" placeholder="—"></label>
+      <label for="shY">Year / vintage<input id="shY" type="number" min="1950" max="2100" value="${e.y??""}" placeholder="—"></label>
+      <button class="linkbtn" id="shRm" style="margin-left:auto">Remove</button></div>
+    <label for="shN">Tasting note<textarea id="shN" maxlength="500" placeholder="Where you bought it, how it tasted…">${esc(e.n||"")}</textarea></label>`;
+  const upd=()=>{saveShelf();buildIndex();};
+  $("shSt").onchange=ev=>{e.st=ev.target.value;upd();toast(ST[e.st].en)};
+  $("shG").onchange=ev=>{const v=ev.target.value;e.g=v===""?null:Math.max(0,+v);saveShelf()};
+  $("shY").onchange=ev=>{const v=ev.target.value;e.y=v===""?null:+v;saveShelf()};
+  let nt; $("shN").oninput=ev=>{clearTimeout(nt);nt=setTimeout(()=>{e.n=ev.target.value;saveShelf()},400)};
+  $("shRm").onclick=()=>{ const b=$("shRm"); if(b.dataset.c){delete SHELF[t.id];saveShelf();toast("Removed from your shelf");paintShelfCtl(t);buildIndex();if(tier==="mine")render();}
+    else{b.dataset.c="1";b.textContent="Tap again to remove";setTimeout(()=>{if(b.isConnected){delete b.dataset.c;b.textContent="Remove"}},3000)} };
+}
+const GLAZE={green:["#8FAF7A","#6E9158"],white:["#E8E4D6","#C9C3AE"],yellow:["#D9C27A","#B79C4E"],oolong:["#5E9C8F","#3F7A6E"],red:["#B5654A","#8E4733"],dark:["#6E5442","#4E3A2D"]};
+function jarSVG(t,e){
+  const [g1,g2]=GLAZE[t.type], R=rng(t.id), shape=Math.floor(R()*3), gid="j"+t.id;
+  const chars=[...t.zh.replace(/[（(].*?[)）]/g,"")].slice(0,5), fs=chars.length>4?9.5:11;
+  const body=[ "M14,34 C6,40 6,60 8,86 C9,94 15,98 22,98 L58,98 C65,98 71,94 72,86 C74,60 74,40 66,34 Z",
+               "M18,32 C8,36 4,52 6,70 C8,90 18,98 40,98 C62,98 72,90 74,70 C76,52 72,36 62,32 Z",
+               "M12,34 L68,34 C72,34 74,37 74,41 L74,92 C74,96 71,98 67,98 L13,98 C9,98 6,96 6,92 L6,41 C6,37 8,34 12,34 Z"][shape];
+  const wish=e&&e.st==="wish";
+  return `<svg viewBox="0 0 80 104" role="img" aria-label="${esc(t.en)} jar">
+    <defs><linearGradient id="${gid}" x1="0" x2="1"><stop offset="0" stop-color="${g2}"/><stop offset=".35" stop-color="${g1}"/><stop offset=".7" stop-color="${g1}"/><stop offset="1" stop-color="${g2}"/></linearGradient></defs>
+    <rect x="26" y="18" width="28" height="9" rx="3" fill="${g2}"/><ellipse cx="40" cy="18" rx="14" ry="4" fill="${g1}"/><rect x="36" y="11" width="8" height="6" rx="2" fill="${g2}"/>
+    <rect x="22" y="27" width="36" height="8" rx="2" fill="${g1}"/>
+    <path d="${body}" fill="${wish?"none":`url(#${gid})`}" stroke="${g2}" stroke-width="${wish?2:1}" ${wish?'stroke-dasharray="4 3"':""}/>
+    ${wish?"":`<path d="${body}" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1"/>`}
+    <rect x="28" y="${44}" width="24" height="${chars.length*fs+10}" rx="1.5" fill="#F6F0DF" stroke="#C9B88E" stroke-width=".8"/>
+    ${chars.map((c,i)=>`<text x="40" y="${44+8+fs*(i+.8)}" text-anchor="middle" font-size="${fs}" fill="#2A211A" font-family="Ma Shan Zheng, KaiTi, serif">${esc(c)}</text>`).join("")}
+    ${e&&e.st==="tried"?`<circle cx="66" cy="40" r="8" fill="#F6F0DF" stroke="#8E4733"/><path d="M62,40 l3,3 l5,-6" stroke="#8E4733" stroke-width="1.8" fill="none"/>`:""}
+  </svg>`;
+}
+let shelfSort="status";
+function shelfItems(){return Object.entries(SHELF).map(([id,e])=>({t:byId[id],e})).filter(x=>x.t);}
+function paintShelf(){
+  const items=shelfItems(), have=items.filter(x=>x.e.st==="have");
+  const grams=have.reduce((a,x)=>a+(+x.e.g||0),0), provs=new Set(items.filter(x=>x.e.st!=="wish").map(x=>x.t.prov)), cols=new Set(items.filter(x=>x.e.st!=="wish").map(x=>x.t.type));
+  $("shelfstats").innerHTML=`<div><b>${have.length}</b><span>jars on the shelf</span></div><div><b>${grams.toLocaleString("en")} g</b><span>tea in stock</span></div>
+    <div><b>${provs.size}<small style="font-size:14px;color:var(--ink-2)"> / ${Object.keys(PM).length}</small></b><span>provinces tasted</span></div>
+    <div><b>${cols.size}<small style="font-size:14px;color:var(--ink-2)"> / 6</small></b><span>colours tasted</span><div class="sixdots">${TYPE_ORDER.map(k=>`<i class="c-${k} ${cols.has(k)?"on":""}" title="${DATA.types[k].en}"></i>`).join("")}</div></div>`;
+  $("shelfNote").textContent=storeOK?"":"This browser isn't saving right now (private window or blocked storage). Export your shelf to keep it.";
+  if(!items.length){ $("shelves").innerHTML=`<div class="shelfempty"><svg viewBox="0 0 80 104" width="60" aria-hidden="true"><path d="M14,34 C6,40 6,60 8,86 C9,94 15,98 22,98 L58,98 C65,98 71,94 72,86 C74,60 74,40 66,34 Z" fill="none" stroke="currentColor" stroke-dasharray="4 3"/></svg>
+      <b>Your shelf is empty</b><span>Open any tea in the Atlas and tap "Add to my shelf", "Want to try" or "Tried before".</span><button class="btn" id="goAtlas">Browse the Atlas</button></div>`;
+    $("goAtlas").onclick=()=>go("atlas"); paintShelfMap(items); return; }
+  const groups={};
+  for(const x of items){const k=shelfSort==="status"?x.e.st:shelfSort==="type"?x.t.type:x.t.prov;(groups[k]=groups[k]||[]).push(x)}
+  const order=shelfSort==="status"?["have","wish","tried"]:shelfSort==="type"?TYPE_ORDER:Object.keys(groups).sort((a,b)=>groups[b].length-groups[a].length);
+  const title=k=>shelfSort==="status"?[ST[k].zh,ST[k].en]:shelfSort==="type"?[DATA.types[k].zh,DATA.types[k].en+" tea"]:[PM[k]?.zh||"",k];
+  $("shelves").innerHTML=order.filter(k=>groups[k]).map(k=>{const [zh,en]=title(k);const arr=groups[k].sort((a,b)=>TYPE_ORDER.indexOf(a.t.type)-TYPE_ORDER.indexOf(b.t.type)||b.e.at-a.e.at);
+    return `<div class="shelfgroup"><h3><span class="han">${zh}</span>${esc(en)}<small>${arr.length}</small></h3><div class="shelfrow">${arr.map(({t,e})=>
+      `<button class="jar ${e.st}" data-id="${t.id}" title="${esc(t.en)}">${jarSVG(t,e)}<span class="jg">${e.st==="have"&&e.g!=null?e.g+" g":e.st==="wish"?"wish":e.r?"★".repeat(e.r):"tried"}</span></button>`).join("")}</div></div>`}).join("");
+  $("shelves").querySelectorAll(".jar").forEach(b=>b.onclick=()=>{prov=null;setFilter("all");select(b.dataset.id);go("atlas");});
+  paintShelfMap(items);
+}
+function paintShelfMap(items){
+  const cnt={}; for(const x of items) if(x.e.st!=="wish") cnt[x.t.prov]=(cnt[x.t.prov]||0)+1;
+  const mx=Math.max(1,...Object.values(cnt));
+  let s=`<svg viewBox="0 0 ${DATA.W} ${DATA.H}" role="img" aria-label="Map of provinces in your collection">`;
+  for(const p of DATA.provinces){const n=cnt[p.en]||0; s+=`<path class="sprov ${n?"has":""}" data-p="${n?p.en:""}" d="${p.d}" ${n?`style="fill:var(--seal);fill-opacity:${(0.18+0.6*n/mx).toFixed(2)}"`:""}><title>${esc(p.en)}${n?`: ${n} teas`:""}</title></path>`;}
+  for(const x of items){ if(x.t.idx&&x.t.lv==="prov") continue; const c=getComputedStyle(document.documentElement).getPropertyValue("--t-"+x.t.type).trim();
+    s+=`<circle class="sdot" cx="${x.t.idx?x.t.cx:x.t.ox}" cy="${x.t.idx?x.t.cy:x.t.oy}" r="${x.e.st==="wish"?4:6}" fill="${x.e.st==="wish"?"none":c}" stroke="${x.e.st==="wish"?c:""}" ${x.e.st==="wish"?'stroke-width="2"':""}><title>${esc(x.t.en)}</title></circle>`;}
+  for(const en in cnt){const m=PM[en]; if(!m) continue; s+=`<text x="${m.ax}" y="${m.ay+4}" text-anchor="middle" style="font:700 13px var(--f-mono);fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:3px">${cnt[en]}</text>`;}
+  $("shelfmap").innerHTML=s+"</svg>";
+  $("shelfmap").querySelectorAll(".sprov.has").forEach(p=>p.onclick=()=>{tier="mine";$("tier").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.t==="mine"));prov=p.dataset.p;page=1;go("atlas");render();});
+}
+$("shelfSort").querySelectorAll("button").forEach(b=>b.onclick=()=>{shelfSort=b.dataset.s;$("shelfSort").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));paintShelf()});
+let dl=null;(async()=>{try{dl=await window.claude?.use?.("downloads")}catch(e){dl=null}})();
+$("expBtn").onclick=async()=>{
+  const data=JSON.stringify({app:"Tea Time",v:1,exported:new Date().toISOString(),items:SHELF},null,2);
+  if(dl){try{await dl.save({filename:"tea-time-shelf.json",data});return}catch(e){if(e?.code==="declined")return}}
+  try{await navigator.clipboard.writeText(data);toast("Shelf copied to clipboard as JSON")}catch(e){$("shelfNote").textContent="Couldn't save a file here. Copy this instead: "+data.slice(0,2000)}
+};
+$("impFile").onchange=async ev=>{const f=ev.target.files[0]; if(!f) return;
+  try{const o=JSON.parse(await f.text()); const it=o.items||o; let n=0;
+    for(const [k,v] of Object.entries(it)) if(byId[k]&&v&&ST[v.st]){SHELF[k]={st:v.st,g:v.g??null,y:v.y??null,r:+v.r||0,n:String(v.n||"").slice(0,500),at:+v.at||Date.now()};n++}
+    saveShelf();paintShelf();buildIndex();toast(`Imported ${n} teas`);
+  }catch(e){$("shelfNote").textContent="That file isn't a Tea Time shelf export. Choose the .json file you exported.";}
+  ev.target.value="";};
+paintNav();
+
+/* ── tea of the day: one per calendar day, by season (from time zone) and solar term ── */
+const TERMS=[[1,5,"小寒","Minor Cold"],[1,20,"大寒","Major Cold"],[2,4,"立春","Start of Spring"],[2,19,"雨水","Rain Water"],[3,5,"惊蛰","Awakening of Insects"],[3,20,"春分","Spring Equinox"],
+ [4,4,"清明","Pure Brightness"],[4,20,"谷雨","Grain Rain"],[5,5,"立夏","Start of Summer"],[5,21,"小满","Grain Buds"],[6,5,"芒种","Grain in Ear"],[6,21,"夏至","Summer Solstice"],
+ [7,7,"小暑","Minor Heat"],[7,22,"大暑","Major Heat"],[8,7,"立秋","Start of Autumn"],[8,23,"处暑","End of Heat"],[9,7,"白露","White Dew"],[9,23,"秋分","Autumn Equinox"],
+ [10,8,"寒露","Cold Dew"],[10,23,"霜降","Frost's Descent"],[11,7,"立冬","Start of Winter"],[11,22,"小雪","Minor Snow"],[12,7,"大雪","Major Snow"],[12,21,"冬至","Winter Solstice"]];
+function solarTerm(d){const m=d.getMonth()+1,day=d.getDate();let cur=TERMS[TERMS.length-1];for(const t of TERMS){if(m>t[0]||(m===t[0]&&day>=t[1]))cur=t}return cur}
+const SOUTH_TZ=/^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Efate|Port_Moresby)|^America\/(Argentina|Santiago|Sao_Paulo|Montevideo|Asuncion|La_Paz|Lima)|^Africa\/(Johannesburg|Maputo|Harare|Lusaka|Windhoek|Gaborone|Maseru|Mbabane|Antananarivo|Luanda)|^Indian\/(Mauritius|Reunion)/;
+const HKEY="chaatlas.hemi";
+function hemisphere(){try{const h=localStorage.getItem(HKEY);if(h==="N"||h==="S")return h}catch(e){} let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){} return SOUTH_TZ.test(tz)?"S":"N"}
+function seasonOf(d,h){const m=d.getMonth(); let s=[3,4,5].includes(m+1)?"spring":[6,7,8].includes(m+1)?"summer":[9,10,11].includes(m+1)?"autumn":"winter";
+  if(h==="S") s={spring:"autumn",summer:"winter",autumn:"spring",winter:"summer"}[s]; return s}
+const SEASON={
+ spring:{zh:"春",line:"It's spring where you are, the season for fresh, first-flush green teas.",pool:t=>t.type==="green"||t.type==="yellow"||["yinzhen","mudan","lvxueya","zhengheyz"].includes(t.id)},
+ summer:{zh:"夏",line:"It's summer where you are. Light, cooling cups suit the heat.",pool:t=>(t.type==="green")||(t.type==="white"&&t.id!=="shoumei")||(t.type==="oolong"&&t.f.roast<2)},
+ autumn:{zh:"秋",line:"It's autumn where you are, when oolongs come into their own and roasted teas start to feel right.",pool:t=>t.type==="oolong"||(t.type==="red"&&t.f.roast>=2)||t.id==="shoumei"},
+ winter:{zh:"冬",line:"It's winter where you are. Warming red, roasted and aged dark teas are the classic choice.",pool:t=>t.type==="red"||t.type==="dark"||(t.type==="oolong"&&t.f.roast>=3.5)||t.id==="shoumei"}};
+function dayKey(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+let totdShift=0;
+function teaOfDay(){
+  const now=new Date(), h=hemisphere(), season=seasonOf(now,h), term=solarTerm(now);
+  // shared pick: each tea gets its own score from (date, hemisphere, tea id), so the result
+  // is the same for every visitor that day and doesn't depend on their shelf or list order
+  const day=dayKey(now)+"|"+h;
+  const order=T.filter(SEASON[season].pool).map(t=>[rng(day+"|"+t.id)(),t]).sort((a,b)=>a[0]-b[0]||(a[1].id<b[1].id?-1:1)).map(x=>x[1]);
+  return {t:order[totdShift%order.length],season,h,term,n:order.length};
+}
+function paintTOTD(){
+  const {t,season,h,term}=teaOfDay(), ty=DATA.types[t.type], S=SEASON[season];
+  const el=$("totd"); el.className="totd c-"+t.type; el.dataset.term=term[2];
+  el.innerHTML=`<div class="art">${art(t,"d")}</div>
+   <div><div class="tk"><span>${totdShift?"Another pick":"Tea of the day"}</span><span class="term">${S.zh} · ${term[2]} ${esc(term[3])}</span></div>
+    <div class="tz">${t.zh}</div><div class="te">${esc(t.en)} <span style="font-size:15px;color:var(--ink-2)">· ${esc(ty.en)} tea</span></div>
+    <p class="why">${esc(S.line)}</p>
+    <p class="tn">${esc(t.notes)}. Brew at ${tempTxt(t)}, first steep ${esc(t.time)}.</p>
+    <div class="acts"><button class="btn" id="tdOpen">Open and brew</button><button class="btn ghost" id="tdAdd">${SHELF[t.id]?"On your shelf ✓":"Want to try"}</button><button class="small" id="tdNext">Another pick</button></div>
+    <div class="hemi">${totdShift?"":"Everyone in your hemisphere gets the same tea today. "}Season based on the ${h==="S"?"southern":"northern"} hemisphere, from your device's time zone. In China it's ${term[2]} (${esc(term[3])}). <button id="tdHemi">Switch to ${h==="S"?"northern":"southern"}</button></div></div>`;
+  $("tdOpen").onclick=()=>{prov=null;setFilter("all");select(t.id);go("atlas");setTimeout(()=>{const b=$("brewer");if(b)b.scrollIntoView({behavior:"smooth",block:"center"})},150)};
+  $("tdAdd").onclick=()=>{if(!SHELF[t.id]){SHELF[t.id]={st:"wish",g:null,y:null,r:0,n:"",at:Date.now()};saveShelf();toast(`${t.en} · Want to try`)} paintTOTD()};
+  $("tdNext").onclick=()=>{totdShift++;paintTOTD()};
+  $("tdHemi").onclick=()=>{try{localStorage.setItem(HKEY,h==="S"?"N":"S")}catch(e){} totdShift=0;paintTOTD()};
+}
+
+/* ── views ── */
+const VIEWS=["colours","atlas","pairing","test","shelf"];
+let view="colours";
+function go(v,push=true){
+  if(!VIEWS.includes(v)) v="colours";
+  view=v;
+  for(const k of VIEWS) $(k).hidden=k!==v;
+  document.querySelectorAll("nav.chap a").forEach(a=>{if(a.dataset.view===v)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  if(push){try{history.replaceState(null,"","#"+(v==="atlas"&&sel?sel:v))}catch(e){}}
+  if(v==="shelf") paintShelf();
+  window.scrollTo({top:0});
+}
+document.querySelectorAll("nav.chap a").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();go(a.dataset.view)}));
+function routeFromHash(){
+  let h="";try{h=location.hash.slice(1)}catch(e){}
+  if(!byId[h]&&window.__MIG&&window.__MIG[h]) h=window.__MIG[h];
+  if(byId[h]){sel=h;go("atlas",false);render();}
+  else go(VIEWS.includes(h)?h:"colours",false);
+}
+window.addEventListener("hashchange",routeFromHash);
+
+/* ── pairing ── */
+const FOODS=["Margherita pizza","Salmon sushi","Beef rendang","Fish and chips","Cheesecake","Lamb roast","Pad thai","Croissant","Dark chocolate tart","Brie and crackers"];
+const KW=[ // keyword → target flavour (floral,fruity,vegetal,roast,earthy,sweet,body)
+ [/sushi|sashimi|oyster|scallop|crab|prawn|shrimp|seafood|ceviche|crudo|poke/,[2,1,4,0.5,0,2.5,1.5]],
+ [/fish|barramundi|salmon|trout|cod|snapper/,[2,1,3,1,0.5,2.5,2]],
+ [/salad|vegetable|veg|asparagus|pea|greens|cucumber|tofu/,[2,1,4,0.5,0,2.5,1.5]],
+ [/chicken|turkey|duck|goose/,[2.5,2.5,1,2.5,1,3,3]],
+ [/beef|steak|lamb|mutton|venison|burger|brisket|ribs|bbq|barbecue|rendang|stew/,[0.5,1.5,0,4,4,2.5,4.5]],
+ [/pork|bacon|ham|sausage|char siu/,[1,2,0,4,2.5,3,4]],
+ [/smoke|smoked|grill|charred/,[0.5,1.5,0,5,3,2,4]],
+ [/curry|spicy|chilli|chili|laksa|vindaloo|szechuan|sichuan|mala|thai|pad/,[3,3,1,1.5,1,4,3]],
+ [/fried|chips|tempura|katsu|fries|deep/,[2,1,2,3.5,1,2,3]],
+ [/pizza|pasta|tomato|lasagne|lasagna|italian/,[2,2.5,2,2.5,1.5,2.5,3]],
+ [/cheese|brie|camembert|cheddar|parmesan|blue/,[1,2.5,0.5,3,3.5,2.5,4]],
+ [/mushroom|truffle|umami|miso/,[0.5,1,1,2.5,4.5,2,4]],
+ [/chocolate|cocoa|brownie|mocha/,[0.5,2,0,4,3.5,3,4.5]],
+ [/cake|pastry|croissant|scone|biscuit|cookie|bread|toast|pancake|waffle|butter/,[2,2,0.5,2.5,1,4,3]],
+ [/cheesecake|custard|cream|panna|pudding|ice cream|gelato|milk/,[3,2.5,0.5,1.5,0.5,4.5,3]],
+ [/fruit|berry|peach|mango|apple|lemon|citrus|orange|melon|lychee|pavlova|tart/,[3,4.5,0.5,1,0,4,2]],
+ [/nut|almond|chestnut|pecan|walnut|peanut|sesame/,[1,1,2,3.5,2,3,3]],
+ [/dumpling|dim sum|yum cha|bao|bun/,[3,1.5,1.5,2.5,1.5,3,3]],
+ [/rice|noodle|congee|grain/,[2,1,2.5,2,1,3,2.5]],
+ [/honey|caramel|syrup|maple|sweet/,[2.5,3,0,2.5,1,5,3]],
+];
+function localPick(food){
+  const q=food.toLowerCase(); let v=[0,0,0,0,0,0,0], n=0;
+  for(const [re,vec] of KW) if(re.test(q)){v=v.map((x,i)=>x+vec[i]);n++;}
+  if(!n) return null;
+  v=v.map(x=>x/n);
+  const keys=AX.map(([k])=>k);
+  const scored=T.map(t=>{let d=0;keys.forEach((k,i)=>d+=(t.f[k]-v[i])**2);d+=1.5*(t.body-v[6])**2;return {t,d}}).sort((a,b)=>a.d-b.d);
+  const out=[],types=new Set();
+  for(const x of scored){ if(out.length===3)break; if(types.has(x.t.type)&&scored.length>10&&out.length<2)continue; out.push(x);types.add(x.t.type);}
+  return out.map(x=>({id:x.t.id,why:`Its ${x.t.notes.split(",")[0].toLowerCase()} and ${x.t.body>=4?"full":x.t.body>=3?"medium":"light"} body suit the weight and flavours of this dish.`}));
+}
+function catalogue(){return T.map(t=>`${t.id} | ${t.en} ${t.zh} | ${DATA.types[t.type].en} | ${t.notes} | body ${t.body}/5`).join("\n")}
+let sampleFn=null, pairCtl=null;
+(async()=>{try{sampleFn=await window.claude?.use?.("sample")}catch(e){sampleFn=null}})();
+function renderPicks(food,picks,tip,source){
+  const ok=picks.filter(p=>byId[p.id]).slice(0,3);
+  if(!ok.length){$("pairOut").innerHTML=`<div class="pstatus">No match found for "${esc(food)}". Try naming the main ingredient, like "salmon" or "chocolate".</div>`;return}
+  $("pairOut").innerHTML=`<span class="src">${source==="ai"?"Suggested by Claude":"Quick match from flavour keywords"}</span>
+   <div class="picks">${ok.map(p=>{const t=byId[p.id],ty=DATA.types[t.type];return `<div class="pick c-${t.type}">
+     <div class="top"><div><div class="zh">${t.zh}</div><div class="en">${esc(t.en)}</div></div><div class="badge"><b>${ty.zh}</b><span>${esc(ty.en)}</span></div></div>
+     <p class="why">${esc(String(p.why||""))}</p>
+     <div class="meta2">${tempTxt(t)} · ${esc(t.time)} first steep</div>
+     <button class="linkbtn" data-id="${t.id}">Open in the atlas →</button></div>`}).join("")}</div>
+   ${tip?`<p class="ptip">${esc(String(tip))}</p>`:""}`;
+  $("pairOut").querySelectorAll("button[data-id]").forEach(b=>b.addEventListener("click",()=>{setFilter("all");select(b.dataset.id);go("atlas")}));
+}
+async function suggest(food){
+  food=food.trim(); if(!food) return;
+  const local=()=>{const r=localPick(food); if(r) renderPicks(food,r,"",'local'); else $("pairOut").innerHTML=`<div class="pstatus">I couldn't place "${esc(food)}" from keywords alone. Try the main ingredient, like "lamb", "prawns" or "chocolate".</div>`;};
+  if(!sampleFn){local();return}
+  pairCtl?.abort(); pairCtl=new AbortController();
+  $("pairOut").innerHTML=`<div class="pstatus">Thinking about ${esc(food)}…</div>`;
+  $("pairGo").disabled=true; $("pairStop").hidden=false;
+  const prompt=`You are a Chinese tea sommelier. A diner is eating: "${food}". The dish may be from any cuisine.
+Choose the 3 best teas for it from this catalogue ONLY (format: id | name | type | tasting notes | body). Prefer variety across tea types unless one type is clearly best.
+${catalogue()}
+
+Reply with only JSON: {"picks":[{"id":"<catalogue id>","why":"<one sentence, max 25 words, naming what in the dish and the tea work together>"}],"tip":"<one short brewing or serving tip for this pairing, max 20 words>"}
+If the input is not a food or drink, reply {"picks":[],"tip":"Name a dish or ingredient."}`;
+  try{
+    const r=await sampleFn.json(prompt,{signal:pairCtl.signal,modelTier:"quick"});
+    const picks=Array.isArray(r?.picks)?r.picks.map(p=>({id:String(p.id||"").trim(),why:p.why})):[];
+    if(!picks.length){$("pairOut").innerHTML=`<div class="pstatus">${esc(String(r?.tip||"Name a dish or ingredient."))}</div>`;}
+    else renderPicks(food,picks,r?.tip,"ai");
+  }catch(e){
+    if(e?.code==="cancelled"){$("pairOut").innerHTML="";}
+    else if(["not_granted","sampling_disabled","not_declared","capability_disabled","capability_removed"].includes(e?.code)){sampleFn=null;local();}
+    else if(e?.code==="rate_limited"){$("pairOut").innerHTML=`<div class="pstatus">Claude is busy for you right now. Here's a quick keyword match instead.</div>`;const r=localPick(food);if(r)renderPicks(food,r,"","local");}
+    else local();
+  }finally{$("pairGo").disabled=false;$("pairStop").hidden=true;}
+}
+$("foodChips").innerHTML=FOODS.map(f=>`<button type="button" class="chip" data-food="${esc(f)}">${esc(f)}</button>`).join("");
+$("foodChips").querySelectorAll(".chip").forEach(b=>b.addEventListener("click",()=>{$("food").value=b.dataset.food;suggest(b.dataset.food)}));
+$("pairForm").addEventListener("submit",e=>{e.preventDefault();suggest($("food").value)});
+$("pairStop").addEventListener("click",()=>pairCtl?.abort());
+
+/*__REVIEWS__*/
+/* ── wiring ── */
+function select(id){sel=id;const t=byId[id];try{if(view==="atlas")history.replaceState(null,"","#"+id)}catch(e){}
+  if(filter!=="all"&&t.type!==filter){filter="all";$("chips").querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.f==="all"))}
+  if(prov&&t.prov!==prov) prov=t.prov;
+  if(cty&&t.cty!==cty) cty=null;
+  render();}
+let query="", sortBy="default";
+const norm=s=>s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\u4e00-\u9fff]/g,"");
+const HK=new Map();
+function hit(t){if(!query)return true;let h=HK.get(t.id);if(h===undefined){h=norm([t.en,t.alt||"",t.zh,t.py,t.prov,t.region||"",t.place||""].join(" "));HK.set(t.id,h)}return h.includes(query)}
+function render(){ paintMap(); renderSpec(); buildIndex(); }
+let qt;$("q").addEventListener("input",e=>{clearTimeout(qt);qt=setTimeout(()=>{query=norm(e.target.value);if(query){prov=null;cty=null}page=1;render();
+  const m=ALL.filter(t=>passes(t)); if(query&&m.length===1&&m[0].id!==sel){sel=m[0].id;render()}},120)});
+$("moreBtn").addEventListener("click",()=>{page++;buildIndex()});
+$("tier").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{tier=b.dataset.t;$("tier").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));page=1;render()}));
+$("count").textContent=ALL.length.toLocaleString("en");
+{const seen=new Set();$("xsrc").innerHTML=DATA.XS.flatMap(s=>s.links).filter(l=>!seen.has(l.url)&&seen.add(l.url)).map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("");}
+ buildMap(); buildChips(); buildColours(); quizStep(); render(); paintTOTD(); routeFromHash();
+$("sortSel").addEventListener("change",e=>{sortBy=e.target.value;page=1;buildIndex()});
+initReviews();
+</script>

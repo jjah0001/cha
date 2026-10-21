@@ -1,0 +1,26 @@
+#src https://www.7teahouse.com/pages/blog-tea-cultivars-of-taiwan | 台灣茶樹品種的由來與臺茶編號介紹 · 七三茶堂
+台茶1号|台湾|茶业改良场|red|ttes|Named 1969; Indian Kyang × Qingxin Damao
+台茶2号|台湾|茶业改良场|red|ttes|Named 1969; Indian Jaipuri × Dayeh Oolong
+台茶3号|台湾|茶业改良场|red|ttes|Named 1969; Indian Manipuri × Hongxin Damao
+台茶4号|台湾|茶业改良场|red|ttes|Named 1969; Indian Manipuri × Hongxin Damao
+台茶5号|台湾|茶业改良场|oolong|ttes|Named 1973; for green tea, oolong and Oriental Beauty
+台茶6号|台湾|茶业改良场|oolong|ttes|Named 1973; natural hybrid of Qingxin Oolong
+台茶7号|台湾|茶业改良场|red|ttes|Named 1973; selected from Thai Shan big-leaf
+台茶9号|台湾|茶业改良场|red|ttes|Named 1975; Indian Kyang × Hongxin Damao
+台茶10号|台湾|茶业改良场|red|ttes|Named 1975; Indian Jaipuri × Huanggan
+台茶11号|台湾|茶业改良场|red|ttes|Named 1975; Indian Jaipuri × Dayeh Oolong
+白文|台湾|茶业改良场|oolong|ttes|TTES No. 14 (1983); for Baozhong
+白燕|台湾|茶业改良场|oolong|ttes|TTES No. 15 (1983); for Oriental Beauty and white tea
+白鹤|台湾|茶业改良场|green|ttes|TTES No. 16 (1983); for Longjing-style green and Baozhong
+白鹭|台湾|茶业改良场|oolong|ttes|TTES No. 17 (1983); for Oriental Beauty
+碧玉|台湾|茶业改良场|oolong|ttes|TTES No. 19 (2004); Qingxin Oolong × Jin Xuan, for Baozhong
+迎香|台湾|茶业改良场|oolong|ttes|TTES No. 20 (2004); for Baozhong
+红韵|台湾|茶业改良场|red|ttes|TTES No. 21 (2008); Keemun × Indian Kyang
+沁玉|台湾|茶业改良场|oolong|ttes|TTES No. 22 (2014); Qingxin Oolong × Jin Xuan
+祁韵|台湾|茶业改良场|red|ttes|TTES No. 23 (2018); selected from Keemun seedlings
+山蕴|台湾|茶业改良场|red|ttes|TTES No. 24 (2019); from native Taiwan mountain tea
+紫韵|台湾|茶业改良场|red|ttes|TTES No. 25 (2021); TTES 13 × Burmese big-leaf
+青心乌龙|台湾||oolong|ttes|Classic oolong cultivar brought from Fujian; one of Taiwan's four famous cultivars
+青心大冇|台湾||oolong|ttes|One of Taiwan's four famous cultivars; used for Oriental Beauty
+大叶乌龙|台湾||oolong|ttes|One of Taiwan's four famous cultivars
+硬枝红心|台湾||oolong|ttes|One of Taiwan's four famous cultivars; parent of Jin Xuan and Cui Yu

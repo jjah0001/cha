@@ -1,0 +1,25 @@
+// Recorded histories for full-profile teas that were "general entries"
+#src https://paper.people.com.cn/rmrbhwb/html/2013-05/28/content_1246267.htm | 竹叶青 · 人民日报海外版
+竹叶青|The name dates from 20 April 1964, when Marshal Chen Yi stopped to rest at Wannian Temple halfway up Mount Emei. The old monk asked him to name the temple's tea, and Chen Yi, seeing the leaves shaped like bamboo leaves and fresh green, called it Zhu Ye Qing, "bamboo leaf green".
+#src https://www.maigoo.com/top/391402.html | 江西十大名茶排行榜 · 买购网
+庐山云雾|Tea growing on Mount Lu began in the Jin dynasty, and in the Song it was listed as a tribute tea. In 1959 Lushan Yunwu was named one of China's ten famous teas, and in 1982 it ranked first among Jiangxi's eight famous teas.
+#src https://www.sohu.com/a/777115403_99926623 | 武夷岩茶品种大全 · 搜狐
+黄金桂|Its cultivar, Huangdan, dates from the Xianfeng reign of the Qing and comes from Luoyan village in Anxi.
+#src https://www.yoshantea.com/pc/news.php?id=2109026130285bbe8e3&lang=en | 認識梨山茶 · YOSHAN TEA
+梨山高山茶|Lishan's farms grew out of the building of the Central Cross-Island Highway (1956–1960). Fushoushan Farm, founded on 1 June 1957 as the Lishan Veterans Farm, first grew vegetables for the road crews and then temperate fruit such as peaches, pears, apples and persimmons. It began planting tea in 1970, with Qingxin Oolong, Tieguanyin and Wuyi bushes.
+#src https://www.sohu.com/a/274205340_100159053 | 贡眉的前世今生 · 搜狐
+贡眉|Gongmei comes from Jianyang, and is generally held to have grown out of Nankeng's white Shoumei. How it got its name is not settled: one local story says the Shoumei made by the Xiao brothers in the Qing was bought by the court and became a Jianyang tribute tea, while others point to Jianyang's nearness to the Song tribute gardens of Beiyuan. Zhang Tianfu recorded that Shoumei was made in 1953–1954, stopped, and was revived in 1959 for export. The national standard defines Gongmei as made from shoots of the old seed-grown "caicha" bushes.
+#src https://www.jiemian.com/article/2508322.html | 月光白是普洱茶还是白茶 · 界面新闻
+月光白|By the account this article cites, around 1840 the Chen family carried a few dozen seeds home from the Mengku tea mountains hidden in a bamboo carrying pole; one seedling came up with yellowish buds and was replanted, and that plant is said to be the origin of Yueguangbai. The name is explained either by the leaf, black above and white below like a crescent moon, or by the story that it was dried by moonlight away from the sun.
+#src https://www.sohu.com/a/742704376_121106884 | 川红工夫的前世与今生 · 搜狐
+川红工夫|Sichuan's congou black tea was created for export after 1949. In March 1951 the China Tea Company set up the Junlian Black Tea Technical Extension Station in Junlian county, Yibin, which produced the first batch of Chuanhong congou by the end of that year; it was sent to the Soviet Union and well received. The Junlian tea factory, completed in April 1957, was one of China's five national demonstration factories.
+#src https://www.gvm.com.tw/article/20174 | 高肇昫、粘筱燕 神農夫婦 把害蟲變幫手 · 遠見雜誌
+蜜香红茶|In the late 1990s Kao Chao-hsu, head of the Tianhe tea producers' group in Hualien, noticed that tea bitten by the small green leafhopper gave a honey aroma and began making honey-scented black tea. In 2006 his Jiaming Tea Garden won the black tea gold medal at the first "World's Best Tea" contest, and from 2007 he and his wife taught others to make it, turning the Wuhe plateau into the home of the style.
+#src https://www.chabaike.com/huangchazhishi/4688.html | 广东大叶青的历史传说 · 茶百科
+广东大叶青|This source says Guangdong Dayeqing was first made in the Longqing reign of the Ming, giving it more than four hundred years of history, though it cites no record and frames the account as tradition.
+#src https://www.maigoo.com/citiao/50446.html | 白芽奇兰茶 · 买购网
+白芽奇兰|The cultivar was selected as a single plant from the local seedling population by the Pinghe county tea station and technicians of Pengxi village in Qiling township. The tea won first prize at the Fujian famous tea assessment in May 1989, the cultivar passed provincial approval in 1996, and in 2000 Pinghe was named "home of Chinese Baiya Qilan tea".
+#src https://www.egoll.com/zhenghebaicha/tea_1023.html | 政和白茶的起源与发展历史
+政和工夫|In the Xianfeng and Tongzhi reigns of the Qing (1851–1874), Zhenghe's small-leaf caicha was at its height and was all made into black tea for export; when that trade faded, growers switched to the Zhenghe Dabai cultivar, found at Tieshan in 1879 and widely propagated. A 1919 record lists gongfu among Zhenghe's seven kinds of tea, and in the Republican era Zhenghe gongfu was shipped to Russia and America.
+#src https://www.hunantoday.cn/news/xhn/202303/16072838.html | 探秘非遗——安化天尖茶 · 新湖南
+安化天尖|Anhua's dark tea is first recorded in the Tang. In 1391 the Ming court fixed an annual tribute of 22 jin, and in 1595 it was made "official tea" for the tea-horse trade. In the Daoguang reign (around 1825) the emperor is said to have named it "Tianjian" and listed it as an imperial product. Its making craft was added to Anhua's county intangible heritage list in May 2014.
