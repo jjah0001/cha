@@ -1,5 +1,6 @@
 <title>Tea Time</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%238B2E2E'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Noto Serif SC,Songti SC,serif' font-size='22' fill='%23FBEFCF'%3E%E8%8C%B6%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600&family=Ma+Shan+Zheng&display=swap">
@@ -470,7 +471,7 @@ nav.chap{z-index:5}
 .seasonaudio .wv{display:none}
 .seasonaudio[aria-pressed="true"] .wv{display:inline}
 .seasonaudio[aria-pressed="true"] .mu{display:none}
-.scslide{position:relative;display:inline-flex;align-items:stretch;width:58px;height:24px;border:1px solid var(--season-rule,var(--rule));border-radius:999px;background:var(--card);margin-left:8px;cursor:pointer;padding:0;vertical-align:middle;top:-6px;font:600 11px/1 var(--han,"Noto Serif SC",serif);user-select:none;overflow:hidden;color:var(--ink-2)}
+.scslide{position:relative;display:inline-flex;align-items:stretch;width:58px;height:24px;border:1px solid var(--season-rule,var(--rule));border-radius:999px;background:var(--card);margin-left:8px;cursor:pointer;padding:0;vertical-align:middle;top:-6px;font:600 11px/1 var(--f-han);user-select:none;overflow:hidden;color:var(--ink-2)}
 .scslide::before{content:"";position:absolute;top:1px;left:1px;width:27px;height:20px;border-radius:999px;background:var(--season-accent,var(--seal));transition:transform .22s ease;z-index:0}
 .scslide[aria-pressed="true"]::before{transform:translateX(27px)}
 .scslide span{flex:1;display:inline-flex;align-items:center;justify-content:center;position:relative;z-index:1;transition:color .22s;letter-spacing:.5px}
@@ -1847,8 +1848,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
         }}); mo.observe(document.body,{childList:true,subtree:true,characterData:false}); }
       } else { if(mo){mo.disconnect();mo=null;} walk(document.body,false); state="hans"; }
       sc.setAttribute("aria-pressed",toTrad?"true":"false");
-      sc.textContent=toTrad?"繁":"简";
-      document.documentElement.lang=toTrad?"zh-Hant":"zh-Hans";
+      /* Deliberately do NOT change <html lang>: browsers swap CJK fonts between PingFang/Songti SC and TC variants based on lang, which looks jarring on toggle. Keep lang stable so font rendering stays consistent and only the glyph content changes. */
     };
     sc.addEventListener("click",()=>{ const next=state!=="hant"; apply(next).then(()=>{try{localStorage.setItem(SKEY,next?"hant":"hans");}catch(e){}}).catch(e=>{sc.setAttribute("aria-pressed",state==="hant"?"true":"false"); sc.title="简体 / 繁體 — dictionary failed to load ("+e.message+")";}); });
     try{if(localStorage.getItem(SKEY)==="hant") apply(true);}catch(e){}
