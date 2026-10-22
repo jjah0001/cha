@@ -17,10 +17,10 @@
   --f-brush:"Ma Shan Zheng","Kaiti SC","KaiTi",serif;
   --f-kai:"Ma Shan Zheng","LXGW WenKai","Kaiti SC","STKaiti","KaiTi","Noto Serif SC",serif;
 }
-/* 繁 mode: Ma Shan Zheng has no Traditional glyphs (龍 黃 峯 …), so those chars fell back mid-word. Swap the whole brush/kai stack to LXGW WenKai TC, which covers both scripts. */
+/* 繁 mode: Ma Shan Zheng has no Traditional glyphs (龍 黃 峯 …). Yuji Boku is the closest brush style with Traditional coverage; it is a Japanese font, so the few chars it lacks (鄉 滇 …) fall back to LXGW WenKai TC. */
 html[data-script="hant"]{
-  --f-brush:"LXGW WenKai TC","Kaiti TC","BiauKai","DFKai-SB",serif;
-  --f-kai:"LXGW WenKai TC","Kaiti TC","BiauKai","DFKai-SB","Noto Serif SC",serif;
+  --f-brush:"Yuji Boku","LXGW WenKai TC","Kaiti TC","BiauKai","DFKai-SB",serif;
+  --f-kai:"Yuji Boku","LXGW WenKai TC","Kaiti TC","BiauKai","DFKai-SB","Noto Serif SC",serif;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --paper:#111714; --card:#18201C; --ink:#E0E6DF; --ink-2:#98A69E; --rule:#2D3832;
@@ -1854,7 +1854,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
       } else { if(mo){mo.disconnect();mo=null;} walk(document.body,false); state="hans"; }
       sc.setAttribute("aria-pressed",toTrad?"true":"false");
       /* swap brush font (see html[data-script] CSS); font stylesheet loaded lazily on first 繁 */
-      if(toTrad && !document.getElementById("tcFont")){ const l=document.createElement("link"); l.id="tcFont"; l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC&display=swap"; document.head.appendChild(l); }
+      if(toTrad && !document.getElementById("tcFont")){ const l=document.createElement("link"); l.id="tcFont"; l.rel="stylesheet"; l.href="https://fonts.googleapis.com/css2?family=Yuji+Boku&family=LXGW+WenKai+TC&display=swap"; document.head.appendChild(l); }
       document.documentElement.dataset.script=toTrad?"hant":"hans";
       /* Deliberately do NOT change <html lang>: browsers swap CJK fonts between PingFang/Songti SC and TC variants based on lang, which looks jarring on toggle. Keep lang stable so font rendering stays consistent and only the glyph content changes. */
     };
