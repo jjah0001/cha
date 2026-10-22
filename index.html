@@ -1196,134 +1196,235 @@ async function wake(on){
   try{ if(on&&!B.lock&&navigator.wakeLock){B.lock=await navigator.wakeLock.request("screen");}
        else if(!on&&B.lock){await B.lock.release();B.lock=null;} }catch(e){B.lock=null}
 }
-/* ── seasonal ambience: subtle procedural soundscape per season, via Web Audio API ──
-   spring = soft pink-noise "rain" + occasional bird warble; summer = cicada drone + warm hum;
-   autumn = banded wind swells + leaf rustles; winter = low wind + distant 3-note bell. */
+/* ── seasonal ambience: a Ningde (宁德) tea-mountain soundscape, synthesised live with Web Audio ──
+   No steady oscillators, chimes or bells: those read as shop doorbells and crossing signals. Every
+   layer is shaped noise (rain, water, wind, fire, cicadas) or a short animal call, placed somewhere
+   in a stereo landscape and sent into a synthetic valley reverb so it sounds like open hillside.
+   Follows the local clock: birds by day, frogs and crickets after dark.
+   spring 春 = 清明 drizzle on the tea rows, eaves dripping, 布谷 / 四声杜鹃 across the valley, bulbuls & 画眉
+   summer 夏 = cicada chorus in the hills, a mountain stream, 斑鸠 doves; paddy frogs and crickets at night
+   autumn 秋 = wind through bamboo and tea bushes, dry leaves, crickets, the odd bulbul
+   winter 冬 = indoors by the wood stove: crackling fire, kettle simmering, cold wind and drips outside */
 let SA=null;
-function makeNoiseBuffer(kind){
-  const sr=AC.sampleRate, buf=AC.createBuffer(1,sr*2,sr), d=buf.getChannelData(0);
-  if(kind==="brown"){let last=0;for(let i=0;i<d.length;i++){const w=Math.random()*2-1;last=(last+0.02*w)/1.02;d[i]=last*3.5;}}
+const NBUF={};
+function noiseBuf(kind){
+  const key=kind+AC.sampleRate; if(NBUF[key]) return NBUF[key];
+  const sr=AC.sampleRate, len=sr*6, X=Math.floor(sr*0.25), tmp=new Float32Array(len+X);
+  if(kind==="brown"){let last=0;for(let i=0;i<tmp.length;i++){last=(last+0.02*(Math.random()*2-1))/1.02;tmp[i]=last*3.5;}}
   else if(kind==="pink"){let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
-    for(let i=0;i<d.length;i++){const w=Math.random()*2-1;
+    for(let i=0;i<tmp.length;i++){const w=Math.random()*2-1;
       b0=0.99886*b0+w*0.0555179;b1=0.99332*b1+w*0.0750759;b2=0.96900*b2+w*0.1538520;
       b3=0.86650*b3+w*0.3104856;b4=0.55000*b4+w*0.5329522;b5=-0.7616*b5-w*0.0168980;
-      d[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;b6=w*0.115926;}}
-  else {for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
-  return buf;
+      tmp[i]=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;b6=w*0.115926;}}
+  else for(let i=0;i<tmp.length;i++) tmp[i]=Math.random()*2-1;
+  /* crossfade the overhang into the head so the 6 s loop has no seam (a click every loop sounds mechanical) */
+  const buf=AC.createBuffer(1,len,sr), d=buf.getChannelData(0); d.set(tmp.subarray(0,len));
+  for(let i=0;i<X;i++){const a=i/X; d[i]=tmp[i]*a+tmp[len+i]*(1-a);}
+  return NBUF[key]=buf;
+}
+/* stereo impulse of an open valley: soft onset, darkening tail, a few late echoes off the far ridge */
+function valleyIR(){
+  const key="ir"+AC.sampleRate; if(NBUF[key]) return NBUF[key];
+  const sr=AC.sampleRate, len=Math.floor(sr*3.2), b=AC.createBuffer(2,len,sr);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c); let lp=0;
+    for(let i=0;i<len;i++){const t=i/sr, k=Math.max(0.05,0.75*Math.exp(-t*1.4));
+      lp+=k*((Math.random()*2-1)-lp); d[i]=lp*Math.exp(-t*2.3)*(t<0.03?t/0.03:1);}
+    for(let e=0;e<5;e++){const at=Math.floor(sr*(0.16+e*0.13+Math.random()*0.06)); d[at]+=(Math.random()<.5?-1:1)*0.35*Math.exp(-e*0.6);}}
+  return NBUF[key]=b;
 }
 function startSeasonalAudio(season){
   stopSeasonalAudio(); primeAudio(); if(!AC) return false;
-  const nodes=[], timers=[], out=AC.createGain(); out.gain.value=0; out.connect(AC.destination); nodes.push(out);
-  out.gain.linearRampToValueAtTime(1, AC.currentTime+1.2); // soft fade-in
-  const noise=kind=>{const s=AC.createBufferSource();s.buffer=makeNoiseBuffer(kind);s.loop=true;return s;};
-  const filt=(type,freq,Q)=>{const f=AC.createBiquadFilter();f.type=type;f.frequency.value=freq;if(Q!=null)f.Q.value=Q;return f;};
-  const gain=v=>{const g=AC.createGain();g.gain.value=v;return g;};
-  /* Chinese pentatonic (gong-shang-jue-zhi-yu), G major: G A B D E, two octaves */
-  const PENTA=[196.00,220.00,246.94,293.66,329.63,392.00,440.00,493.88,587.33,659.25];
+  const me={nodes:[],timers:[]}; SA=me;
+  const live=()=>SA===me, now=()=>AC.currentTime, R=(a,b)=>a+Math.random()*(b-a), chance=p=>Math.random()<p;
+  const hr=new Date().getHours(), night=hr>=19||hr<5, dawn=hr>=5&&hr<8, dusk=hr>=17&&hr<19;
+  const keep=n=>(me.nodes.push(n),n);
+  const G=v=>{const g=AC.createGain();g.gain.value=v;return g;};
+  const F=(type,f,Q)=>{const b=AC.createBiquadFilter();b.type=type;b.frequency.value=f;if(Q!=null)b.Q.value=Q;return b;};
+  const later=(s,fn)=>me.timers.push(setTimeout(()=>{if(live())fn();},s*1000));
+  const every=(s,fn)=>me.timers.push(setInterval(()=>{if(live())fn();},s*1000));
+  const recur=(lo,hi,fn,first)=>{const go=()=>{fn(now()+0.05);later(R(lo,hi),go);};later(first!=null?first:R(lo,hi)*0.5,go);};
+
+  /* master: gentle limiter → speakers; a shared valley reverb everything can send into */
+  const comp=keep(AC.createDynamicsCompressor()); comp.threshold.value=-12; comp.knee.value=8; comp.ratio.value=6; comp.connect(AC.destination);
+  const out=keep(G(0)); me.out=out; out.connect(keep(F("highpass",90))).connect(comp); // no rumble: low drones read as traffic and air-con
+  out.gain.setValueAtTime(0,now()); out.gain.linearRampToValueAtTime(1.8,now()+3);
+  const verb=keep(AC.createConvolver()); verb.buffer=valleyIR(); verb.connect(keep(G(0.6))).connect(out);
+  /* a spot in the landscape: pan −1…1, distance 0 (at your ear) … 1 (across the valley) */
+  const place=(pan,dist)=>{
+    const inp=keep(G(1)), lp=keep(F("lowpass",15000*Math.pow(1-dist,2)+1500));
+    let n=inp.connect(lp);
+    if(AC.createStereoPanner){const p=keep(AC.createStereoPanner());p.pan.value=pan;n=n.connect(p);}
+    n.connect(keep(G(1-0.75*dist))).connect(out); n.connect(keep(G(0.1+0.7*dist))).connect(verb);
+    return inp;
+  };
+  const spots=(k,pan,dist)=>Array.from({length:k},()=>place(R(pan[0],pan[1]),R(dist[0],dist[1])));
+  const any=a=>a[Math.floor(Math.random()*a.length)];
+  /* slow random walk with cosine easing; call it to read the current value */
+  const walk=(lo,hi,tmin,tmax)=>{let a=R(lo,hi),b=R(lo,hi),t0=now(),t1=t0+R(tmin,tmax);
+    return ()=>{const t=now(); while(t>t1){a=b;b=R(lo,hi);t0=t1;t1=t0+R(tmin,tmax);} const x=(t-t0)/(t1-t0); return a+(b-a)*(0.5-0.5*Math.cos(Math.PI*x));};};
+  const follow=(param,f)=>{param.value=f(); every(0.25,()=>param.setTargetAtTime(f(),now(),0.5));};
+  /* Poisson-scattered events, scheduled 1.2 s ahead so background-tab timer throttling leaves no gaps */
+  const scatter=(rate,fn)=>{let next=now()+0.1;
+    const tick=()=>{const h=now()+1.2; if(next<now()) next=now()+0.02;
+      while(next<h){const r=rate(); if(r>0.01){fn(next); next+=-Math.log(1-Math.random())/r;} else next+=0.3;}};
+    tick(); every(0.25,tick);};
+  const bed=(kind,dest,chain,level)=>{const s=keep(AC.createBufferSource()); s.buffer=noiseBuf(kind); s.loop=true;
+    let n=s; chain.forEach(f=>{keep(f); n=n.connect(f);}); const g=keep(G(level)); n.connect(g).connect(dest); s.start(0,R(0,5)); return g;};
+
+  /* ── one-shot sound atoms ── */
+  const burst=(t,dest,dur,type,f,Q,amp,atk=0.001)=>{const s=AC.createBufferSource(), b=F(type,f,Q), g=AC.createGain();
+    s.buffer=noiseBuf("white"); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(amp,t+atk); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    s.connect(b).connect(g).connect(dest); s.start(t,R(0,5.5),dur+0.03);};
+  /* a water bubble / drop: a sine whose pitch rises as the cavity collapses */
+  const bubble=(t,dest,f,dur,amp,rise)=>{const o=AC.createOscillator(), g=AC.createGain();
+    o.frequency.setValueAtTime(f,t); o.frequency.exponentialRampToValueAtTime(f*rise,t+dur);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(amp,t+0.002); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g).connect(dest); o.start(t); o.stop(t+dur+0.02);};
+  /* a voiced call: notes = [offset, dur, f0, f1, amp, trill depth (fraction of f0), attack] */
+  const voice=(t,dest,notes,type="sine",lpf)=>{
+    const o=AC.createOscillator(), g=AC.createGain(), lfo=AC.createOscillator(), dep=AC.createGain();
+    o.type=type; lfo.frequency.value=R(22,40); dep.gain.setValueAtTime(0,t); g.gain.setValueAtTime(0,t);
+    lfo.connect(dep).connect(o.frequency);
+    let end=t;
+    notes.forEach(([at,d,f0,f1,a,tr=0,atk=0.012])=>{const s=t+at;
+      o.frequency.setValueAtTime(f0,s); o.frequency.exponentialRampToValueAtTime(f1,s+d);
+      dep.gain.setValueAtTime(tr*f0,s);
+      g.gain.setValueAtTime(0,s); g.gain.linearRampToValueAtTime(a,s+Math.min(atk,d*0.3));
+      g.gain.linearRampToValueAtTime(a*0.75,s+d*0.75); g.gain.linearRampToValueAtTime(0,s+d);
+      end=Math.max(end,s+d);});
+    let n=o.connect(g); if(lpf) n=n.connect(F("lowpass",lpf)); n.connect(dest);
+    o.start(t); lfo.start(t); o.stop(end+0.05); lfo.stop(end+0.05);};
+
+  /* ── creatures ── */
+  /* 白头鹎 light-vented bulbul: short bright slurred phrase. 画眉 hwamei: long liquid song of repeated motifs */
+  const bird=(t,dest,kind,amp)=>{const n=[]; let at=0;
+    if(kind==="bulbul"){const base=R(1500,2300), k=3+Math.floor(R(0,3));
+      for(let i=0;i<k;i++){const d=R(0.07,0.16), f0=base*R(0.8,1.5); n.push([at,d,f0,f0*R(0.7,1.4),amp*R(0.5,1)]); at+=d+R(0.02,0.07);}}
+    else{const motifs=2+Math.floor(R(0,3));
+      for(let m=0;m<motifs;m++){const b=R(1800,3400), mo=Array.from({length:1+Math.floor(R(0,3))},()=>{const f0=b*R(0.75,1.3);
+          return [R(0.06,0.2),f0,f0*R(0.6,1.6),amp*R(0.5,1),chance(0.3)?R(0.03,0.07):0];});
+        const reps=2+Math.floor(R(0,3));
+        for(let r=0;r<reps;r++){mo.forEach(([d,f0,f1,a,tr])=>{n.push([at,d,f0,f1,a,tr]);at+=d+R(0.015,0.05);}); at+=R(0.05,0.14);}
+        at+=R(0.2,0.45);}}
+    voice(t,dest,n);};
+  /* 大杜鹃 "布谷—布谷", or 四声杜鹃's four falling notes: soft hooting tones, always from far off */
+  const cuckoo=(t,dest,amp)=>{const n=[], four=chance(0.35), b=four?R(780,860):R(640,720), reps=3+Math.floor(R(0,5));
+    for(let r=0;r<reps;r++){const s=r*(four?R(2.2,2.6):R(1.0,1.15));
+      if(four) [1,1.03,0.95,0.79].forEach((m,i)=>n.push([s+i*0.24,0.17,b*m,b*m*0.97,amp,0,0.04]));
+      else n.push([s,0.2,b,b*0.96,amp,0,0.04],[s+0.31,0.32,b*0.8,b*0.76,amp*0.9,0,0.05]);}
+    voice(t,dest,n,"triangle",1400);};
+  /* 珠颈斑鸠 spotted dove: "咕咕—咕", low and drowsy, the sound of a hot rural noon */
+  const dove=(t,dest,amp)=>{const n=[], b=R(470,520), reps=2+Math.floor(R(0,3));
+    for(let r=0;r<reps;r++){const s=r*R(1.9,2.3);
+      n.push([s,0.14,b,b*0.97,amp*0.7,0,0.03],[s+0.24,0.46,b*1.1,b*0.92,amp,0.01,0.05],[s+0.82,0.16,b*0.93,b*0.9,amp*0.6,0,0.03]);}
+    voice(t,dest,n,"sine",900);};
+  /* paddy frog croak: a fast train of glottal pulses through a throat formant */
+  const croak=(t,dest,base,amp)=>{const o=AC.createOscillator(), bp=F("bandpass",base*2.4,4), g=AC.createGain();
+    const k=3+Math.floor(R(0,6)), pr=R(0.026,0.042); o.type="sawtooth"; o.frequency.setValueAtTime(base,t);
+    o.frequency.linearRampToValueAtTime(base*0.9,t+k*pr); g.gain.setValueAtTime(0,t);
+    for(let i=0;i<k;i++){const s=t+i*pr; g.gain.setValueAtTime(0,s); g.gain.linearRampToValueAtTime(amp,s+0.004); g.gain.exponentialRampToValueAtTime(0.001,s+pr*0.8);}
+    o.connect(bp).connect(g).connect(dest); o.start(t); o.stop(t+k*pr+0.05);};
+  const frogs=(n,amp)=>{spots(n,[-0.9,0.9],[0.25,0.7]).forEach(sp=>{const base=R(180,420);
+      recur(1.5,7,t=>{const k=2+Math.floor(R(0,4)), gap=R(0.22,0.4); for(let i=0;i<k;i++) croak(t+i*gap*R(0.9,1.1),sp,base*R(0.97,1.03),amp*R(0.6,1));},R(0,3));});
+    const far=spots(3,[-1,1],[0.85,0.95]); scatter(()=>5,t=>croak(t,any(far),R(200,450),amp*R(0.2,0.5)));};
+  /* field cricket: steady chirps of 3–4 pulses, each a near-pure tone that sags slightly in pitch */
+  const cricket=(dest,amp)=>{const f=R(4100,5200), per=R(0.38,0.7), k=3+Math.floor(R(0,2));
+    const o=keep(AC.createOscillator()), g=keep(G(0)); o.frequency.value=f; o.connect(g).connect(dest); o.start();
+    let next=now()+R(0.2,1.5);
+    every(0.25,()=>{const h=now()+1.2; if(next<now()) next=now()+0.05;
+      while(next<h){for(let i=0;i<k;i++){const s=next+i*0.042;
+          o.frequency.setValueAtTime(f,s); o.frequency.exponentialRampToValueAtTime(f*0.96,s+0.022);
+          g.gain.setValueAtTime(0,s); g.gain.linearRampToValueAtTime(amp,s+0.005); g.gain.linearRampToValueAtTime(amp*0.7,s+0.016); g.gain.linearRampToValueAtTime(0,s+0.024);}
+        next+=per*R(0.97,1.03); if(chance(0.012)) next+=R(2,9);}});};
+  /* one cicada: rasping band of noise that swells in, holds, then sighs down in pitch ("知了——") */
+  const cicada=(t,dest,amp)=>{const s=AC.createBufferSource(), fc=R(4200,6500), bp=F("bandpass",fc,R(2.5,5));
+    const am=G(0.5), env=G(0), mod=AC.createOscillator(), md=G(0.5), mf=R(80,170);
+    const rise=R(1.2,3), hold=R(3,10), fall=R(1.5,3), H=t+rise+hold, T=H+fall;
+    s.buffer=noiseBuf("white"); s.loop=true; mod.frequency.setValueAtTime(mf,t); mod.frequency.setValueAtTime(mf,H); mod.frequency.linearRampToValueAtTime(mf*0.5,T);
+    mod.connect(md).connect(am.gain);
+    env.gain.setValueAtTime(0,t); env.gain.linearRampToValueAtTime(amp,t+rise);
+    for(let x=t+rise+R(0.4,1.2);x<H;x+=R(0.4,1.2)) env.gain.linearRampToValueAtTime(amp*R(0.7,1),x);
+    env.gain.linearRampToValueAtTime(amp*0.8,H); env.gain.linearRampToValueAtTime(0,T);
+    bp.frequency.setValueAtTime(fc*0.85,t); bp.frequency.linearRampToValueAtTime(fc,t+rise); bp.frequency.setValueAtTime(fc,H); bp.frequency.linearRampToValueAtTime(fc*0.6,T);
+    s.connect(bp).connect(am).connect(env).connect(dest); s.start(t,R(0,5)); s.stop(T+0.1); mod.start(t); mod.stop(T+0.1);};
+
+  /* ── weather & water ── */
+  const rain=(level,eaves)=>{const w=walk(0.1,1,8,25), wash=bed("pink",place(0,0.25),[F("highpass",500),F("lowpass",7000)],0);
+    follow(wash.gain,()=>0.03*w()*level);
+    const leaves=spots(5,[-1,1],[0.1,0.6]);
+    scatter(()=>(3+45*w())*level,t=>{const sp=any(leaves);
+      burst(t,sp,R(0.006,0.02),"bandpass",R(2500,6000),1.5,R(0.01,0.05));
+      if(chance(0.25)) bubble(t,sp,R(1500,3500),R(0.02,0.04),R(0.005,0.02),R(1.4,1.9));});
+    if(eaves){const sp=place(R(-0.3,0.3),0.08), f=R(800,1200);
+      recur(0.7,1.8,t=>{bubble(t,sp,f*R(0.92,1.08),0.06,0.05,1.3); burst(t,sp,0.012,"bandpass",2500,2,0.03);},1);}
+    return w;};
+  const stream=(level,pan)=>{const sp=[place(pan,0.35),place(pan*0.5,0.4),place(pan*1.2,0.5)];
+    bed("pink",sp[0],[F("highpass",300),F("lowpass",2500)],0.03*level); bed("white",sp[1],[F("bandpass",2200,0.8)],0.006*level);
+    scatter(()=>28,t=>bubble(t,any(sp),R(400,1400),R(0.02,0.07),R(0.004,0.02)*level,R(1.3,2.2)));};
+  /* wind with gusts; returns the gust envelope (0…1) so leaves, bamboo and whistles can ride it */
+  const wind=(lo,hi,fLo,fHi,lpf)=>{const w=walk(0,1,3,9), bp=F("bandpass",fLo,0.7), g=bed("pink",place(0,0.3),lpf?[F("lowpass",lpf),bp]:[bp],lo);
+    follow(g.gain,()=>{const x=w();return lo+(hi-lo)*x*x;}); follow(bp.frequency,()=>fLo+(fHi-fLo)*w()); return w;};
+
   if(season==="spring"){
-    /* light mountain rain + mist bird warbles + occasional bamboo wind chime */
-    const n=noise("pink"), lp=filt("lowpass",900), g=gain(0.018);
-    n.connect(lp).connect(g).connect(out); n.start(); nodes.push(n,lp,g);
-    const chirp=()=>{ if(!SA) return;
-      const o=AC.createOscillator(), og=AC.createGain(), t0=AC.currentTime, f0=1700+Math.random()*1600;
-      o.type="sine"; o.frequency.setValueAtTime(f0,t0);
-      o.frequency.exponentialRampToValueAtTime(f0*1.6,t0+0.07);
-      o.frequency.exponentialRampToValueAtTime(f0*0.85,t0+0.2);
-      og.gain.setValueAtTime(0.0001,t0); og.gain.exponentialRampToValueAtTime(0.045,t0+0.02);
-      og.gain.exponentialRampToValueAtTime(0.0001,t0+0.28);
-      o.connect(og).connect(out); o.start(t0); o.stop(t0+0.32);
-      timers.push(setTimeout(chirp, 2200+Math.random()*5200)); };
-    timers.push(setTimeout(chirp, 1200));
-    const chime=()=>{ if(!SA) return;
-      const notes=2+Math.floor(Math.random()*3);
-      for(let i=0;i<notes;i++){ const f=PENTA[3+Math.floor(Math.random()*5)]*2;
-        const o=AC.createOscillator(), og=AC.createGain(), t0=AC.currentTime+i*0.18;
-        o.type="triangle"; o.frequency.value=f;
-        og.gain.setValueAtTime(0.0001,t0); og.gain.exponentialRampToValueAtTime(0.03,t0+0.005);
-        og.gain.exponentialRampToValueAtTime(0.0001,t0+2.2);
-        o.connect(og).connect(out); o.start(t0); o.stop(t0+2.3); }
-      timers.push(setTimeout(chime, 11000+Math.random()*14000)); };
-    timers.push(setTimeout(chime, 6000));
+    /* 清明 drizzle that comes and goes over the tea rows, a stream down in the gully */
+    const wet=rain(1,true); stream(0.5,-0.7);
+    if(night) frogs(5,0.03);
+    else{const trees=spots(4,[-0.9,0.9],[0.25,0.55]), pace=dawn?0.5:1;
+      recur(6*pace,16*pace,t=>{if(wet()<0.85||chance(0.2)) bird(t,any(trees),"bulbul",0.03);},3);
+      recur(15*pace,35*pace,t=>{if(wet()<0.7) bird(t,any(trees),"hwamei",0.03);},8);}
+    const valley=spots(2,[-0.8,0.8],[0.75,0.9]);
+    recur(night?40:25,night?90:55,t=>cuckoo(t,any(valley),0.05),night?20:5);
   } else if(season==="summer"){
-    /* cicada drone + warm hum + a slow mountain stream behind it */
-    const osc=AC.createOscillator(); osc.type="sawtooth"; osc.frequency.value=2500;
-    const bp=filt("bandpass",2700,5), g=gain(0.0005);
-    const lfo=AC.createOscillator(); lfo.type="sine"; lfo.frequency.value=26;
-    const lfoG=gain(0.014); lfo.connect(lfoG).connect(g.gain);
-    osc.connect(bp).connect(g).connect(out); osc.start(); lfo.start(); nodes.push(osc,bp,g,lfo,lfoG);
-    const n=noise("brown"), lp=filt("lowpass",380), ng=gain(0.012);
-    n.connect(lp).connect(ng).connect(out); n.start(); nodes.push(n,lp,ng);
-    /* stream: white noise through a wandering bandpass */
-    const sn=noise("white"), sbp=filt("bandpass",1800,3), sg=gain(0.018);
-    sn.connect(sbp).connect(sg).connect(out); sn.start(); nodes.push(sn,sbp,sg);
-    const slfo=AC.createOscillator(); slfo.frequency.value=0.22;
-    const slfoG=gain(600); slfo.connect(slfoG).connect(sbp.frequency); slfo.start(); nodes.push(slfo,slfoG);
-    /* occasional second cicada layer joining in */
-    const chorus=()=>{ if(!SA) return;
-      const o=AC.createOscillator(), og=AC.createGain(), t0=AC.currentTime;
-      o.type="sawtooth"; o.frequency.value=2900+Math.random()*400;
-      const b=filt("bandpass",3100,6);
-      og.gain.setValueAtTime(0.0001,t0); og.gain.linearRampToValueAtTime(0.009,t0+0.8);
-      og.gain.linearRampToValueAtTime(0.0001,t0+2.6);
-      o.connect(b).connect(og).connect(out); o.start(t0); o.stop(t0+3);
-      timers.push(setTimeout(chorus, 7000+Math.random()*9000)); };
-    timers.push(setTimeout(chorus, 4000));
+    stream(night?0.9:0.7,-0.6);
+    if(night||dusk){frogs(night?7:3,0.035); spots(3,[-0.8,0.8],[0.3,0.7]).forEach(sp=>cricket(sp,0.01));}
+    if(!night){
+      /* the hills full of cicadas: a shimmering distant mass, with nearer individuals swelling in and out */
+      const mass=walk(0.4,1,6,18), hill=bed("white",place(0,0.75),[F("bandpass",5200,1.1)],0);
+      follow(hill.gain,()=>0.025*mass()*(dusk?0.4:1));
+      const trees=spots(5,[-1,1],[0.15,0.55]);
+      recur(dusk?6:2,dusk?14:6,t=>cicada(t,any(trees),R(0.05,0.11)),0.5);
+      const far=spots(2,[-0.7,0.7],[0.5,0.7]);
+      recur(20,45,t=>dove(t,any(far),0.05),6);
+      recur(15,30,t=>bird(t,any(trees),"bulbul",0.025),10);}
   } else if(season==="autumn"){
-    /* dry wind through tea bushes + leaf rustles + a distant temple bell */
-    const n=noise("pink"), bp=filt("bandpass",900,0.7), g=gain(0.028);
-    n.connect(bp).connect(g).connect(out); n.start(); nodes.push(n,bp,g);
-    const lfo=AC.createOscillator(); lfo.frequency.value=0.09;
-    const lfoG=gain(0.014); lfo.connect(lfoG).connect(g.gain); lfo.start(); nodes.push(lfo,lfoG);
-    const rustle=()=>{ if(!SA) return;
-      const nn=noise("white"), hp=filt("highpass",1600), rg=AC.createGain(), t0=AC.currentTime;
-      rg.gain.setValueAtTime(0.0001,t0); rg.gain.exponentialRampToValueAtTime(0.05,t0+0.05);
-      rg.gain.exponentialRampToValueAtTime(0.0001,t0+0.45);
-      nn.connect(hp).connect(rg).connect(out); nn.start(t0); nn.stop(t0+0.5);
-      timers.push(setTimeout(rustle, 3500+Math.random()*6000)); };
-    timers.push(setTimeout(rustle, 2500));
-    const templeBell=()=>{ if(!SA) return;
-      const f=PENTA[1+Math.floor(Math.random()*3)]*0.5; // low, mountain-temple
-      const partials=[1,2.76,5.4];
-      partials.forEach((m,i)=>{ const o=AC.createOscillator(), og=AC.createGain(), t0=AC.currentTime+i*0.015;
-        o.type="sine"; o.frequency.value=f*m;
-        og.gain.setValueAtTime(0.0001,t0); og.gain.exponentialRampToValueAtTime(i===0?0.04:0.012,t0+0.02);
-        og.gain.exponentialRampToValueAtTime(0.0001,t0+(i===0?6:3));
-        o.connect(og).connect(out); o.start(t0); o.stop(t0+6.3); });
-      timers.push(setTimeout(templeBell, 18000+Math.random()*22000)); };
-    timers.push(setTimeout(templeBell, 9000));
+    /* 秋风 through tea rows and a bamboo grove: rustling leaves and hollow stalks knocking in the gusts */
+    const gust=wind(night?0.03:0.05,night?0.1:0.2,350,1100);
+    const grove=spots(4,[-1,1],[0.15,0.5]);
+    scatter(()=>2+30*Math.pow(gust(),2),t=>burst(t,any(grove),R(0.005,0.03),"bandpass",R(2800,7000),1.2,R(0.015,0.07)));
+    const stalks=spots(2,[-0.8,0.8],[0.2,0.45]);
+    scatter(()=>gust()>0.55?0.6*gust():0,t=>{const sp=any(stalks), f=R(320,560);
+      [0,R(0.12,0.3)].forEach((d,i)=>{if(i&&chance(0.4))return; bubble(t+d,sp,f*R(0.95,1.05),0.07,0.035,0.96); burst(t+d,sp,0.01,"bandpass",f*3,3,0.02);});});
+    const k=night?6:2, crk=spots(k,[-0.9,0.9],night?[0.2,0.6]:[0.5,0.8]); crk.forEach(sp=>cricket(sp,night?0.012:0.006));
+    if(!night){const trees=spots(3,[-0.9,0.9],[0.3,0.6]); recur(14,30,t=>bird(t,any(trees),"bulbul",0.025),6);}
   } else { // winter
-    /* low mountain wind + distant triad bell + occasional wooden-fish (木鱼) knock */
-    const n=noise("brown"), lp=filt("lowpass",240), g=gain(0.014);
-    n.connect(lp).connect(g).connect(out); n.start(); nodes.push(n,lp,g);
-    const lfo=AC.createOscillator(); lfo.frequency.value=0.05;
-    const lfoG=gain(0.009); lfo.connect(lfoG).connect(g.gain); lfo.start(); nodes.push(lfo,lfoG);
-    const bell=()=>{ if(!SA) return;
-      const freqs=[523.25,659.25,783.99];
-      freqs.forEach((f,i)=>{ const o=AC.createOscillator(), og=AC.createGain(), t0=AC.currentTime+i*0.06;
-        o.type="sine"; o.frequency.value=f;
-        og.gain.setValueAtTime(0.0001,t0); og.gain.exponentialRampToValueAtTime(0.028,t0+0.03);
-        og.gain.exponentialRampToValueAtTime(0.0001,t0+4);
-        o.connect(og).connect(out); o.start(t0); o.stop(t0+4.2); });
-      timers.push(setTimeout(bell, 14000+Math.random()*18000)); };
-    timers.push(setTimeout(bell, 4500));
-    const muyu=()=>{ if(!SA) return;
-      const nn=noise("white"), hp=filt("bandpass",380,8), kg=AC.createGain(), t0=AC.currentTime;
-      kg.gain.setValueAtTime(0.0001,t0); kg.gain.exponentialRampToValueAtTime(0.06,t0+0.004);
-      kg.gain.exponentialRampToValueAtTime(0.0001,t0+0.13);
-      nn.connect(hp).connect(kg).connect(out); nn.start(t0); nn.stop(t0+0.15);
-      timers.push(setTimeout(muyu, 9000+Math.random()*13000)); };
-    timers.push(setTimeout(muyu, 7000));
+    /* 围炉: the wood stove crackling close by, a kettle simmering on it */
+    const fire=place(0.25,0.04), flick=walk(0.3,1,1.5,5);
+    const roar=bed("pink",fire,[F("bandpass",500,0.8)],0); follow(roar.gain,()=>0.02+0.025*flick());
+    const hiss=bed("white",fire,[F("highpass",6000)],0); follow(hiss.gain,()=>0.0025*Math.max(0,flick()-0.5));
+    const crackle=walk(3,14,2,6);
+    scatter(crackle,t=>burst(t,fire,R(0.002,0.012),"highpass",R(1200,4500),0.7,Math.min(0.12,0.015/Math.pow(Math.random(),0.8))));
+    scatter(()=>0.12,t=>{burst(t,fire,0.035,"bandpass",R(700,1200),1,0.12);
+      for(let i=0,k=3+Math.floor(R(0,6));i<k;i++) burst(t+R(0.02,0.4),fire,0.006,"highpass",3000,0.7,R(0.01,0.04));});
+    const kettle=place(-0.15,0.08), boil=walk(1,9,10,30), inside=keep(F("lowpass",1800)); inside.connect(kettle);
+    bed("pink",kettle,[F("bandpass",320,1.5)],0.004);
+    scatter(boil,t=>bubble(t,inside,R(180,600),R(0.03,0.09),R(0.01,0.035),R(1.4,2.5)));
+    /* outside: cold mountain wind heard through the walls, the odd whistle at a gap, drips off the eaves */
+    const gust=wind(0.01,0.06,250,600,700);
+    const gap=keep(F("bandpass",800,14)), wh=bed("white",place(-0.5,0.5),[gap],0);
+    follow(wh.gain,()=>0.006*Math.pow(gust(),3)); follow(gap.frequency,()=>600+500*gust());
+    const eave=place(-0.6,0.35), f=R(700,1000);
+    recur(1.5,4,t=>{bubble(t,eave,f*R(0.92,1.08),0.06,0.04,1.3); burst(t,eave,0.012,"bandpass",2200,2,0.02);},2);
   }
-  SA={nodes,timers,out};
   return true;
 }
 function stopSeasonalAudio(){
   if(!SA) return;
   const s=SA; SA=null;
-  s.timers.forEach(t=>clearTimeout(t));
-  try{ s.out.gain.cancelScheduledValues(AC.currentTime);
-       s.out.gain.setValueAtTime(s.out.gain.value, AC.currentTime);
-       s.out.gain.linearRampToValueAtTime(0, AC.currentTime+0.4); }catch(e){}
+  s.timers.forEach(t=>{clearTimeout(t);clearInterval(t);});
+  const out=s.out;
+  try{ out.gain.cancelScheduledValues(AC.currentTime);
+       out.gain.setValueAtTime(out.gain.value, AC.currentTime);
+       out.gain.linearRampToValueAtTime(0, AC.currentTime+0.4); }catch(e){}
   setTimeout(()=>{ s.nodes.forEach(n=>{try{n.stop&&n.stop();}catch(e){} try{n.disconnect&&n.disconnect();}catch(e){}}); }, 600);
 }
 
@@ -1759,7 +1860,9 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   const south=/^(Antarctica|Australia|Pacific\/(Auckland|Chatham|Easter|Fiji|Norfolk|Tahiti|Tongatapu|Apia)|America\/(Argentina|Santiago|La Paz|Lima|Asuncion|Montevideo|Punta Arenas|Sao Paulo|Araguaina|Bahia|Belem|Boa Vista|Campo Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto Velho|Recife|Rio Branco|Santarem)|Africa\/(Johannesburg|Harare|Luanda|Lusaka|Maputo|Nairobi|Windhoek|Blantyre|Gaborone|Kinshasa|Mbabane|Maseru)|Indian\/(Antananarivo|Mauritius|Reunion|Mahe))\b/.test(tz);
   const m=new Date().getMonth();  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
   const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
-  const season=south?flip[N[m]]:N[m];
+  /* ?season=summer etc. previews another season (visuals + ambience) without changing the clock */
+  const force=new URLSearchParams(location.search).get("season");
+  const season=flip[force]?force:south?flip[N[m]]:N[m];
   const names={spring:"Spring 春 · petals",summer:"Summer 夏 · motes",autumn:"Autumn 秋 · leaves",winter:"Winter 冬 · snow"};
   document.documentElement.setAttribute("data-season",season);
   const b=$("seasonBadge"); if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season].split(" · ")[0]}`;b.title=`Themed to ${names[season].toLowerCase()} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}). Click to toggle animation.`;}
@@ -1786,8 +1889,8 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   const ab=$("seasonAudio");
   if(ab && (window.AudioContext||window.webkitAudioContext)){
     ab.hidden=false;
-    const seasonNames={spring:"spring birds & rain",summer:"summer cicadas",autumn:"autumn wind & leaves",winter:"winter wind & bell"};
-    ab.title=`Seasonal ambience: ${seasonNames[season]} on a Chinese tea farm`;
+    const seasonNames={spring:"清明 drizzle, cuckoos & bulbuls",summer:"cicadas, a mountain stream & paddy frogs",autumn:"wind in the bamboo & crickets",winter:"a crackling wood stove & kettle"};
+    ab.title=`Seasonal ambience: ${seasonNames[season]}, on a Ningde tea mountain`;
     const AKEY="teatime.ambience";
     let want; try{want=localStorage.getItem(AKEY);}catch(e){} if(want==null) want="on";
     const setOn=on=>ab.setAttribute("aria-pressed",on?"true":"false");
