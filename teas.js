@@ -136,7 +136,7 @@ module.exports = [
  notes:"Pine smoke, longan, dried fruit, resin (unsmoked versions taste of honey and longan)",
  f:{floral:0.5,fruity:3,vegetal:0,roast:5,earthy:3,sweet:2.5},body:4,
  pair:["Smoked salmon","Cured meats","Aged cheddar","Bacon and eggs"],
- history:"Often called the world's first black tea, made in Tongmu village from the late Ming. The leaf was withered and dried over pinewood fires, which gave the smoky style that Europeans loved. Jin Jun Mei, an all-bud luxury version, was developed in the same village in 2005."},
+ history:"Tradition says it began in Tongmu in the late Ming, when soldiers passing through held up the tea making and farmers saved the over-oxidised leaf by drying it over local masson pine. That story is legend, not documented history, but the tea is widely called the world's first black tea. Withering and drying both happen in a wooden drying house heated with pine fires, which gives the smoke. It reached Europe in the 17th century. Unsmoked Zhengshan Xiaozhong is also made today. Jin Jun Mei is a separate tea: bud-only, never smoked, created in Tongmu in 2005."},
 {id:"hongyu",en:"Sun Moon Lake Red Jade",alt:"Hong Yu, TTES No. 18",zh:"日月潭红玉",py:"Rìyuètán Hóngyù",type:"red",prov:"Taiwan",region:"Yuchi, Nantou County",lat:23.88,lon:120.92,
  temp:[90,95],g:4,time:"20 s",inf:"4–5",western:"3 g · 250 ml · 3 min",harvest:"Summer",
  notes:"Cinnamon, mint, wild honey, red fruit",

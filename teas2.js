@@ -123,7 +123,7 @@ module.exports = [
  notes:"Honey, sweet potato, longan, cocoa, unsmoked",
  f:{floral:2.5,fruity:3,vegetal:0,roast:2,earthy:1.5,sweet:4.5},body:3.5,
  pair:["Honey cake","Roast sweet potato","Milk chocolate","Pastries"],
- history:"Launched in 2005 in Tongmu, the village credited with inventing black tea. It was developed by a team led by Jiang Yuanxun, from a family with 24 generations of tea making, as a way to revive Chinese black tea. Made from tiny buds with no smoking, it set off a boom in luxury black teas."},
+ history:"Launched in 2005 in Tongmu, the village credited with inventing black tea. It was developed by the Zhengshan tea company under Jiang Yuanxun, described as the 24th-generation inheritor of the Zhengshan Xiaozhong craft, as a way to revive Chinese black tea. Made from tiny buds with no smoking, it set off a boom in luxury black teas."},
 {id:"tanyang",en:"Tanyang Gongfu",alt:"Tan Yang",zh:"坦洋工夫",py:"Tǎnyáng Gōngfu",type:"red",prov:"Fujian",region:"Tanyang village, Fu'an, Ningde",lat:26.9,lon:119.6,
  temp:[90,95],g:5,time:"10 s",inf:"5–6",western:"3 g · 250 ml · 3 min",harvest:"Spring",
  notes:"Longan, malt, cocoa, bright red liquor with a gold ring",
