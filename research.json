@@ -727,12 +727,6 @@
       "language": "zh",
       "checkedOn": "2026-10-22"
     },
-    "fuding_bai": {
-      "url": "https://www.ihchina.cn/project_details/18061/",
-      "title": "白茶制作技艺（福鼎白茶） · 中国非物质文化遗产网",
-      "language": "zh",
-      "checkedOn": "2026-10-22"
-    },
     "taiping_hk": {
       "url": "https://www.ihchina.cn/project_details/13962/",
       "title": "太平猴魁制作技艺 · 中国非物质文化遗产网",
@@ -4483,46 +4477,6 @@
         "text": "85–90 °C, 4 g per 150 ml, 40 s first steep, 4–5 infusions.",
         "sources": [
           "zhenghe_white"
-        ]
-      }
-    },
-    {
-      "zh": "福鼎白牡丹",
-      "prov": "福建",
-      "place": "宁德市福鼎市",
-      "type": "white",
-      "sources": [
-        "fuding_bai"
-      ],
-      "kind": "GI product",
-      "location": {
-        "text": "宁德市福鼎市 · 福建",
-        "sources": [
-          "fuding_bai"
-        ]
-      },
-      "flavour": {
-        "text": "Floral and hay-like, with a touch of dried fruit; the thicker leaves add body against the lighter bud grades.",
-        "sources": [
-          "fuding_bai"
-        ]
-      },
-      "history": {
-        "text": "Fuding Baimudan was first made around 1922 using the \"withering only\" method developed for Baihao Yinzhen since 1796. Fuding white-tea production was listed as national intangible heritage in 2011.",
-        "sources": [
-          "fuding_bai"
-        ]
-      },
-      "harvest": {
-        "text": "Spring, picked as one bud and two leaves.",
-        "sources": [
-          "fuding_bai"
-        ]
-      },
-      "brewing": {
-        "text": "85–90 °C, 5 g per 150 ml, 40 s first steep, 5–6 infusions.",
-        "sources": [
-          "fuding_bai"
         ]
       }
     },

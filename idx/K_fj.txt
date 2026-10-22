@@ -2,22 +2,14 @@
 政和白茶|福建|南平政和|white
 北苑贡茶|福建|南平建瓯|green
 漳平水仙茶|福建|龙岩漳平|oolong
-福鼎白牡丹|福建|宁德福鼎|white||The Fuding Baimudan white tea standard
-福鼎老白茶|福建|宁德福鼎|white||Aged Fuding white tea, pressed into cakes
-福鼎白毫银针|福建|宁德福鼎|white||The classic Fuding Baihao Yinzhen single-bud white
-福鼎寿眉|福建|宁德福鼎|white||The leafiest grade of Fuding white tea
 福鼎磻溪白茶|福建|宁德福鼎|white||A Fuding Panxi-town top-grade white
 福鼎太姥山白茶|福建|宁德福鼎|white||A Taimu-mountain Fuding white
 福鼎白琳工夫|福建|宁德福鼎|red||The historic Bailin gongfu black tea of Fuding
 福鼎白琳红茶|福建|宁德福鼎|red
 福鼎桐山白茶|福建|宁德福鼎|white
 政和工夫红茶|福建|南平政和|red||The classic Zhenghe gongfu black, one of Fujian's three greats
-政和白毫银针|福建|南平政和|white||Zhenghe's long-stem, delicately-flavoured silver needle
-政和白牡丹|福建|南平政和|white
-政和寿眉|福建|南平政和|white
 政和月光白|福建|南平政和|white
 建阳水仙白|福建|南平建阳|white||A Jianyang water-sprite white, from the ancient Shuixian cultivar
-建阳贡眉|福建|南平建阳|white
 建阳小白茶|福建|南平建阳|white||A Jianyang "small-white" cultivar white
 松溪白茶|福建|南平松溪|white
 松溪红茶|福建|南平松溪|red

@@ -121,6 +121,19 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .bodybar i{flex:1;height:6px;border-radius:3px;background:var(--rule);position:relative}
 .bodybar i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);background:var(--tc);border-radius:3px}
 
+.rhythm{display:grid;gap:10px}
+.rhyrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rhyrow .lab{margin:0;min-width:74px}
+.cafbeans{display:inline-flex;gap:3px;color:var(--tc)}
+.cafbeans svg{width:14px;height:18px;overflow:visible}
+.cafbeans svg path{fill:currentColor}
+.cafbeans svg.off path{fill:none;stroke:currentColor;stroke-opacity:.35}
+.cafname{font:500 12.5px var(--f-mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.dayband{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;flex:1;min-width:200px}
+.dayband .slot{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px 5px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink-2);font:600 9.5px/1.1 var(--f-body);letter-spacing:.06em;text-transform:uppercase}
+.dayband .slot svg{width:24px;height:18px;opacity:.5;color:var(--ink-2)}
+.dayband .slot.on{border-color:var(--tc);background:color-mix(in srgb, var(--tc) 10%, var(--paper));color:var(--ink)}
+.dayband .slot.on svg{opacity:1;color:var(--tc)}
 .brew{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
 .brew div{background:var(--card);padding:10px 12px}
 .brew b{display:block;font:500 18px var(--f-mono);font-variant-numeric:tabular-nums}
@@ -828,15 +841,15 @@ const SHAPES={
  flat:["longjing","zhuyeqing","jintan"],
  needle:["yulu","yuhua","xinyang","guzhang","kaihua","anji","lushan","rizhao","laoshan","ziyang","jingshan","shucheng"],
  spiral:["biluochun","sanxia","ganlu","duyun","gouguanao","huiming","mogan","huangtang","beigang","luyuan","weishan"],
- budleaf:["maofeng","huoshan","guzhu"],
+ budleaf:["maofeng","huoshan","guzhu","mudan"],
  bud:["yinzhen","junshan","mengding"],
  melon:["guapian"], longflat:["houkui"],
- leafy:["mudan","shoumei","gongmei","yueguangbai","dayeqing","huangdacha"],
+ leafy:["gongmei","yueguangbai","dayeqing","huangdacha"],
  ball:["tieguanyin","dongding","alishan","lishan","jinxuan","dayuling","shanlinxi","sijichun","cuiyu","hongshui","muzha","benshan","maoxie","huangjingui","foshou"],
  twisted:["dahongpao","rougui","shuixian","shuijingui","baijiguan","tieluohan","bantianyao","dancong","yashixiang","lingtou","songzhong","baxian","baiyaqilan","baozhong","dongfang"],
  wiry:["keemun","ninghong","yihong","chuanhong","tanyang","zhenghe","huhong","yuehong","jiuqu","yinghong","hongyu","lapsang","mixiang"],
  golden:["dianhong","jinjunmei","zunyihong","bailin"],
- cake:["shengpu","laobanzhang","bingdao","shupu"], tuo:["xiaguan"],
+ cake:["shengpu","laobanzhang","bingdao","shupu","shoumei"], tuo:["xiaguan"],
  brick:["fuzhuan","jingyang","heizhuan","qingzhuan","mizhuan","zangcha"], log:["qianliang"], square:["zhangping"],
  loose:["liubao","tianjian","anqcha"], jasmine:["jasmine","bitan"]
 };
@@ -868,8 +881,16 @@ function art(t,pre){
     case"longflat":for(const[x,y]of heap(9,24,7))g+=leaf(46,7,pick(P),x,y);break;
     case"needle":for(const[x,y]of heap(64,36,12))g+=leaf(22,2,pick(P),x,y,"rgba(0,0,0,.2)");break;
     case"spiral":{const Q=P.concat(["#A9B98A","#B7C49A"]);for(const[x,y]of heap(95,36,12))g+=`<path d="M-3.2,0 C-3.2,-3 3.2,-3 3.2,0 C3.2,2.2 0,2.6 -.6,.6" fill="${pick(Q)}" stroke="rgba(0,0,0,.25)" stroke-width=".5" transform="translate(${f1(x)},${f1(y)}) rotate(${Math.floor(R()*360)})"/>`;}break;
-    case"budleaf":for(const[x,y]of heap(38,36,12))g+=leaf(14,3.6,pick(P),x,y)+leaf(9,3.4,pick(P),x+3,y+1);break;
-    case"bud":{const Q=t.type==="white"?["#D8DCCB","#C8CDB6","#E6E7DA","#B9C0A6"]:["#C9BC6A","#D6CA82","#B8AA55","#E0D59A"];for(const[x,y]of heap(46,36,12))g+=leaf(22,4.6,pick(Q),x,y,"rgba(90,90,70,.35)");}break;
+    case"budleaf":{const bud=t.type==="white"?["#E8EADC","#D8DCCB","#EFF0E4"]:P;
+      for(const[x,y]of heap(38,36,12))g+=leaf(14,3.6,pick(P),x,y)+leaf(9,3.4,pick(bud),x+3,y+1);}break;
+    case"bud":{
+      const budPal=t.type!=="white"?["#C9BC6A","#D6CA82","#B8AA55","#E0D59A"]
+        :t.id==="zhengheyz"?["#A8AE94","#B8BEA3","#949A80","#C6CBB1"]
+        :t.id==="lvxueya"?["#B6C19A","#C7D1AB","#9FAB85","#D5DEBE"]
+        :["#D8DCCB","#C8CDB6","#E6E7DA","#B9C0A6"];
+      const Q=budPal, w=t.id==="zhengheyz"?5.4:4.6, L=t.id==="zhengheyz"?24:22;
+      for(const[x,y]of heap(46,36,12))g+=leaf(L,w,pick(Q),x,y,"rgba(90,90,70,.35)");
+    }break;
     case"melon":for(const[x,y]of heap(42,36,12))g+=leaf(16,6,pick(P),x,y);break;
     case"leafy":for(const[x,y]of heap(30,36,12)){const big=R()<.75;g+=leaf(big?22:14,big?8:3.5,big?pick(P):(t.type==="white"?"#E6E5DA":pick(P)),x,y)}break;
     case"ball":for(const[x,y]of heap(80,36,12)){const r=2.6+R()*1.6,c=pick(P);g+=`<path d="M${-r},0 C${-r},${-r*1.1} ${r},${-r*1.1} ${r},0 C${r},${r*.8} ${r*.2},${r} ${-r*.3},${r*.9} C${-r*.9},${r*.7} ${-r},${r*.4} ${-r},0Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width=".5" transform="translate(${f1(x)},${f1(y)}) rotate(${Math.floor(R()*360)})"/>`}break;
@@ -928,6 +949,42 @@ function thermo(t,lo=60,hi=100){
     <div class="therm-ax"><span>60°C</span><span>70</span><span>80</span><span>90</span><span>100°C</span></div>`;
 }
 const tempTxt=t=>t.temp[0]===t.temp[1]?`${t.temp[0]}°C`:`${t.temp[0]}–${t.temp[1]}°C`;
+/* caffeine level + best time of day, inferred from tea type/style */
+function caffeineInfo(t){
+  const type=t.type, id=t.id, shape=SHAPE_OF[id]||t.shape;
+  const roast=(t.f&&typeof t.f.roast==='number')?t.f.roast:0;
+  let lvl=2;
+  if(type==="red") lvl=4;
+  else if(type==="green") lvl=3;
+  else if(type==="yellow") lvl=3;
+  else if(type==="white") lvl=(shape==="bud")?4:(id==="shoumei"||id==="gongmei")?2:3;
+  else if(type==="oolong") lvl=roast>=3?2:3;
+  else if(type==="dark"){
+    const sheng=["shengpu","laobanzhang","bingdao","xiaguan","jingmai","xigui","mansong","nannuoshan","jincha"].includes(id);
+    const ripe=["shupu","laochatou","xiaoqinggan"].includes(id);
+    lvl=sheng?3:(ripe?2:2);
+  }
+  const names=["","Low","Medium","Medium-high","High"];
+  let time=lvl>=4?"morning":lvl===3?"midday":"afternoon";
+  if(id==="shoumei"||id==="shupu"||id==="laochatou"||id==="xiaoqinggan") time="evening";
+  return {lvl,name:names[lvl],time};
+}
+function rhythmHTML(t){
+  const info=caffeineInfo(t);
+  const bean=on=>`<svg viewBox="0 0 18 22" class="${on?'on':'off'}" aria-hidden="true"><path d="M9,1 C13,4 15,10 13,16 C11,20 7,21 5,18 C3,14 5,8 9,1 Z" stroke-width="1.2"/></svg>`;
+  const beans=[1,2,3,4].map(i=>bean(i<=info.lvl)).join("");
+  const slots=[
+   {k:"morning",en:"Morning",icon:'<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M11,14 a5,5 0 0 1 10,0"/><line x1="4" y1="14" x2="28" y2="14"/><line x1="16" y1="4" x2="16" y2="7"/><line x1="8" y1="7" x2="10" y2="9"/><line x1="24" y1="7" x2="22" y2="9"/></g>'},
+   {k:"midday",en:"Midday",icon:'<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><circle cx="16" cy="11" r="4.5"/><line x1="16" y1="2" x2="16" y2="4"/><line x1="16" y1="18" x2="16" y2="20"/><line x1="6" y1="11" x2="4" y2="11"/><line x1="28" y1="11" x2="26" y2="11"/><line x1="9" y1="4" x2="7.5" y2="2.5"/><line x1="23" y1="4" x2="24.5" y2="2.5"/><line x1="9" y1="18" x2="7.5" y2="19.5"/><line x1="23" y1="18" x2="24.5" y2="19.5"/></g>'},
+   {k:"afternoon",en:"Afternoon",icon:'<g stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"><path d="M8,16 a8,8 0 0 1 16,0"/><line x1="3" y1="16" x2="29" y2="16"/><line x1="16" y1="5" x2="16" y2="7"/><line x1="7" y1="8" x2="8.5" y2="9.5"/><line x1="25" y1="8" x2="23.5" y2="9.5"/></g>'},
+   {k:"evening",en:"Evening",icon:'<path d="M22,4 a9,9 0 1 0 4,15 a7,7 0 0 1 -4,-15 Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>'}
+  ];
+  const sl=slots.map(s=>`<div class="slot ${s.k===info.time?'on':''}" title="${s.en}"><svg viewBox="0 0 32 22" aria-hidden="true">${s.icon}</svg><span>${s.en}</span></div>`).join("");
+  return `<div><p class="lab">Caffeine &amp; rhythm</p><div class="rhythm">
+    <div class="rhyrow"><div class="cafbeans" aria-label="Caffeine ${info.lvl} out of 4">${beans}</div><span class="cafname">${info.name} caffeine</span></div>
+    <div class="rhyrow"><div class="dayband">${sl}</div></div>
+  </div></div>`;
+}
 /* harvest → 12-month highlighted strip. Parses English months, Chinese solar terms, seasons, and ranges. */
 function harvestMonths(txt){ if(!txt) return null; const t=String(txt), lo=t.toLowerCase(), M=new Array(12).fill(false);
   const ABB=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
@@ -972,6 +1029,7 @@ function renderSpec(){
     ${t.scented?`<div class="scent">Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types.</div>`:""}
     <div class="meta">${esc(t.place||"")}${t.place?" · ":""}${esc(t.prov)}${t.lv==="county"&&t.place&&!t.place.includes(t.cs)?` · map: ${esc(t.cty)}`:""}${t.lv==="pref"?` · placed at ${esc(t.cty)}`:""}${t.lv==="prov"?" · exact place not given":""}</div>
     ${evidenceHTML(t)}
+    ${rhythmHTML(t)}
     ${sourceBrewHTML(t)}
     <div><p class="lab">Brew it · adjustable starting point</p>
       <div class="brew"><div><b>${tempTxt(t)}</b><span>Water</span></div><div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
@@ -999,6 +1057,7 @@ function renderSpec(){
     ${radar([{cls:"shape",f:t.f}],190)}
     <div><div class="notes">${esc(t.notes)}</div>
       <div class="bodybar">Light<i style="--w:${t.body/5*100}%"></i>Full body</div></div></div></div>
+  ${rhythmHTML(t)}
   ${sourceBrewHTML(t)}
   <div><p class="lab">Brew it · adjustable starting point</p>
     <div class="brew">
