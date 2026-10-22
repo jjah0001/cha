@@ -1770,17 +1770,25 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   /* toggle particles via the badge; remember the choice */
   const KEY="teatime.seasonfx"; try{if(localStorage.getItem(KEY)==="off") fx.style.display="none";}catch(e){}
   if(b) b.addEventListener("click",()=>{const off=fx.style.display==="none"; fx.style.display=off?"":"none"; try{localStorage.setItem(KEY,off?"on":"off");}catch(e){}});
-  /* seasonal ambience toggle — reveal only if Web Audio is available; session-only toggle (user gesture starts it) */
+  /* seasonal ambience toggle — reveal only if Web Audio is available. Defaults ON: starts on first user gesture (browsers block pre-gesture audio), and remembers the preference across visits. */
   const ab=$("seasonAudio");
   if(ab && (window.AudioContext||window.webkitAudioContext)){
     ab.hidden=false;
     const seasonNames={spring:"spring birds & rain",summer:"summer cicadas",autumn:"autumn wind & leaves",winter:"winter wind & bell"};
     ab.title=`Seasonal ambience: ${seasonNames[season]} on a Chinese tea farm`;
+    const AKEY="teatime.ambience";
+    let want; try{want=localStorage.getItem(AKEY);}catch(e){} if(want==null) want="on";
+    const setOn=on=>ab.setAttribute("aria-pressed",on?"true":"false");
     ab.addEventListener("click",()=>{
       const on=ab.getAttribute("aria-pressed")==="true";
-      if(on){stopSeasonalAudio();ab.setAttribute("aria-pressed","false");}
-      else{const ok=startSeasonalAudio(season); if(ok) ab.setAttribute("aria-pressed","true");}
+      if(on){stopSeasonalAudio();setOn(false);try{localStorage.setItem(AKEY,"off");}catch(e){}}
+      else{const ok=startSeasonalAudio(season); if(ok){setOn(true);try{localStorage.setItem(AKEY,"on");}catch(e){}}}
     });
+    if(want==="on"){
+      const kick=()=>{if(ab.getAttribute("aria-pressed")==="true")return; const ok=startSeasonalAudio(season); if(ok)setOn(true);};
+      const once={once:true,capture:true};
+      ["pointerdown","keydown","touchstart"].forEach(ev=>window.addEventListener(ev,kick,once));
+    }
   }
 }catch(e){}})();
  buildMap(); buildChips(); buildColours(); quizStep(); render(); paintTOTD(); routeFromHash();
