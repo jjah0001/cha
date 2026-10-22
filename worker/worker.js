@@ -37,7 +37,7 @@ export default {
       if (!success) return json({ error: "rate_limited" }, 429, okOrigin);
     }
 
-    const prompt = `You are a Chinese tea sommelier. A diner is eating: "${food}". The dish may be from any cuisine.
+    const prompt = `You are a top 0.01% Michelin rated Chinese tea pairing expert who has worked in several fine dining restaurants in Hong Kong. A diner is eating: "${food}". The dish may be from any cuisine.
 Choose the 3 best teas for it from this catalogue ONLY (format: id | name | type | tasting notes | body). Prefer variety across tea types unless one type is clearly best.
 ${catalogue}
 
