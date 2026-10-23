@@ -1230,15 +1230,20 @@ async function wake(on){
   try{ if(on&&!B.lock&&navigator.wakeLock){B.lock=await navigator.wakeLock.request("screen");}
        else if(!on&&B.lock){await B.lock.release();B.lock=null;} }catch(e){B.lock=null}
 }
-/* ── seasonal ambience: a Ningde (宁德) tea-mountain soundscape, synthesised live with Web Audio ──
-   No steady oscillators, chimes or bells: those read as shop doorbells and crossing signals. Every
-   layer is shaped noise (rain, water, wind, fire, cicadas) or a short animal call, placed somewhere
-   in a stereo landscape and sent into a synthetic valley reverb so it sounds like open hillside.
-   Follows the local clock: birds by day, frogs and crickets after dark.
-   spring 春 = 清明 drizzle on the tea rows, eaves dripping, 布谷 / 四声杜鹃 across the valley, bulbuls & 画眉
-   summer 夏 = cicada chorus in the hills, a mountain stream, 斑鸠 doves; paddy frogs and crickets at night
-   autumn 秋 = wind through bamboo and tea bushes, dry leaves, crickets, the odd bulbul
-   winter 冬 = indoors by the wood stove: crackling fire, kettle simmering, cold wind and drips outside */
+/* ── seasonal ambience: a Wuyi (武夷山) rock-tea mountain, synthesised live with Web Audio ──
+   No steady oscillators or chimes: those read as shop doorbells and crossing signals. Every layer is
+   shaped noise (rain, water, wind, fire, cicadas, leaves) or a short call or knock, placed somewhere in
+   a stereo landscape and sent into a synthetic reverb: a narrow rock gorge (坑涧) in spring, an open
+   valley otherwise. The one bell is 天心永乐禅寺's bronze bell, deep, far off and only in the morning.
+   Follows the local clock: birds by day, frogs and crickets after dark, tea-making through the night.
+   spring 春 = 春茶 in the 坑涧: drizzle, a trickle down the gorge, cliff drips, 布谷 / 四声杜鹃, bulbuls & 画眉;
+              from dusk, leaves being shaken in bamboo sieves (摇青) in the tea house as 做青 runs all night
+   summer 夏 = the Nine-Bend Stream (九曲溪): wide water lapping a bamboo raft, the raftsman's pole;
+              cicadas in the hills, 斑鸠 doves; paddy frogs and crickets at night
+   autumn 秋 = 炭焙 in the roasting room: charcoal ticking under the baskets, a basket turned now and then;
+              wind through bamboo and tea bushes outside, crickets
+   winter 冬 = 围炉煮茶 by the wood stove: crackling fire, kettle simmering, cold wind and drips outside
+   mornings  = 天心寺's bell and bouts of 木鱼 drift up from the temple below 大红袍 */
 let SA=null;
 const NBUF={};
 function noiseBuf(kind){
@@ -1266,6 +1271,17 @@ function valleyIR(){
     for(let e=0;e<5;e++){const at=Math.floor(sr*(0.16+e*0.13+Math.random()*0.06)); d[at]+=(Math.random()<.5?-1:1)*0.35*Math.exp(-e*0.6);}}
   return NBUF[key]=b;
 }
+/* stereo impulse of a narrow rock gorge: bright, short tail with fast flutter echoes between the cliff walls */
+function gorgeIR(){
+  const key="gorge"+AC.sampleRate; if(NBUF[key]) return NBUF[key];
+  const sr=AC.sampleRate, len=Math.floor(sr*2.2), b=AC.createBuffer(2,len,sr);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c); let lp=0;
+    for(let i=0;i<len;i++){const t=i/sr, k=Math.max(0.12,0.9*Math.exp(-t*1.1));
+      lp+=k*((Math.random()*2-1)-lp); d[i]=lp*Math.exp(-t*3.2)*(t<0.01?t/0.01:1);}
+    const p=0.045+Math.random()*0.015;
+    for(let e=1;e<30;e++){const at=Math.floor(sr*(e*p*(1+0.03*(c?1:-1))+Math.random()*0.003)); if(at<len) d[at]+=(e%2?-1:1)*0.5*Math.exp(-e*0.18);}}
+  return NBUF[key]=b;
+}
 function startSeasonalAudio(season){
   stopSeasonalAudio(); primeAudio(); if(!AC) return false;
   const me={nodes:[],timers:[]}; SA=me;
@@ -1282,7 +1298,7 @@ function startSeasonalAudio(season){
   const comp=keep(AC.createDynamicsCompressor()); comp.threshold.value=-12; comp.knee.value=8; comp.ratio.value=6; comp.connect(AC.destination);
   const out=keep(G(0)); me.out=out; out.connect(keep(F("highpass",90))).connect(comp); // no rumble: low drones read as traffic and air-con
   out.gain.setValueAtTime(0,now()); out.gain.linearRampToValueAtTime(1.8,now()+3);
-  const verb=keep(AC.createConvolver()); verb.buffer=valleyIR(); verb.connect(keep(G(0.6))).connect(out);
+  const verb=keep(AC.createConvolver()); verb.buffer=season==="spring"?gorgeIR():valleyIR(); verb.connect(keep(G(0.6))).connect(out);
   /* a spot in the landscape: pan −1…1, distance 0 (at your ear) … 1 (across the valley) */
   const place=(pan,dist)=>{
     const inp=keep(G(1)), lp=keep(F("lowpass",15000*Math.pow(1-dist,2)+1500));
@@ -1382,6 +1398,29 @@ function startSeasonalAudio(season){
     bp.frequency.setValueAtTime(fc*0.85,t); bp.frequency.linearRampToValueAtTime(fc,t+rise); bp.frequency.setValueAtTime(fc,H); bp.frequency.linearRampToValueAtTime(fc*0.6,T);
     s.connect(bp).connect(am).connect(env).connect(dest); s.start(t,R(0,5)); s.stop(T+0.1); mod.start(t); mod.stop(T+0.1);};
 
+  /* ── tea making & the temple ── */
+  /* 摇青: leaves tossed in a bamboo sieve, a steady swish in bouts, crisp leaf edges ticking in each toss */
+  const shaking=dest=>{const bout=()=>{const n=20+Math.floor(R(0,25)), per=R(0.6,0.8), t0=now()+0.1;
+      for(let i=0;i<n;i++){const t=t0+i*per*R(0.97,1.03);
+        burst(t,dest,R(0.28,0.4),"bandpass",R(1800,3200),0.9,R(0.02,0.035),R(0.08,0.14));
+        for(let j=0;j<3;j++) burst(t+R(0.05,0.3),dest,0.01,"highpass",R(4000,7000),0.8,R(0.004,0.01));}
+      later(n*per+R(20,60),bout);};
+    later(R(2,8),bout);};
+  /* 炭焙: charcoal ticking under ash, a low glow of embers, and now and then a basket of leaves turned over */
+  const roast=dest=>{const glow=walk(0.3,1,3,10);
+    const hum=bed("pink",dest,[F("bandpass",280,0.9)],0); follow(hum.gain,()=>0.006+0.006*glow());
+    scatter(()=>1+5*glow(),t=>burst(t,dest,R(0.002,0.006),"highpass",R(3000,6500),0.7,R(0.006,0.03)));
+    recur(40,90,t=>{for(let i=0,k=6+Math.floor(R(0,6));i<k;i++) burst(t+i*R(0.12,0.22),dest,R(0.1,0.2),"bandpass",R(1500,2800),0.9,R(0.01,0.02),0.04);},15);};
+  /* 木鱼: a hollow wooden knock at a chanting pace */
+  const woodfish=(t,dest)=>{const n=12+Math.floor(R(0,20)), per=R(0.5,0.62), f=R(420,560);
+    for(let i=0;i<n;i++){const s=t+i*per; bubble(s,dest,f,0.14,0.035,0.9); burst(s,dest,0.008,"bandpass",f*2.2,2,0.015);}};
+  /* 梵钟: a struck bronze temple bell, inharmonic partials with a slow beating hum, low and long */
+  const bell=(t,dest,amp)=>{const f=R(95,120);
+    [[1,1,9],[1.004,0.5,9],[2,0.6,6],[2.4,0.35,5],[3,0.3,4],[4.2,0.18,3],[5.4,0.1,2]].forEach(([m,a,d])=>{const o=AC.createOscillator(), g=AC.createGain();
+      o.frequency.value=f*m*R(0.995,1.005); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(amp*a,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+      o.connect(g).connect(dest); o.start(t); o.stop(t+d+0.05);});
+    burst(t,dest,0.05,"bandpass",f*6,1,amp*0.4);};
+
   /* ── weather & water ── */
   const rain=(level,eaves)=>{const w=walk(0.1,1,8,25), wash=bed("pink",place(0,0.25),[F("highpass",500),F("lowpass",7000)],0);
     follow(wash.gain,()=>0.03*w()*level);
@@ -1395,21 +1434,37 @@ function startSeasonalAudio(season){
   const stream=(level,pan)=>{const sp=[place(pan,0.35),place(pan*0.5,0.4),place(pan*1.2,0.5)];
     bed("pink",sp[0],[F("highpass",300),F("lowpass",2500)],0.03*level); bed("white",sp[1],[F("bandpass",2200,0.8)],0.006*level);
     scatter(()=>28,t=>bubble(t,any(sp),R(400,1400),R(0.02,0.07),R(0.004,0.02)*level,R(1.3,2.2)));};
+  /* a drop off a wet cliff face into a pool */
+  const drip=(t,dest)=>bubble(t,dest,R(900,2200),R(0.04,0.08),R(0.015,0.04),R(1.3,1.8));
+  /* 九曲溪: a wide, slow stream, water lapping the raft close by; returns the near spot */
+  const river=level=>{const sp=[place(-0.6,0.4),place(0.5,0.45)];
+    bed("brown",sp[0],[F("lowpass",700)],0.05*level); bed("pink",sp[1],[F("bandpass",900,0.6)],0.012*level);
+    const near=place(R(-0.2,0.2),0.12);
+    recur(1.5,4.5,t=>{[0,R(0.15,0.35)].forEach(d=>{bubble(t+d,near,R(110,240),R(0.08,0.16),R(0.02,0.04),R(1.2,1.6));
+      burst(t+d,near,R(0.08,0.15),"lowpass",R(500,900),0.7,R(0.01,0.025),0.02);});},1);
+    return near;};
+  /* the raftsman's bamboo pole: a hollow knock on the raft, the push through water, drops running off */
+  const pole=(t,dest)=>{bubble(t,dest,R(300,420),0.09,0.04,0.95); burst(t,dest,0.015,"bandpass",1200,3,0.03);
+    burst(t+0.05,dest,R(0.25,0.4),"bandpass",R(900,1500),0.8,0.03,0.03);
+    for(let i=0;i<4;i++) bubble(t+0.4+R(0,0.9),dest,R(900,1800),0.04,R(0.006,0.015),1.5);};
   /* wind with gusts; returns the gust envelope (0…1) so leaves, bamboo and whistles can ride it */
   const wind=(lo,hi,fLo,fHi,lpf)=>{const w=walk(0,1,3,9), bp=F("bandpass",fLo,0.7), g=bed("pink",place(0,0.3),lpf?[F("lowpass",lpf),bp]:[bp],lo);
     follow(g.gain,()=>{const x=w();return lo+(hi-lo)*x*x;}); follow(bp.frequency,()=>fLo+(fHi-fLo)*w()); return w;};
 
   if(season==="spring"){
-    /* 清明 drizzle that comes and goes over the tea rows, a stream down in the gully */
-    const wet=rain(1,true); stream(0.5,-0.7);
-    if(night) frogs(5,0.03);
-    else{const trees=spots(4,[-0.9,0.9],[0.25,0.55]), pace=dawn?0.5:1;
+    /* 春茶 in the 坑涧: drizzle over the tea rows, a trickle down the gorge, drips off the cliffs */
+    const wet=rain(0.8,false); stream(0.35,-0.7);
+    const cliff=spots(3,[-0.9,0.9],[0.3,0.6]); recur(1.5,5,t=>drip(t,any(cliff)),1);
+    /* 做青 runs through the night: leaves shaken in sieves in the tea house up the path */
+    if(night||dusk){shaking(place(0.35,0.2)); frogs(night?5:2,0.03);}
+    if(!night){const trees=spots(4,[-0.9,0.9],[0.25,0.55]), pace=dawn?0.5:1;
       recur(6*pace,16*pace,t=>{if(wet()<0.85||chance(0.2)) bird(t,any(trees),"bulbul",0.03);},3);
       recur(15*pace,35*pace,t=>{if(wet()<0.7) bird(t,any(trees),"hwamei",0.03);},8);}
     const valley=spots(2,[-0.8,0.8],[0.75,0.9]);
     recur(night?40:25,night?90:55,t=>cuckoo(t,any(valley),0.05),night?20:5);
   } else if(season==="summer"){
-    stream(night?0.9:0.7,-0.6);
+    river(night?0.9:0.7);
+    if(!night){const raft=place(R(-0.4,0.4),0.3); recur(9,20,t=>pole(t,raft),4);}
     if(night||dusk){frogs(night?7:3,0.035); spots(3,[-0.8,0.8],[0.3,0.7]).forEach(sp=>cricket(sp,0.01));}
     if(!night){
       /* the hills full of cicadas: a shimmering distant mass, with nearer individuals swelling in and out */
@@ -1422,7 +1477,9 @@ function startSeasonalAudio(season){
       recur(15,30,t=>bird(t,any(trees),"bulbul",0.025),10);}
   } else if(season==="autumn"){
     /* 秋风 through tea rows and a bamboo grove: rustling leaves and hollow stalks knocking in the gusts */
-    const gust=wind(night?0.03:0.05,night?0.1:0.2,350,1100);
+    /* 炭焙 in the roasting room, the door open to the wind */
+    roast(place(0.2,0.06));
+    const gust=wind(night?0.02:0.035,night?0.07:0.14,350,1100);
     const grove=spots(4,[-1,1],[0.15,0.5]);
     scatter(()=>2+30*Math.pow(gust(),2),t=>burst(t,any(grove),R(0.005,0.03),"bandpass",R(2800,7000),1.2,R(0.015,0.07)));
     const stalks=spots(2,[-0.8,0.8],[0.2,0.45]);
@@ -1449,6 +1506,10 @@ function startSeasonalAudio(season){
     const eave=place(-0.6,0.35), f=R(700,1000);
     recur(1.5,4,t=>{bubble(t,eave,f*R(0.92,1.08),0.06,0.04,1.3); burst(t,eave,0.012,"bandpass",2200,2,0.02);},2);
   }
+  /* the temple below 大红袍: a bell in the early morning, 木鱼 in bouts through the day */
+  const temple=place(R(-0.9,0.9),0.95);
+  if(hr>=5&&hr<10) recur(150,300,t=>bell(t,temple,0.05),12);
+  if(hr>=5&&hr<18) recur(180,420,t=>woodfish(t,temple),45);
   return true;
 }
 function stopSeasonalAudio(){
@@ -1943,8 +2004,8 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   const ab=$("seasonAudio");
   if(ab && (window.AudioContext||window.webkitAudioContext)){
     ab.hidden=false;
-    const seasonNames={spring:"清明 drizzle, cuckoos & bulbuls",summer:"cicadas, a mountain stream & paddy frogs",autumn:"wind in the bamboo & crickets",winter:"a crackling wood stove & kettle"};
-    ab.title=`Seasonal ambience: ${seasonNames[season]}, on a Ningde tea mountain`;
+    const seasonNames={spring:"spring rain in the rock gorges, cuckoos, and leaves shaken in sieves through the night",summer:"the Nine-Bend Stream lapping a bamboo raft, cicadas & paddy frogs",autumn:"charcoal roasting in the tea house, wind in the bamboo & crickets",winter:"a crackling wood stove & kettle"};
+    ab.title=`Seasonal ambience: ${seasonNames[season]}, on Wuyi Mountain (武夷山)`;
     const AKEY="teatime.ambience";
     let want; try{want=localStorage.getItem(AKEY);}catch(e){} if(want==null) want="on";
     const setOn=on=>ab.setAttribute("aria-pressed",on?"true":"false");
