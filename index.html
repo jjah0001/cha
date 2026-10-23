@@ -538,9 +538,13 @@ nav.chap{z-index:5}
   background:radial-gradient(closest-side,var(--fx-mist),transparent);opacity:var(--op,.6);animation:smist var(--dur,70s) ease-in-out var(--dly,0s) infinite alternate}
 @keyframes smist{from{transform:translateX(-12vw)}to{transform:translateX(12vw)}}
 
-/* nothing animated if the user prefers reduced motion (the landscape stays, still), unless they switch it
-   on from the season badge: that explicit choice sets .fx-on and wins */
-@media (prefers-reduced-motion:reduce){:root:not(.fx-on) .seasonfx{display:none}:root:not(.fx-on) .wuyi *{animation:none!important}:root:not(.fx-on) .wuyi .smoke,:root:not(.fx-on) .wuyi .raft{display:none}}
+/* reduced motion gets a gentler scene rather than none: slower falls with no spin or sway, fireflies that
+   only glow, no fast rain streaks. The season badge still switches everything off. */
+@media (prefers-reduced-motion:reduce){
+  .seasonfx span{animation:sfall calc(var(--dur,16s)*1.5) linear var(--dly,0s) infinite;--spin:0deg}
+  :root[data-season="winter"] .seasonfx span{animation:srise calc(var(--dur,16s)*1.5) linear var(--dly,0s) infinite}
+  .seasonfx i.rain{display:none}
+  .seasonfx i.fly{animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite}}
 </style>
 
 <div class="wrap">
@@ -1998,10 +2002,11 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   if(season==="spring"||season==="winter") extra("mist",3,()=>({x:(rng()*70-20).toFixed(0)+"vw",b:(rng()*18).toFixed(0)+"vh",w:(70+rng()*50).toFixed(0)+"vw",h:(14+rng()*14).toFixed(0)+"vh",dur:(50+rng()*40).toFixed(0)+"s",dly:(-rng()*60).toFixed(0)+"s",op:(season==="spring"?.7:.55).toFixed(2)}));
   document.body.appendChild(fx);
   /* toggle particles via the badge; remember the choice */
-  /* default: on, or off if the system asks for reduced motion; a stored choice from the badge overrides both */
-  const KEY="teatime.seasonfx"; let stored=null; try{stored=localStorage.getItem(KEY);}catch(e){}
-  let fxOn=stored==="on"||(stored!=="off"&&!matchMedia("(prefers-reduced-motion: reduce)").matches);
-  const setFx=on=>{fx.style.display=on?"":"none"; land.classList.toggle("still",!on); document.documentElement.classList.toggle("fx-on",on);};
+  /* on unless switched off from the badge (reduced motion gets the gentler CSS version, not nothing).
+     v2 key: drops "off" choices saved by older builds, when the badge was the only way to get motion back */
+  const KEY="teatime.seasonfx.v2"; let stored=null; try{stored=localStorage.getItem(KEY);}catch(e){}
+  let fxOn=stored!=="off";
+  const setFx=on=>{fx.style.display=on?"":"none"; land.classList.toggle("still",!on);};
   setFx(fxOn);
   if(b) b.addEventListener("click",()=>{fxOn=!fxOn; setFx(fxOn); try{localStorage.setItem(KEY,fxOn?"on":"off");}catch(e){}});
   /* seasonal ambience toggle — reveal only if Web Audio is available. Defaults ON: starts on first user gesture (browsers block pre-gesture audio), and remembers the preference across visits. */
