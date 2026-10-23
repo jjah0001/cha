@@ -538,8 +538,9 @@ nav.chap{z-index:5}
   background:radial-gradient(closest-side,var(--fx-mist),transparent);opacity:var(--op,.6);animation:smist var(--dur,70s) ease-in-out var(--dly,0s) infinite alternate}
 @keyframes smist{from{transform:translateX(-12vw)}to{transform:translateX(12vw)}}
 
-/* nothing animated if the user prefers reduced motion; the landscape stays, still */
-@media (prefers-reduced-motion:reduce){.seasonfx{display:none}.wuyi *{animation:none!important}.wuyi .smoke,.wuyi .raft{display:none}}
+/* nothing animated if the user prefers reduced motion (the landscape stays, still), unless they switch it
+   on from the season badge: that explicit choice sets .fx-on and wins */
+@media (prefers-reduced-motion:reduce){:root:not(.fx-on) .seasonfx{display:none}:root:not(.fx-on) .wuyi *{animation:none!important}:root:not(.fx-on) .wuyi .smoke,:root:not(.fx-on) .wuyi .raft{display:none}}
 </style>
 
 <div class="wrap">
@@ -1997,9 +1998,12 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   if(season==="spring"||season==="winter") extra("mist",3,()=>({x:(rng()*70-20).toFixed(0)+"vw",b:(rng()*18).toFixed(0)+"vh",w:(70+rng()*50).toFixed(0)+"vw",h:(14+rng()*14).toFixed(0)+"vh",dur:(50+rng()*40).toFixed(0)+"s",dly:(-rng()*60).toFixed(0)+"s",op:(season==="spring"?.7:.55).toFixed(2)}));
   document.body.appendChild(fx);
   /* toggle particles via the badge; remember the choice */
-  const KEY="teatime.seasonfx"; try{if(localStorage.getItem(KEY)==="off") fx.style.display="none";}catch(e){}
-  if(fx.style.display==="none") land.classList.add("still");
-  if(b) b.addEventListener("click",()=>{const off=fx.style.display==="none"; fx.style.display=off?"":"none"; land.classList.toggle("still",!off); try{localStorage.setItem(KEY,off?"on":"off");}catch(e){}});
+  /* default: on, or off if the system asks for reduced motion; a stored choice from the badge overrides both */
+  const KEY="teatime.seasonfx"; let stored=null; try{stored=localStorage.getItem(KEY);}catch(e){}
+  let fxOn=stored==="on"||(stored!=="off"&&!matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const setFx=on=>{fx.style.display=on?"":"none"; land.classList.toggle("still",!on); document.documentElement.classList.toggle("fx-on",on);};
+  setFx(fxOn);
+  if(b) b.addEventListener("click",()=>{fxOn=!fxOn; setFx(fxOn); try{localStorage.setItem(KEY,fxOn?"on":"off");}catch(e){}});
   /* seasonal ambience toggle — reveal only if Web Audio is available. Defaults ON: starts on first user gesture (browsers block pre-gesture audio), and remembers the preference across visits. */
   const ab=$("seasonAudio");
   if(ab && (window.AudioContext||window.webkitAudioContext)){
