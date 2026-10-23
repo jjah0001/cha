@@ -486,11 +486,12 @@ nav.chap{z-index:5}
 @keyframes ssway{from{margin-left:-22px}to{margin-left:22px}}
 
 /* Tea-themed particle silhouettes — all SVG data URIs so they stay crisp. Each season picks one of
-   two variants per particle (set as --v in JS) for a touch of variety. */
+   the four silhouettes below; winter's steam is a mask so it can be tinted per theme. */
 :root[data-season="spring"] .seasonfx span{background-image:var(--sfx-spring)}
 :root[data-season="summer"] .seasonfx span{background-image:var(--sfx-summer)}
 :root[data-season="autumn"] .seasonfx span{background-image:var(--sfx-autumn)}
-:root[data-season="winter"] .seasonfx span{background-image:var(--sfx-winter);--spin:0deg;top:auto;bottom:-10%;
+:root[data-season="winter"] .seasonfx span{background-image:none;background-color:var(--fx-steam);
+  -webkit-mask:var(--sfx-winter) center/contain no-repeat;mask:var(--sfx-winter) center/contain no-repeat;--spin:0deg;top:auto;bottom:-10%;
   animation-name:srise,ssway}
 @keyframes srise{0%{transform:translateY(0) rotate(0)}10%{opacity:var(--op,.5)}92%{opacity:var(--op,.5)}100%{transform:translateY(-125vh) rotate(0);opacity:0}}
 :root{
@@ -504,8 +505,41 @@ nav.chap{z-index:5}
   --sfx-winter:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M12 26 C 8 20, 18 16, 12 10 C 8 6, 14 4, 16 4' stroke='%23f0f6f8' stroke-width='2.6' fill='none' stroke-linecap='round' opacity='.9'/><path d='M20 26 C 24 20, 14 16, 20 10 C 24 6, 18 4, 16 4' stroke='%23f0f6f8' stroke-width='2.2' fill='none' stroke-linecap='round' opacity='.7'/><rect x='9' y='26' width='14' height='2.2' rx='1' fill='%23f0f6f8' opacity='.75'/></svg>");
 }
 
-/* nothing animated if the user prefers reduced motion */
-@media (prefers-reduced-motion:reduce){.seasonfx{display:none}}
+/* 武夷童年: a childhood on a Wuyi tea mountain. A faint landscape along the bottom (danxia peaks,
+   tea rows, a picker in a bamboo hat, the family roasting house, a raft on the Nine-Bend Stream), plus
+   one memory per season: 清明 drizzle and mountain mist, summer-night fireflies, embers from the autumn
+   charcoal roast, kettle steam and morning mist in winter. */
+:root{--fx-mist:rgba(255,255,255,.8);--fx-rain:rgba(60,95,85,.5);--fx-fly:#C9A21F;--fx-fly-glow:rgba(222,184,48,.55);--fx-ember:#D2581F;--fx-steam:#7F949C}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fx-mist:rgba(190,212,202,.08);--fx-rain:rgba(180,210,200,.4);--fx-fly:#F4DA6A;--fx-fly-glow:rgba(244,218,106,.6);--fx-ember:#F08A3E;--fx-steam:#E6EEF0}}
+:root[data-theme="dark"]{--fx-mist:rgba(190,212,202,.08);--fx-rain:rgba(180,210,200,.4);--fx-fly:#F4DA6A;--fx-fly-glow:rgba(244,218,106,.6);--fx-ember:#F08A3E;--fx-steam:#E6EEF0}
+.wuyi{position:fixed;left:0;right:0;bottom:0;height:clamp(110px,24vh,260px);pointer-events:none;z-index:0;color:var(--season-accent,var(--t-oolong))}
+.wuyi svg{display:block;width:100%;height:100%}
+.wuyi .far{opacity:.07}.wuyi .near{opacity:.09}.wuyi .rows{opacity:.12}.wuyi .fig{opacity:.2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wuyi{filter:brightness(.7)}}
+:root[data-theme="dark"] .wuyi{filter:brightness(.7)}
+.wuyi .rows path{fill:none;stroke:currentColor;stroke-width:4.5;stroke-linecap:round}
+.wuyi .creek{fill:var(--paper);opacity:.45}
+.wuyi .smoke path{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;opacity:0;transform-box:fill-box;animation:ssmoke 7s ease-out infinite}
+.wuyi .smoke path:nth-child(2){animation-delay:-2.3s}.wuyi .smoke path:nth-child(3){animation-delay:-4.6s}
+@keyframes ssmoke{0%{transform:translate(0,0) scale(.6);opacity:0}20%{opacity:.5}100%{transform:translate(16px,-42px) scale(1.4);opacity:0}}
+.wuyi .raft{animation:sraft 140s linear -40s infinite}
+@keyframes sraft{from{transform:translateX(-90px)}to{transform:translateX(760px)}}
+.wuyi.still *{animation-play-state:paused}
+.seasonfx i{position:absolute;display:block;opacity:0}
+.seasonfx i.rain{top:-10%;left:var(--x);width:1px;height:var(--len,16px);background:linear-gradient(transparent,var(--fx-rain));animation:srain var(--dur,1.6s) linear var(--dly,0s) infinite}
+@keyframes srain{0%{transform:translate(0,-10vh) rotate(10deg);opacity:var(--op,.4)}100%{transform:translate(-20vh,120vh) rotate(10deg);opacity:var(--op,.4)}}
+.seasonfx i.fly{left:var(--x);top:var(--y);width:5px;height:5px;border-radius:50%;background:var(--fx-fly);box-shadow:0 0 7px 2px var(--fx-fly-glow);
+  animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite,sdrift var(--dur,9s) ease-in-out var(--dly,0s) infinite alternate}
+@keyframes sblink{0%,100%{opacity:0}40%,60%{opacity:var(--op,.85)}}
+@keyframes sdrift{from{transform:translate(0,0)}to{transform:translate(var(--dx,30px),var(--dy,-20px))}}
+.seasonfx i.ember{left:var(--x);bottom:-2%;width:3px;height:3px;border-radius:50%;background:var(--fx-ember);box-shadow:0 0 5px 1px var(--fx-ember);animation:sember var(--dur,7s) ease-out var(--dly,0s) infinite}
+@keyframes sember{0%{transform:translate(0,0);opacity:0}10%{opacity:var(--op,.8)}70%{opacity:calc(var(--op,.8)*.5)}100%{transform:translate(var(--dx,20px),-45vh);opacity:0}}
+.seasonfx .mist{position:absolute;left:var(--x);bottom:var(--b,6vh);width:var(--w,90vw);height:var(--h,22vh);border-radius:50%;
+  background:radial-gradient(closest-side,var(--fx-mist),transparent);opacity:var(--op,.6);animation:smist var(--dur,70s) ease-in-out var(--dly,0s) infinite alternate}
+@keyframes smist{from{transform:translateX(-12vw)}to{transform:translateX(12vw)}}
+
+/* nothing animated if the user prefers reduced motion; the landscape stays, still */
+@media (prefers-reduced-motion:reduce){.seasonfx{display:none}.wuyi *{animation:none!important}.wuyi .smoke,.wuyi .raft{display:none}}
 </style>
 
 <div class="wrap">
@@ -1863,28 +1897,48 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   /* ?season=summer etc. previews another season (visuals + ambience) without changing the clock */
   const force=new URLSearchParams(location.search).get("season");
   const season=flip[force]?force:south?flip[N[m]]:N[m];
-  const names={spring:"Spring 春 · petals",summer:"Summer 夏 · motes",autumn:"Autumn 秋 · leaves",winter:"Winter 冬 · snow"};
+  const names={spring:"Spring 春 · new buds & 清明 drizzle",summer:"Summer 夏 · fireflies over the tea rows",autumn:"Autumn 秋 · embers from the charcoal roast",winter:"Winter 冬 · kettle steam & morning mist"};
   document.documentElement.setAttribute("data-season",season);
   const b=$("seasonBadge"); if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season].split(" · ")[0]}`;b.title=`Themed to ${names[season].toLowerCase()} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}). Click to toggle animation.`;}
-  /* particle overlay — 22 drifting particles with randomised size/speed/delay */
+  /* 武夷 landscape along the bottom, drawn once in the season's accent colour */
+  const rowPath=b=>{let d=""; for(let x=0;x<=1200;x+=24){const y=x=>b+5*Math.sin(x/170+b), y0=y(x), y1=y(x+24);
+    d+=(x?"":`M0 ${y0.toFixed(1)}`)+`Q${x+12} ${((y0+y1)/2-9).toFixed(1)} ${x+24} ${y1.toFixed(1)}`;} return `<path d="${d}"/>`;};
+  const land=document.createElement("div"); land.className="wuyi"; land.setAttribute("aria-hidden","true");
+  land.innerHTML=`<svg viewBox="0 0 1200 260" preserveAspectRatio="xMidYMax slice" fill="currentColor">
+    <path class="far" d="M0 260V170C30 160 50 150 70 150C95 150 100 120 110 95C118 70 150 65 160 90C170 115 172 140 190 150C220 160 250 150 270 140C285 132 290 80 300 60C312 35 345 32 355 60C365 88 362 130 380 140C410 155 450 150 480 145C500 140 505 110 515 100C528 88 550 90 558 105C566 120 570 140 600 145C640 150 680 130 700 120C712 110 715 60 728 45C742 30 770 32 778 55C788 80 785 118 805 130C840 148 880 140 910 135C930 130 935 95 948 85C962 75 985 80 990 100C996 120 1000 140 1030 145C1070 150 1100 140 1130 130C1150 125 1160 100 1172 95C1185 92 1195 105 1200 115V260Z"/>
+    <path class="near" d="M0 260V200C150 175 300 165 450 180C600 195 700 205 850 190C1000 175 1100 185 1200 200V260Z"/>
+    <g class="rows">${[204,217,230,243].map(rowPath).join("")}</g>
+    <path class="creek" d="M0 236C90 228 170 246 260 242C350 238 400 230 480 238C560 246 640 236 760 248V253C640 244 560 252 480 245C400 238 350 247 260 249C170 252 90 236 0 245Z"/>
+    <g class="fig">
+      <path d="M371 197L380 189L389 197Z"/><path d="M380 197L379 211" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="386" cy="205" r="4"/>
+      <path d="M938 170Q952 169 970 154Q988 169 1002 170L996 174H944Z"/><rect x="946" y="174" width="48" height="16"/><rect x="984" y="150" width="6" height="14"/>
+      <rect class="raft" x="0" y="238" width="36" height="4" rx="2"/>
+    </g>
+    <g class="fig raft"><circle cx="16" cy="224" r="3"/><path d="M16 227V238M28 240L42 210" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+    <g class="smoke"><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/></g>
+  </svg>`;
+  document.body.appendChild(land);
+  /* particle overlay: the season's leaves/buds/steam with randomised size, speed and delay */
   const fx=document.createElement("div"); fx.className="seasonfx"; fx.setAttribute("aria-hidden","true");
-  const N_P=20, rng=()=>Math.random();
+  const N_P={spring:14,summer:10,autumn:16,winter:18}[season], rng=()=>Math.random();
+  const put=(el,o)=>{for(const k in o) el.style.setProperty("--"+k,o[k]); fx.appendChild(el); return el;};
   /* tea leaves are 18–34 px, steam curls 22–40 px; durations slow so they feel ambient */
   const minSz=season==="winter"?22:18, maxSz=season==="winter"?40:34;
-  for(let i=0;i<N_P;i++){const s=document.createElement("span");
-    const sz=minSz+Math.floor(rng()*(maxSz-minSz));
-    s.style.setProperty("--x",(rng()*100).toFixed(2)+"vw");
-    s.style.setProperty("--sz",sz+"px");
-    s.style.setProperty("--dur",(14+rng()*18).toFixed(1)+"s");
-    s.style.setProperty("--dly",(-rng()*24).toFixed(1)+"s");
-    s.style.setProperty("--sway",(4+rng()*5).toFixed(1)+"s");
-    s.style.setProperty("--op",(season==="winter"?.35:.5+rng()*.3).toFixed(2));
-    s.style.setProperty("--spin",(season==="winter"?0:(rng()*720-360).toFixed(0))+"deg");
-    fx.appendChild(s);}
+  for(let i=0;i<N_P;i++) put(document.createElement("span"),{
+    x:(rng()*100).toFixed(2)+"vw", sz:minSz+Math.floor(rng()*(maxSz-minSz))+"px",
+    dur:(14+rng()*18).toFixed(1)+"s", dly:(-rng()*24).toFixed(1)+"s", sway:(4+rng()*5).toFixed(1)+"s",
+    op:(season==="winter"?.35:.5+rng()*.3).toFixed(2), spin:(season==="winter"?0:(rng()*720-360).toFixed(0))+"deg"});
+  /* the season's memory: drizzle, fireflies, roasting embers; mist in spring and winter */
+  const extra=(cls,n,f)=>{for(let i=0;i<n;i++){const e=document.createElement("i"); e.className=cls; put(e,f());}};
+  if(season==="spring") extra("rain",26,()=>({x:(rng()*120).toFixed(1)+"vw",len:(10+rng()*14).toFixed(0)+"px",dur:(1.1+rng()*.9).toFixed(2)+"s",dly:(-rng()*2).toFixed(2)+"s",op:(.25+rng()*.25).toFixed(2)}));
+  if(season==="summer") extra("fly",16,()=>({x:(rng()*100).toFixed(1)+"vw",y:(45+rng()*50).toFixed(1)+"vh",blink:(2.2+rng()*2.5).toFixed(1)+"s",dur:(6+rng()*8).toFixed(1)+"s",dly:(-rng()*8).toFixed(1)+"s",dx:(rng()*80-40).toFixed(0)+"px",dy:(rng()*-50).toFixed(0)+"px",op:(.6+rng()*.35).toFixed(2)}));
+  if(season==="autumn") extra("ember",12,()=>({x:(55+rng()*40).toFixed(1)+"vw",dur:(6+rng()*6).toFixed(1)+"s",dly:(-rng()*12).toFixed(1)+"s",dx:(rng()*60-20).toFixed(0)+"px",op:(.5+rng()*.4).toFixed(2)}));
+  if(season==="spring"||season==="winter") extra("mist",3,()=>({x:(rng()*70-20).toFixed(0)+"vw",b:(rng()*18).toFixed(0)+"vh",w:(70+rng()*50).toFixed(0)+"vw",h:(14+rng()*14).toFixed(0)+"vh",dur:(50+rng()*40).toFixed(0)+"s",dly:(-rng()*60).toFixed(0)+"s",op:(season==="spring"?.7:.55).toFixed(2)}));
   document.body.appendChild(fx);
   /* toggle particles via the badge; remember the choice */
   const KEY="teatime.seasonfx"; try{if(localStorage.getItem(KEY)==="off") fx.style.display="none";}catch(e){}
-  if(b) b.addEventListener("click",()=>{const off=fx.style.display==="none"; fx.style.display=off?"":"none"; try{localStorage.setItem(KEY,off?"on":"off");}catch(e){}});
+  if(fx.style.display==="none") land.classList.add("still");
+  if(b) b.addEventListener("click",()=>{const off=fx.style.display==="none"; fx.style.display=off?"":"none"; land.classList.toggle("still",!off); try{localStorage.setItem(KEY,off?"on":"off");}catch(e){}});
   /* seasonal ambience toggle — reveal only if Web Audio is available. Defaults ON: starts on first user gesture (browsers block pre-gesture audio), and remembers the preference across visits. */
   const ab=$("seasonAudio");
   if(ab && (window.AudioContext||window.webkitAudioContext)){
