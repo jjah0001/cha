@@ -44,6 +44,10 @@ and reviews module. Opening the template directly causes `DATA is not defined`.
 - A name that matches a full profile adds a "From the record" paragraph to that profile and removes its "General entry" note.
 - Teas with no row show "No individual record found" (plus their group background, if any). That is deliberate: never write a history that a source you opened doesn't support. Mark legends and single-source claims as such ("Tradition says…", "This source says…").
 
+## Health notes
+
+Every tea card has a "Health notes 茶与健康" panel of small boxes: one idea per box, plus a "Mind the cup" row (hot drinks, caffeine, iron, and fluoride for brick teas). The tiles, their Chinese-language sources and the rule that picks tiles per tea (by type, plus ripe pu'er, Fu brick "golden flower", brick-tea fluoride and albino "white-leaf" greens) live in `health.js`. Each tile shows its evidence as 1–3 leaves: 3 = meta-analysis of human trials, 2 = cohort or small human study, 1 = lab/animal only; "Leaf chemistry" marks composition facts that aren't health claims. Topics with no Chinese source that was actually read (jasmine aroma and mood, oral health, bone density) are left out on purpose.
+
 ## Public star ratings
 
 Every tea card has a Rating section: the average, the number of ratings, a 5-to-1 breakdown, and five stars to tap for your own rating (tap another star to change it, or "Remove my rating"). There are no written reviews and no sign-up. Tea cards show "★ 4.3 (12)" and the list can be sorted by **Top rated** (a weighted average, so one 5-star vote doesn't beat twenty 4.5s) or **Most rated**. Rating a tea that's on your shelf also updates the shelf's stars.

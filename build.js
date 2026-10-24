@@ -107,12 +107,14 @@ console.log("geocode", lvl);
 const research = require("./research.json");
 const researchByName = new Map(research.teas.map(t => [t.zh, t]));
 const { suggestPairings } = require("./pairing-suggestions.js");
+const HEALTH = require("./health.js");
 for (const t of [...teas, ...IDX.teas]) {
   t.evidence = researchByName.get(t.zh) || null;
   t.pairingSuggestions = suggestPairings(t);
+  t.hb = HEALTH.pick(t);
 }
 const data = { W, H, provinces, qhPath, teas: teas.map(t => ({ ...t })), types, X: IDX.teas, XS: IDX.sources, XG: IDX.groups || {}, PM: provMeta,
-  researchSources: research.sources, brewingGroups: research.brewingGroups, researchDate: research.checkedOn };
+  researchSources: research.sources, HB: { tiles: HEALTH.tiles, sources: HEALTH.sources }, brewingGroups: research.brewingGroups, researchDate: research.checkedOn };
 let html = fs.readFileSync(__dirname + "/index.html", "utf8");
 if (!html.includes("/*__DATA__*/")) throw new Error("index.html must contain the DATA build placeholder");
 html = html.replace("/*__DATA__*/", () => "const DATA = " + JSON.stringify(data).replace(/</g, "\\u003c") + ";");

@@ -27,3 +27,12 @@ for(const t of [...knownTypes].map(type=>({type})).concat([{type:'green',scented
   p.items.forEach(i=>assert(i.food && i.reason));
 }
 console.log(`${research.teas.length} research tea records and pairing styles validated.`);
+const health = require('./health.js');
+for (const [k,s] of Object.entries(health.sources)) { assert.match(s.url, /^https?:\/\//, k); new URL(s.url); assert(s.title && s.pub, k); }
+for (const [k,b] of Object.entries(health.tiles)) {
+  assert(b.icon && b.title && b.note && b.src?.length, k); assert(b.warn || [0,1,2,3].includes(b.ev), k);
+  b.src.forEach(s => assert(health.sources[s], `${k}: missing source ${s}`));
+}
+for (const t of [...research.teas, ...knownTypes].map(t => typeof t === 'string' ? {type:t, zh:'', id:''} : t))
+  health.pick(t).forEach(k => assert(health.tiles[k], 'unknown health tile '+k));
+console.log(`${Object.keys(health.tiles).length} health tiles and ${Object.keys(health.sources).length} sources validated.`);

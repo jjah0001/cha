@@ -459,6 +459,36 @@ html{scroll-behavior:smooth}
 .pair-advice{padding-left:20px}.pair-advice li{margin:10px 0}
 .pair-advice small{display:block;color:var(--ink-2)}
 
+/* health boxes: one idea per tile, evidence shown as 1–3 leaves */
+.health{display:grid;gap:12px;padding:16px;border-radius:12px;position:relative;overflow:hidden;
+  background:linear-gradient(160deg,color-mix(in srgb,var(--tc) 9%,var(--card)),var(--card) 70%);border:1px solid color-mix(in srgb,var(--tc) 28%,var(--rule))}
+.health::before{content:"养";position:absolute;right:10px;top:-14px;font:96px/1 var(--f-kai);color:var(--tc);opacity:.07;pointer-events:none}
+html[data-script="hant"] .health::before{content:"養"}
+.hhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.hhead .lab{margin:0}.hhead .lab .han{font:15px var(--f-kai);letter-spacing:0;color:var(--tc);margin-left:6px;text-transform:none}
+.hkey{display:inline-flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--ink-2)}.hkey span{display:inline-flex;gap:4px;align-items:center}
+.hgrid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.hbox{position:relative;display:grid;grid-template-rows:auto auto 1fr auto;gap:4px;padding:11px 12px 10px;border-radius:10px;background:var(--card);
+  border:1px solid color-mix(in srgb,var(--tc) 22%,var(--rule));box-shadow:0 1px 0 color-mix(in srgb,var(--tc) 12%,transparent);
+  animation:hbox-in .45s cubic-bezier(.2,.7,.3,1) both;animation-delay:calc(var(--i,0) * 55ms);transition:transform .18s,border-color .18s,box-shadow .18s}
+.hbox:hover{transform:translateY(-2px);border-color:var(--tc);box-shadow:0 6px 14px -8px color-mix(in srgb,var(--tc) 60%,transparent)}
+.hic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--tc);background:color-mix(in srgb,var(--tc) 13%,var(--paper))}
+.hic svg{width:18px;height:18px}
+.hbox b{font:400 15px/1.2 var(--f-display);color:var(--ink)}
+.hbox small{font-size:12.5px;line-height:1.35;color:var(--ink-2)}
+.hev{display:inline-flex;gap:2px;align-items:center;margin-top:4px;color:var(--tc)}
+.hev svg{width:11px;height:11px}.hev .off{opacity:.22}
+.hev em{font-style:normal;font-size:10.5px;letter-spacing:.04em;color:var(--ink-2);margin-left:5px}
+.hbox.warn{background:color-mix(in srgb,var(--seal) 5%,var(--card));border-color:color-mix(in srgb,var(--seal) 30%,var(--rule));border-style:dashed}
+.hbox.warn .hic{color:var(--seal);background:color-mix(in srgb,var(--seal) 12%,var(--paper))}
+.hbox.warn:hover{border-color:var(--seal);box-shadow:0 6px 14px -8px color-mix(in srgb,var(--seal) 55%,transparent)}
+.hsub{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--ink-2);margin:4px 0 -2px}
+.health details{font-size:12.5px}.health summary{cursor:pointer;color:var(--ink-2)}
+.health .srcs li{margin:3px 0}.health .srcs em{font-style:normal;opacity:.8}
+.hfoot{margin:0;font-size:11.5px;color:var(--ink-2)}
+@keyframes hbox-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.hbox{animation:none}.hbox:hover{transform:none}}
+
 /* seasonal animated overlay: fixed, non-interactive. Lives behind the content stacking context so it
    never covers text. Tea-themed: spring = young buds, summer = open leaves, autumn = oxidised leaves,
    winter = rising steam curls. */
@@ -1088,6 +1118,7 @@ function renderSpec(){
     <div class="meta">${esc(t.place||"")}${t.place?" · ":""}${esc(t.prov)}${t.lv==="county"&&t.place&&!t.place.includes(t.cs)?` · map: ${esc(t.cty)}`:""}${t.lv==="pref"?` · placed at ${esc(t.cty)}`:""}${t.lv==="prov"?" · exact place not given":""}</div>
     ${evidenceHTML(t)}
     ${rhythmHTML(t)}
+    ${healthHTML(t)}
     ${sourceBrewHTML(t)}
     <div><p class="lab">Brew it · adjustable starting point</p>
       <div class="brew"><div><b>${tempTxt(t)}</b><span>Water</span></div><div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
@@ -1116,6 +1147,7 @@ function renderSpec(){
     <div><div class="notes">${esc(t.notes)}</div>
       <div class="bodybar">Light<i style="--w:${t.body/5*100}%"></i>Full body</div></div></div></div>
   ${rhythmHTML(t)}
+  ${healthHTML(t)}
   ${sourceBrewHTML(t)}
   <div><p class="lab">Brew it · adjustable starting point</p>
     <div class="brew">
