@@ -27,12 +27,12 @@ const sources = {
 };
 
 const tiles = {
-  heart: { icon: "heart", title: "Heart & vessels", note: "Regular drinkers: linked to ~22% fewer heart & stroke deaths · 100,000 Chinese adults", src: ["chinapar"] },
+  heart: { icon: "heart", title: "Heart & vessels", note: "Regular drinkers: linked to ~22% fewer heart & stroke deaths", src: ["chinapar"] },
   heartG: { icon: "heart", title: "Heart & vessels", note: "Linked to ~22% fewer heart & stroke deaths · most in long-term green-tea drinkers", src: ["chinapar"] },
   bpG: { icon: "drop", title: "Blood pressure", note: "About −2 / −2 mmHg · daily for 12+ weeks", src: ["bpmeta"] },
   bpR: { icon: "drop", title: "Blood pressure", note: "About −1.4 / −1.1 mmHg · daily for 12+ weeks", src: ["bpmeta"] },
   focus: { icon: "mind", title: "Calm focus", note: "Theanine + caffeine together · steadier attention", src: ["theanine"] },
-  sugar: { icon: "shield", title: "Blood sugar", note: "Daily drinkers: linked to 8% lower type 2 diabetes risk · 500,000 Chinese adults", src: ["ckb"] },
+  sugar: { icon: "shield", title: "Blood sugar", note: "Daily drinkers: linked to 8% lower type 2 diabetes risk", src: ["ckb"] },
   life: { icon: "clock", title: "Longevity link", note: "2+ cups a day: linked to 9–13% lower risk of dying · UK, mostly black tea", src: ["ukbb"] },
   theaflavin: { icon: "leaf", title: "Theaflavins", note: "Red pigments born in oxidation · poorly absorbed, effects still unclear", src: ["theaflavin"] },
   white: { icon: "shield", title: "Glucose support", note: "Lowered blood sugar in diabetic mice · only one small human trial", src: ["whitetea"] },
