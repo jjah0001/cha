@@ -42,17 +42,13 @@ const HICON={
   cup:'<path d="M5 9h12v4a6 6 0 0 1-12 0z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 1.5 1 1.5 1 3M12 3c0 1.5 1 1.5 1 3"/>'
 };
 const hsvg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${HICON[k]||HICON.leaf}</svg>`;
-const HLEAF='<path d="M2 14C2 6 6 2 14 2c0 8-4 12-12 12z" fill="currentColor"/>';
-const HEV=["Leaf chemistry","Lab / animal","Some human data","Strong human data"];
-function hevHTML(n){return `<span class="hev" aria-label="Evidence: ${HEV[n]}">${n===0?"":[1,2,3].map(i=>`<svg viewBox="0 0 16 16" class="${i<=n?"":"off"}">${HLEAF}</svg>`).join("")}<em>${HEV[n]}</em></span>`}
 function hboxHTML(k,i){const b=DATA.HB.tiles[k];
-  return `<li class="hbox${b.warn?" warn":""}" style="--i:${i}"><span class="hic">${hsvg(b.icon)}</span><b>${esc(b.title)}</b><small>${esc(b.note)}</small>${b.warn?"":hevHTML(b.ev)}</li>`}
+  return `<li class="hbox${b.warn?" warn":""}" style="--i:${i}"><span class="hic">${hsvg(b.icon)}</span><b>${esc(b.title)}</b><small>${esc(b.note)}</small></li>`}
 function healthHTML(t){
   if(!t.hb||!t.hb.length) return "";
   const T=DATA.HB.tiles, good=t.hb.filter(k=>!T[k].warn), care=t.hb.filter(k=>T[k].warn);
   const srcs=[...new Set(t.hb.flatMap(k=>T[k].src))].map(k=>DATA.HB.sources[k]);
-  return `<section class="health" aria-label="Health notes"><div class="hhead"><p class="lab">Health notes<span class="han">茶与健康</span></p>
-    <span class="hkey"><span>${hevHTML(3).replace(/<em>.*<\/em>/,"")} strong</span><span>${hevHTML(1).replace(/<em>.*<\/em>/,"")} lab only</span></span></div>
+  return `<section class="health" aria-label="Health notes"><div class="hhead"><p class="lab">Health notes<span class="han">茶与健康</span></p></div>
     <ul class="hgrid">${good.map(hboxHTML).join("")}</ul>
     ${care.length?`<p class="hsub">Mind the cup</p><ul class="hgrid">${care.map((k,i)=>hboxHTML(k,i+good.length)).join("")}</ul>`:""}
     <details><summary>Chinese-language sources (${srcs.length})</summary><ul class="srcs">${srcs.map(s=>`<li><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a> <em>· ${esc(s.pub)}</em></li>`).join("")}</ul></details>

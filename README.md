@@ -46,7 +46,7 @@ and reviews module. Opening the template directly causes `DATA is not defined`.
 
 ## Health notes
 
-Every tea card has a "Health notes 茶与健康" panel of small boxes: one idea per box, plus a "Mind the cup" row (hot drinks, caffeine, iron, and fluoride for brick teas). The tiles, their Chinese-language sources and the rule that picks tiles per tea (by type, plus ripe pu'er, Fu brick "golden flower", brick-tea fluoride and albino "white-leaf" greens) live in `health.js`. Each tile shows its evidence as 1–3 leaves: 3 = meta-analysis of human trials, 2 = cohort or small human study, 1 = lab/animal only; "Leaf chemistry" marks composition facts that aren't health claims. Topics with no Chinese source that was actually read (jasmine aroma and mood, oral health, bone density) are left out on purpose.
+Every tea card has a "Health notes 茶与健康" panel of small boxes: one idea per box, plus a "Mind the cup" row (hot drinks, caffeine, iron, and fluoride for brick teas). The tiles, their Chinese-language sources and the rule that picks tiles per tea (by type, plus ripe pu'er, Fu brick "golden flower", brick-tea fluoride and albino "white-leaf" greens) live in `health.js`. Notes based on cohort studies say "linked to", because they show an association, not cause. Topics with no Chinese source that was actually read (jasmine aroma and mood, oral health, bone density) are left out on purpose.
 
 ## Public star ratings
 

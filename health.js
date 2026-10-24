@@ -1,6 +1,6 @@
 // Health boxes for every tea card. Each tile is one short idea, never a paragraph.
 // Rule: every tile cites a Chinese-language source someone opened (checked 2026-10-24).
-// ev = evidence: 3 meta-analysis of human trials · 2 human cohort or small trial · 1 lab/animal only · 0 leaf chemistry, not a health claim.
+// Cohorts only show a link, so their notes say "linked to", never that tea caused it.
 // Topics with no usable Chinese source (jasmine aroma and mood, oral health, bone density) are left out on purpose.
 
 const sources = {
@@ -27,20 +27,20 @@ const sources = {
 };
 
 const tiles = {
-  heart: { icon: "heart", title: "Heart & vessels", note: "Regular drinkers: ~22% fewer cardiovascular deaths · 100,000 Chinese adults", ev: 2, src: ["chinapar"] },
-  heartG: { icon: "heart", title: "Heart & vessels", note: "~22% fewer cardiovascular deaths · strongest for long-term green-tea drinkers", ev: 2, src: ["chinapar"] },
-  bpG: { icon: "drop", title: "Blood pressure", note: "About −2 / −2 mmHg · daily for 12+ weeks", ev: 3, src: ["bpmeta"] },
-  bpR: { icon: "drop", title: "Blood pressure", note: "About −1.4 / −1.1 mmHg · daily for 12+ weeks", ev: 3, src: ["bpmeta"] },
-  focus: { icon: "mind", title: "Calm focus", note: "Theanine + caffeine together · steadier attention", ev: 2, src: ["theanine"] },
-  sugar: { icon: "shield", title: "Blood sugar", note: "Daily drinkers: 8% lower type 2 diabetes risk · 500,000 Chinese adults", ev: 2, src: ["ckb"] },
-  life: { icon: "clock", title: "Longevity link", note: "2+ cups a day: 9–13% lower mortality · UK, mostly black tea", ev: 2, src: ["ukbb"] },
-  theaflavin: { icon: "leaf", title: "Theaflavins", note: "Red pigments born in oxidation · poorly absorbed, effects still unclear", ev: 0, src: ["theaflavin"] },
-  white: { icon: "shield", title: "Glucose support", note: "Lowered blood sugar in diabetic mice · one small human trial", ev: 1, src: ["whitetea"] },
-  yellow: { icon: "leaf", title: "Liver & lipids", note: "Antioxidant, liver-protective · lab and rat studies only", ev: 1, src: ["yellowtea"] },
-  oolong: { icon: "flame", title: "Weight control", note: "Early Fujian clinical reports · not yet confirmed by trials", ev: 1, src: ["oolong"] },
-  puer: { icon: "drop", title: "Blood lipids", note: "3 months ripe pu-erh: better HDL, BMI, liver fat · small, uncontrolled", ev: 2, src: ["puer"] },
-  fu: { icon: "gut", title: "Golden flower 金花", note: "Eurotium cristatum · gut microbes & cholesterol in rats", ev: 1, src: ["fu1", "fu2"] },
-  anji: { icon: "leaf", title: "Amino-rich leaf", note: "Pale albino leaf · more free amino acids, more umami", ev: 0, src: ["anji", "albino"] },
+  heart: { icon: "heart", title: "Heart & vessels", note: "Regular drinkers: linked to ~22% fewer heart & stroke deaths · 100,000 Chinese adults", src: ["chinapar"] },
+  heartG: { icon: "heart", title: "Heart & vessels", note: "Linked to ~22% fewer heart & stroke deaths · most in long-term green-tea drinkers", src: ["chinapar"] },
+  bpG: { icon: "drop", title: "Blood pressure", note: "About −2 / −2 mmHg · daily for 12+ weeks", src: ["bpmeta"] },
+  bpR: { icon: "drop", title: "Blood pressure", note: "About −1.4 / −1.1 mmHg · daily for 12+ weeks", src: ["bpmeta"] },
+  focus: { icon: "mind", title: "Calm focus", note: "Theanine + caffeine together · steadier attention", src: ["theanine"] },
+  sugar: { icon: "shield", title: "Blood sugar", note: "Daily drinkers: linked to 8% lower type 2 diabetes risk · 500,000 Chinese adults", src: ["ckb"] },
+  life: { icon: "clock", title: "Longevity link", note: "2+ cups a day: linked to 9–13% lower risk of dying · UK, mostly black tea", src: ["ukbb"] },
+  theaflavin: { icon: "leaf", title: "Theaflavins", note: "Red pigments born in oxidation · poorly absorbed, effects still unclear", src: ["theaflavin"] },
+  white: { icon: "shield", title: "Glucose support", note: "Lowered blood sugar in diabetic mice · only one small human trial", src: ["whitetea"] },
+  yellow: { icon: "leaf", title: "Liver & lipids", note: "Antioxidant, liver-protective · lab and rat studies only", src: ["yellowtea"] },
+  oolong: { icon: "flame", title: "Weight control", note: "Early Fujian clinical reports · not yet confirmed by trials", src: ["oolong"] },
+  puer: { icon: "drop", title: "Blood lipids", note: "3 months ripe pu-erh: better HDL, BMI, liver fat · small, no comparison group", src: ["puer"] },
+  fu: { icon: "gut", title: "Golden flower 金花", note: "Eurotium cristatum · gut microbes & cholesterol in rats", src: ["fu1", "fu2"] },
+  anji: { icon: "leaf", title: "Amino-rich leaf", note: "Pale albino leaf · more free amino acids, more umami", src: ["anji", "albino"] },
   // mind the cup
   hot: { warn: true, icon: "therm", title: "Let it cool", note: "Sip below 65°C · very hot drinks linked to oesophageal cancer", src: ["hot"] },
   caffeine: { warn: true, icon: "bean", title: "Caffeine cap", note: "≤400 mg a day adults · ≤200 mg in pregnancy", src: ["caffeine"] },

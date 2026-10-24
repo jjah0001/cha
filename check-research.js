@@ -30,7 +30,7 @@ console.log(`${research.teas.length} research tea records and pairing styles val
 const health = require('./health.js');
 for (const [k,s] of Object.entries(health.sources)) { assert.match(s.url, /^https?:\/\//, k); new URL(s.url); assert(s.title && s.pub, k); }
 for (const [k,b] of Object.entries(health.tiles)) {
-  assert(b.icon && b.title && b.note && b.src?.length, k); assert(b.warn || [0,1,2,3].includes(b.ev), k);
+  assert(b.icon && b.title && b.note && b.src?.length, k);
   b.src.forEach(s => assert(health.sources[s], `${k}: missing source ${s}`));
 }
 for (const t of [...research.teas, ...knownTypes].map(t => typeof t === 'string' ? {type:t, zh:'', id:''} : t))
