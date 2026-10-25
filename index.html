@@ -1709,7 +1709,7 @@ function quizResult(){
         <button class="small" id="qsave">Save image</button>${window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write?`<button class="small" id="qcopy">Copy image</button>`:""}</div>
       <div class="sociallab">Share to</div>
       <div class="socials" role="group" aria-label="Share your result to">${SOCIALS.map(o=>`<button class="soc" data-soc="${o.k}" style="--bc:#${o.hex}" aria-label="Share to ${o.n}"><i style="--ic:url(${SI_CDN}${o.slug}.svg)"></i><span>${o.n}</span></button>`).join("")}</div>
-      <p class="sharenote" id="qsharenote">Your result goes as an image. Tap an app, then pick it in your phone's share menu.</p>
+      <p class="sharenote" id="qsharenote">Tap an app: your result image is copied and the app opens, ready for you to paste it in.</p>
     </div>
     <div>${radar([{cls:"shape",f:top.f},{cls:"you",f:u.f}],260)}
       <div class="rlegend"><span><i style="background:var(--tc)"></i>${esc(top.en)}</span><span><i style="background:var(--seal)"></i>Your answers</span></div></div></div>
@@ -1721,8 +1721,9 @@ function quizResult(){
   $("qsave").addEventListener("click",()=>shareResult("save"));
   $("qcopy")&&$("qcopy").addEventListener("click",()=>shareResult("copy"));
   $("quiz").querySelectorAll(".soc").forEach(b=>b.addEventListener("click",()=>shareTo(b.dataset.soc,b)));
+  CARD_BLOB=null; setTimeout(()=>{prepCard().catch(()=>{})},400);
   const canFiles=(()=>{try{return !!(navigator.canShare&&navigator.canShare({files:[new File([""],"t.png",{type:"image/png"})]}))}catch(e){return false}})();
-  if(!canFiles) $("qsharenote").textContent="On a computer, tapping an app copies or saves the image and opens that app's share page where it has one; paste or upload the image there. On a phone, your share menu opens with the image attached.";
+  if(!canFiles) $("qsharenote").textContent="On a computer, tapping an app copies or saves the image and opens that app's share page where it has one; paste or upload the image there. On a phone, the image is copied and the app opens so you can paste it in.";
   $("quiz").querySelectorAll(".runners button,.explore .tcard").forEach(b=>b.addEventListener("click",()=>openTea(b.dataset.id)));
 }
 
@@ -1814,22 +1815,60 @@ const SOCIALS=[
  {k:"weibo",n:"Weibo",slug:"sinaweibo",hex:"E6162D",web:(u,t)=>`https://service.weibo.com/share/share.php?url=${u}&title=${t}`},
  {k:"tiktok",n:"TikTok",slug:"tiktok",hex:"000000"}
 ];
+/* Phones: tapping an app icon goes straight to THAT app. The result image is put on the clipboard first
+   (browsers can't attach an image to another app except through the general share menu), then the app
+   opens via its own link: with the caption and site link filled in where the app supports that. */
+const APP_LINK={
+ instagram:()=>"instagram://camera",
+ facebook:(u,t)=>`https://www.facebook.com/sharer/sharer.php?u=${u}`,
+ whatsapp:(u,t)=>`whatsapp://send?text=${t}`,
+ wechat:()=>"weixin://",
+ messenger:(u,t)=>`fb-messenger://share/?link=${u}`,
+ x:(u,t)=>`https://x.com/intent/post?text=${t}`,
+ threads:(u,t)=>`https://www.threads.net/intent/post?text=${t}`,
+ telegram:(u,t)=>`tg://msg_url?url=${u}&text=${t}`,
+ line:(u,t)=>`https://line.me/R/share?text=${t}`,
+ xiaohongshu:()=>"xhsdiscover://",
+ weibo:(u,t)=>`sinaweibo://sendweibo?content=${t}`,
+ tiktok:()=>"snssdk1233://"
+};
+let CARD_BLOB=null, CARD_FOR=null;
+function prepCard(){ const key=LAST_RESULT&&(LAST_RESULT.per.k+"|"+LAST_RESULT.top.id+"|"+document.documentElement.dataset.script);
+  if(CARD_BLOB&&CARD_FOR===key) return Promise.resolve(CARD_BLOB);
+  return renderResultCard().then(b=>{CARD_BLOB=b;CARD_FOR=key;return b}); }
+const isPhone=()=>/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+function saveBlob(blob,name){ if(dl) return dl.save({filename:name,data:blob}).catch(()=>{});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000); }
+async function copyBlob(blobP){ // pass the promise straight in, so Safari still counts it as part of the tap
+  if(!(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write)) return false;
+  try{ await navigator.clipboard.write([new ClipboardItem({"image/png":blobP})]); return true }catch(e){
+    try{ await navigator.clipboard.write([new ClipboardItem({"image/png":await blobP})]); return true }catch(e2){ return false } } }
 async function shareTo(k,btn){
-  const o=SOCIALS.find(x=>x.k===k); if(!o||!LAST_RESULT) return; btn.disabled=true;
+  const o=SOCIALS.find(x=>x.k===k); if(!o||!LAST_RESULT) return;
+  const name="my-tea-style-"+LAST_RESULT.per.k+".png";
+  const text=`My tea personality is ${LAST_RESULT.per.name} (${LAST_RESULT.per.zh}), and my tea is ${LAST_RESULT.top.en}. Find yours: ${SITE_URL}`;
+  const U=encodeURIComponent(SITE_URL), T=encodeURIComponent(text);
+  const blobP=prepCard();
+  btn.disabled=true;
   try{
-    const blob=await renderResultCard(), name="my-tea-style-"+LAST_RESULT.per.k+".png";
-    const text=`My tea personality is ${LAST_RESULT.per.name} (${LAST_RESULT.per.zh}), and my tea is ${LAST_RESULT.top.en}. Find yours: ${SITE_URL}`;
-    const file=new File([blob],name,{type:"image/png"});
-    let files=false; try{files=!!(navigator.canShare&&navigator.canShare({files:[file]}))}catch(e){}
-    if(files){ // phones: the system share sheet is the only way a website can hand an image to an app
-      toast(`Choose ${o.n} in the share menu`);
-      try{await navigator.share({files:[file],title:"My tea personality",text})}catch(e){} return;
+    if(isPhone()){
+      const copied=await copyBlob(blobP);
+      if(!copied){ // no clipboard: fall back to the share menu, which can carry the image
+        const blob=await blobP, file=new File([blob],name,{type:"image/png"});
+        let ok=false; try{ok=!!(navigator.canShare&&navigator.canShare({files:[file]}))}catch(e){}
+        if(ok){ toast(`Choose ${o.n} in the share menu`); try{await navigator.share({files:[file],title:"My tea personality",text})}catch(e){} return; }
+        await saveBlob(blob,name);
+      }
+      let left=false; const away=()=>{left=true}; document.addEventListener("visibilitychange",away,{once:true}); window.addEventListener("pagehide",away,{once:true});
+      toast(copied?`Image copied. Opening ${o.n}: paste it in`:`Image saved. Opening ${o.n}`);
+      location.href=APP_LINK[k](U,T);
+      setTimeout(()=>{ if(!left&&document.visibilityState==="visible") toast(`${o.n} didn't open. Is it installed? Try "Share my result" instead.`) },2500);
+      return;
     }
-    // computers: put the image on the clipboard (or save it), then open the app's own share page if it has one
-    let copied=false;
-    if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){ try{await navigator.clipboard.write([new ClipboardItem({"image/png":blob})]);copied=true}catch(e){} }
-    if(!copied||!o.web&&!o.paste){ if(dl){ try{await dl.save({filename:name,data:blob})}catch(e){} } else { const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000); } }
-    if(o.web){ window.open(o.web(encodeURIComponent(SITE_URL),encodeURIComponent(text)),"_blank","noopener,width=640,height=640");
+    // computers: copy (or save) the image, then open the app's web share page where there is one
+    const copied=await copyBlob(blobP), blob=await blobP;
+    if(!copied||!o.web&&!o.paste) await saveBlob(blob,name);
+    if(o.web){ window.open(o.web(U,T),"_blank","noopener,width=640,height=640");
       toast(copied?`Image copied. Paste it into your ${o.n} post`:`Image saved. Add it to your ${o.n} post`); }
     else if(o.paste&&copied) toast(`Image copied. Paste it into a ${o.n} chat`);
     else toast(`Image saved. Open ${o.n} and post it from your photos`);
