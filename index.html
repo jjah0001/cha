@@ -407,6 +407,10 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .runners button{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-size:13.5px}
 .rlegend{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--ink-2);margin-top:4px}
 .rlegend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:5px}
+.sharerow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.btn.share{display:inline-flex;align-items:center;gap:8px;background:var(--seal);border-color:var(--seal);color:var(--on-seal)}
+.btn.share svg{width:16px;height:16px}
+.sharenote{font-size:12.5px;color:var(--ink-2);margin:6px 0 0}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 
 footer summary{cursor:pointer;font-weight:600;color:var(--ink)}
@@ -1682,6 +1686,7 @@ function quizResult(){
   const others=r.filter(x=>x.t!==top).slice(0,3);
   const pool=XT.filter(per.more); const R=rng(ans.join("")); const explore=[];
   while(explore.length<Math.min(6,pool.length)){const c=pool[Math.floor(R()*pool.length)]; if(!explore.includes(c)) explore.push(c)}
+  LAST_RESULT={per,top,pct:(mine[0]||r[0]).pct,u};
   $("quiz").className="quiz c-"+top.type;
   $("quiz").innerHTML=`<div class="result"><div>
       <div class="kicker">Your tea style · ${esc(per.style)}</div>
@@ -1691,6 +1696,9 @@ function quizResult(){
       <p style="font-size:14px;color:var(--ink-2)">${esc(top.notes)}. Brew it at ${tempTxt(top)}.</p>
       <div class="runners">Also close: ${others.map(x=>`<button data-id="${x.t.id}">${esc(x.t.en)}</button> (${x.pct}%)`).join(", ")}</div>
       <div class="actions"><button class="btn" id="qmap">Open ${esc(top.en)}</button><button class="btn ghost" id="qagain">Take it again</button></div>
+      <div class="sharerow"><button class="btn share" id="qshare"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v8.5M4.8 4.6 8 1.5l3.2 3.1M3 8.5v5h10v-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Share my result</button>
+        <button class="small" id="qsave">Save image</button>${window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write?`<button class="small" id="qcopy">Copy image</button>`:""}</div>
+      <p class="sharenote" id="qsharenote">Share to Instagram, Facebook, WeChat or WhatsApp as an image.</p>
     </div>
     <div>${radar([{cls:"shape",f:top.f},{cls:"you",f:u.f}],260)}
       <div class="rlegend"><span><i style="background:var(--tc)"></i>${esc(top.en)}</span><span><i style="background:var(--seal)"></i>Your answers</span></div></div></div>
@@ -1698,7 +1706,103 @@ function quizResult(){
   const openTea=id=>{prov=null;setFilter("all");select(id);go("atlas")};
   $("qmap").addEventListener("click",()=>openTea(top.id));
   $("qagain").addEventListener("click",()=>{qi=0;ans=[];quizStep()});
+  $("qshare").addEventListener("click",()=>shareResult("share"));
+  $("qsave").addEventListener("click",()=>shareResult("save"));
+  $("qcopy")&&$("qcopy").addEventListener("click",()=>shareResult("copy"));
+  const canFiles=(()=>{try{return !!(navigator.canShare&&navigator.canShare({files:[new File([""],"t.png",{type:"image/png"})]}))}catch(e){return false}})();
+  if(!canFiles) $("qsharenote").textContent="Save or copy the image, then post it in Instagram, Facebook, WeChat or WhatsApp. On a phone, Share opens those apps directly.";
   $("quiz").querySelectorAll(".runners button,.explore .tcard").forEach(b=>b.addEventListener("click",()=>openTea(b.dataset.id)));
+}
+
+
+/* ── share the personality result as an image (1080×1350, fits Instagram, Facebook, WeChat, WhatsApp) ── */
+let LAST_RESULT=null;
+const SITE_URL="https://jjah0001.github.io/tea-time/";
+const CARD_C={paper:"#E8ECE5",card:"#F5F7F2",ink:"#1C2521",ink2:"#55625B",rule:"#C2CBC1",seal:"#B4382A",onSeal:"#FBF3EE",
+  green:"#5A8829",white:"#8E8A74",yellow:"#AD850B",oolong:"#1C7668",red:"#A33B25",dark:"#4E3829"};
+function wrapLines(ctx,text,maxW){const words=String(text).split(/\s+/);const lines=[];let cur="";
+  for(const w of words){const t=cur?cur+" "+w:w; if(ctx.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t} if(cur)lines.push(cur); return lines;}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+async function renderResultCard(){
+  const R=LAST_RESULT; if(!R) throw new Error("no result");
+  const q=$("quiz"), pzhEl=q.querySelector(".pzh"), tzhEl=q.querySelector(".match .zh");
+  const pzh=(pzhEl&&pzhEl.textContent)||R.per.zh, tzh=(tzhEl&&tzhEl.textContent)||R.top.zh;   // follows the 简/繁 toggle
+  const brush=(pzhEl&&getComputedStyle(pzhEl).fontFamily)||'"Ma Shan Zheng",serif';
+  const serif='"Young Serif",Georgia,serif', sans='"Instrument Sans",system-ui,sans-serif';
+  const tc=CARD_C[R.top.type]||CARD_C.oolong;
+  try{await Promise.all([document.fonts.load(`200px ${brush}`,pzh+tzh+"茶"),document.fonts.load(`60px ${serif}`,"Aa"),document.fonts.load(`600 30px ${sans}`,"Aa"),document.fonts.load(`30px ${sans}`,"Aa")])}catch(e){}
+  const W=1080,H=1350,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
+  x.fillStyle=CARD_C.paper;x.fillRect(0,0,W,H);
+  rrect(x,40,40,W-80,H-80,28);x.fillStyle=CARD_C.card;x.fill();x.lineWidth=2;x.strokeStyle=CARD_C.rule;x.stroke();
+  x.fillStyle=tc;x.fillRect(40+28,40,W-80-56,10);
+  const L=100;
+  // brand
+  rrect(x,L,96,64,64,10);x.fillStyle=CARD_C.seal;x.fill();
+  x.fillStyle=CARD_C.onSeal;x.font=`44px ${brush}`;x.textAlign="center";x.textBaseline="middle";x.fillText("茶",L+32,130);
+  x.textAlign="left";x.textBaseline="alphabetic";x.fillStyle=CARD_C.ink;x.font=`40px ${serif}`;x.fillText("Tea Time",L+84,143);
+  x.fillStyle=CARD_C.ink2;x.font=`500 24px ${sans}`;x.textAlign="right";x.fillText("TEA PERSONALITY",W-L,140);x.textAlign="left";
+  // big persona character
+  const cx=W-L-130, cy=330;
+  x.beginPath();x.arc(cx,cy,130,0,Math.PI*2);x.fillStyle=tc+"22";x.fill();x.lineWidth=3;x.strokeStyle=tc;x.stroke();
+  x.fillStyle=CARD_C.seal;x.font=`180px ${brush}`;x.textAlign="center";x.textBaseline="middle";x.fillText(pzh,cx,cy+8);
+  x.textAlign="left";x.textBaseline="alphabetic";
+  // kicker + name + blurb
+  const tw=W-L*2-300;
+  x.fillStyle=CARD_C.seal;x.font=`600 24px ${sans}`;
+  const kick=("MY TEA STYLE · "+R.per.style).toUpperCase();
+  let y=258; for(const ln of wrapLines(x,kick,tw)){x.fillText(ln,L,y);y+=32}
+  x.fillStyle=CARD_C.ink;x.font=`66px ${serif}`;y+=46;
+  for(const ln of wrapLines(x,R.per.name,tw)){x.fillText(ln,L,y);y+=74}
+  x.fillStyle=CARD_C.ink2;x.font=`31px ${sans}`;y=Math.max(y+6,500);
+  for(const ln of wrapLines(x,R.per.blurb,W-L*2)){x.fillText(ln,L,y);y+=44}
+  // matched tea
+  y+=20; const bh=128;
+  rrect(x,L,y,W-L*2,bh,18);x.fillStyle=tc+"18";x.fill();x.lineWidth=2;x.strokeStyle=tc;x.stroke();
+  x.fillStyle=CARD_C.ink2;x.font=`600 20px ${sans}`;x.fillText("MY TEA",L+28,y+38);
+  x.fillStyle=tc;x.font=`60px ${brush}`;x.fillText(tzh,L+28,y+104);
+  const zw=x.measureText(tzh).width;
+  x.fillStyle=CARD_C.ink;x.font=`40px ${serif}`;
+  let en=R.top.en; const enMax=W-L*2-56-zw-24-210; while(x.measureText(en).width>enMax&&en.length>4) en=en.slice(0,-2)+"…";
+  x.fillText(en,L+28+zw+24,y+98);
+  const pill=`${R.pct}% match`; x.font=`600 28px ${sans}`; const pw=x.measureText(pill).width+40;
+  rrect(x,W-L-28-pw,y+bh/2-26,pw,52,26);x.fillStyle=tc;x.fill();x.fillStyle="#fff";x.textAlign="center";x.fillText(pill,W-L-28-pw/2,y+bh/2+10);x.textAlign="left";
+  // flavour radar: tea shape vs your answers
+  const top=y+bh+30, size=Math.min(H-200-top,520), rc=W/2, rcy=top+size/2, Rr=size/2-64, n=AX.length;
+  const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return[rc+Math.cos(a)*Rr*v/5,rcy+Math.sin(a)*Rr*v/5]};
+  x.strokeStyle=CARD_C.rule;x.lineWidth=1.5;
+  for(const lv of [1,2,3,4,5]){x.beginPath();AX.forEach((_,i)=>{const[p,q2]=pt(i,lv);i?x.lineTo(p,q2):x.moveTo(p,q2)});x.closePath();x.stroke()}
+  x.fillStyle=CARD_C.ink2;x.font=`500 24px ${sans}`;x.textAlign="center";x.textBaseline="middle";
+  AX.forEach(([k,l],i)=>{const[p,q2]=pt(i,5);x.beginPath();x.moveTo(rc,rcy);x.lineTo(p,q2);x.stroke();const[lx,ly]=pt(i,6.15);x.fillText(l,lx,ly)});
+  const poly=(f,fill,stroke,dash)=>{x.beginPath();AX.forEach(([k],i)=>{const[p,q2]=pt(i,Math.max(.15,f[k]));i?x.lineTo(p,q2):x.moveTo(p,q2)});x.closePath();
+    x.fillStyle=fill;x.fill();x.setLineDash(dash||[]);x.strokeStyle=stroke;x.lineWidth=4;x.stroke();x.setLineDash([])};
+  poly(R.top.f,tc+"40",tc); poly(R.u.f,CARD_C.seal+"1f",CARD_C.seal,[12,8]);
+  x.textBaseline="alphabetic";
+  // legend + footer
+  const ly2=H-160; x.font=`26px ${sans}`;x.textAlign="left";
+  const leg=[[tc,R.top.en.length>26?"My tea":R.top.en,false],[CARD_C.seal,"My answers",true]];
+  let lw=0; const parts=leg.map(([col,t])=>{const w=x.measureText(t).width+60;lw+=w;return w}); let lx2=W/2-lw/2;
+  leg.forEach(([col,t,d],i)=>{x.strokeStyle=col;x.lineWidth=5;x.setLineDash(d?[10,6]:[]);x.beginPath();x.moveTo(lx2,ly2-9);x.lineTo(lx2+34,ly2-9);x.stroke();x.setLineDash([]);x.fillStyle=CARD_C.ink2;x.fillText(t,lx2+44,ly2);lx2+=parts[i]});
+  x.fillStyle=CARD_C.ink;x.font=`600 26px ${sans}`;x.textAlign="center";x.fillText("Find your tea style",W/2,H-112);
+  x.fillStyle=CARD_C.ink2;x.font=`24px ${sans}`;x.fillText(SITE_URL.replace(/^https:\/\//,"").replace(/\/$/,""),W/2,H-78);
+  return await new Promise((ok,no)=>c.toBlob(b=>b?ok(b):no(new Error("toBlob")),"image/png"));
+}
+async function shareResult(how){
+  const btn=$(how==="share"?"qshare":how==="save"?"qsave":"qcopy"); if(btn) btn.disabled=true;
+  try{
+    const blob=await renderResultCard(), name="my-tea-style-"+LAST_RESULT.per.k+".png";
+    const text=`My tea personality is ${LAST_RESULT.per.name} (${LAST_RESULT.per.zh}), and my tea is ${LAST_RESULT.top.en}. Find yours: ${SITE_URL}`;
+    if(how==="share"){
+      const file=new File([blob],name,{type:"image/png"});
+      let ok=false; try{ok=!!(navigator.canShare&&navigator.canShare({files:[file]}))}catch(e){}
+      if(ok){ try{await navigator.share({files:[file],title:"My tea personality",text});return}catch(e){if(e&&e.name==="AbortError")return} }
+      how="save";
+    }
+    if(how==="copy"){ await navigator.clipboard.write([new ClipboardItem({"image/png":blob})]); toast("Image copied. Paste it into your chat or post"); return; }
+    if(dl){ try{await dl.save({filename:name,data:blob});return}catch(e){if(e&&e.code==="declined")return} }
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    toast("Image saved. Post it from Instagram, Facebook, WeChat or WhatsApp");
+  }catch(e){console.warn(e);toast("Couldn't make the image. Try again in a moment.")}
+  finally{ if(btn) btn.disabled=false; }
 }
 
 /* ── my shelf (saved in this browser) ── */
