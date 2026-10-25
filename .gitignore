@@ -11,3 +11,6 @@ idx.json
 !.dev.vars.example
 .env*
 !.env.example
+
+# macOS folder settings
+.DS_Store

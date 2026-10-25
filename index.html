@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Tea Time</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%238B2E2E'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Noto Serif SC,Songti SC,serif' font-size='22' fill='%23FBEFCF'%3E%E8%8C%B6%3C/text%3E%3C/svg%3E">
@@ -410,6 +411,14 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .sharerow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
 .btn.share{display:inline-flex;align-items:center;gap:8px;background:var(--seal);border-color:var(--seal);color:var(--on-seal)}
 .btn.share svg{width:16px;height:16px}
+.sociallab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--ink-2);margin-top:16px}
+.socials{display:flex;flex-wrap:wrap;gap:6px 4px;margin-top:8px}
+.soc{display:grid;justify-items:center;gap:5px;width:68px;border:0;background:none;cursor:pointer;padding:4px 0;color:var(--ink-2);font:12px var(--f-body)}
+.soc i{width:44px;height:44px;border-radius:50%;background:var(--bc);display:grid;place-items:center;transition:transform .15s}
+.soc i::before{content:"";width:22px;height:22px;background:#fff;-webkit-mask:var(--ic) center/contain no-repeat;mask:var(--ic) center/contain no-repeat}
+.soc:hover i,.soc:focus-visible i{transform:translateY(-2px)}
+.soc[disabled]{opacity:.6;cursor:wait}
+.soc span{white-space:nowrap}
 .sharenote{font-size:12.5px;color:var(--ink-2);margin:6px 0 0}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 
@@ -1698,7 +1707,9 @@ function quizResult(){
       <div class="actions"><button class="btn" id="qmap">Open ${esc(top.en)}</button><button class="btn ghost" id="qagain">Take it again</button></div>
       <div class="sharerow"><button class="btn share" id="qshare"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v8.5M4.8 4.6 8 1.5l3.2 3.1M3 8.5v5h10v-5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Share my result</button>
         <button class="small" id="qsave">Save image</button>${window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write?`<button class="small" id="qcopy">Copy image</button>`:""}</div>
-      <p class="sharenote" id="qsharenote">Share to Instagram, Facebook, WeChat or WhatsApp as an image.</p>
+      <div class="sociallab">Share to</div>
+      <div class="socials" role="group" aria-label="Share your result to">${SOCIALS.map(o=>`<button class="soc" data-soc="${o.k}" style="--bc:#${o.hex}" aria-label="Share to ${o.n}"><i style="--ic:url(${SI_CDN}${o.slug}.svg)"></i><span>${o.n}</span></button>`).join("")}</div>
+      <p class="sharenote" id="qsharenote">Your result goes as an image. Tap an app, then pick it in your phone's share menu.</p>
     </div>
     <div>${radar([{cls:"shape",f:top.f},{cls:"you",f:u.f}],260)}
       <div class="rlegend"><span><i style="background:var(--tc)"></i>${esc(top.en)}</span><span><i style="background:var(--seal)"></i>Your answers</span></div></div></div>
@@ -1709,8 +1720,9 @@ function quizResult(){
   $("qshare").addEventListener("click",()=>shareResult("share"));
   $("qsave").addEventListener("click",()=>shareResult("save"));
   $("qcopy")&&$("qcopy").addEventListener("click",()=>shareResult("copy"));
+  $("quiz").querySelectorAll(".soc").forEach(b=>b.addEventListener("click",()=>shareTo(b.dataset.soc,b)));
   const canFiles=(()=>{try{return !!(navigator.canShare&&navigator.canShare({files:[new File([""],"t.png",{type:"image/png"})]}))}catch(e){return false}})();
-  if(!canFiles) $("qsharenote").textContent="Save or copy the image, then post it in Instagram, Facebook, WeChat or WhatsApp. On a phone, Share opens those apps directly.";
+  if(!canFiles) $("qsharenote").textContent="On a computer, tapping an app copies or saves the image and opens that app's share page where it has one; paste or upload the image there. On a phone, your share menu opens with the image attached.";
   $("quiz").querySelectorAll(".runners button,.explore .tcard").forEach(b=>b.addEventListener("click",()=>openTea(b.dataset.id)));
 }
 
@@ -1785,6 +1797,44 @@ async function renderResultCard(){
   x.fillStyle=CARD_C.ink;x.font=`600 26px ${sans}`;x.textAlign="center";x.fillText("Find your tea style",W/2,H-112);
   x.fillStyle=CARD_C.ink2;x.font=`24px ${sans}`;x.fillText(SITE_URL.replace(/^https:\/\//,"").replace(/\/$/,""),W/2,H-78);
   return await new Promise((ok,no)=>c.toBlob(b=>b?ok(b):no(new Error("toBlob")),"image/png"));
+}
+/* social destinations: brand marks come from the Simple Icons set (CC0 package; each brand's own guidelines apply) */
+const SI_CDN="icons/"; // brand marks copied from simple-icons@16.33.0 (CC0), deployed beside the page
+const SOCIALS=[
+ {k:"instagram",n:"Instagram",slug:"instagram",hex:"FF0069"},
+ {k:"facebook",n:"Facebook",slug:"facebook",hex:"0866FF",web:(u,t)=>`https://www.facebook.com/sharer/sharer.php?u=${u}`},
+ {k:"whatsapp",n:"WhatsApp",slug:"whatsapp",hex:"25D366",web:(u,t)=>`https://wa.me/?text=${t}`},
+ {k:"wechat",n:"WeChat",slug:"wechat",hex:"07C160",paste:true},
+ {k:"messenger",n:"Messenger",slug:"messenger",hex:"0866FF",paste:true},
+ {k:"x",n:"X",slug:"x",hex:"000000",web:(u,t)=>`https://x.com/intent/post?text=${t}`},
+ {k:"threads",n:"Threads",slug:"threads",hex:"000000",web:(u,t)=>`https://www.threads.net/intent/post?text=${t}`},
+ {k:"telegram",n:"Telegram",slug:"telegram",hex:"26A5E4",web:(u,t)=>`https://t.me/share/url?url=${u}&text=${t}`},
+ {k:"line",n:"LINE",slug:"line",hex:"00C300",web:(u,t)=>`https://social-plugins.line.me/lineit/share?url=${u}`},
+ {k:"xiaohongshu",n:"小红书",slug:"xiaohongshu",hex:"FF2442"},
+ {k:"weibo",n:"Weibo",slug:"sinaweibo",hex:"E6162D",web:(u,t)=>`https://service.weibo.com/share/share.php?url=${u}&title=${t}`},
+ {k:"tiktok",n:"TikTok",slug:"tiktok",hex:"000000"}
+];
+async function shareTo(k,btn){
+  const o=SOCIALS.find(x=>x.k===k); if(!o||!LAST_RESULT) return; btn.disabled=true;
+  try{
+    const blob=await renderResultCard(), name="my-tea-style-"+LAST_RESULT.per.k+".png";
+    const text=`My tea personality is ${LAST_RESULT.per.name} (${LAST_RESULT.per.zh}), and my tea is ${LAST_RESULT.top.en}. Find yours: ${SITE_URL}`;
+    const file=new File([blob],name,{type:"image/png"});
+    let files=false; try{files=!!(navigator.canShare&&navigator.canShare({files:[file]}))}catch(e){}
+    if(files){ // phones: the system share sheet is the only way a website can hand an image to an app
+      toast(`Choose ${o.n} in the share menu`);
+      try{await navigator.share({files:[file],title:"My tea personality",text})}catch(e){} return;
+    }
+    // computers: put the image on the clipboard (or save it), then open the app's own share page if it has one
+    let copied=false;
+    if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write){ try{await navigator.clipboard.write([new ClipboardItem({"image/png":blob})]);copied=true}catch(e){} }
+    if(!copied||!o.web&&!o.paste){ if(dl){ try{await dl.save({filename:name,data:blob})}catch(e){} } else { const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000); } }
+    if(o.web){ window.open(o.web(encodeURIComponent(SITE_URL),encodeURIComponent(text)),"_blank","noopener,width=640,height=640");
+      toast(copied?`Image copied. Paste it into your ${o.n} post`:`Image saved. Add it to your ${o.n} post`); }
+    else if(o.paste&&copied) toast(`Image copied. Paste it into a ${o.n} chat`);
+    else toast(`Image saved. Open ${o.n} and post it from your photos`);
+  }catch(e){console.warn(e);toast("Couldn't make the image. Try again in a moment.")}
+  finally{btn.disabled=false}
 }
 async function shareResult(how){
   const btn=$(how==="share"?"qshare":how==="save"?"qsave":"qcopy"); if(btn) btn.disabled=true;
