@@ -113,6 +113,10 @@ for (const t of [...teas, ...IDX.teas]) {
   t.pairingSuggestions = suggestPairings(t);
   t.hb = HEALTH.pick(t);
 }
+const { enrich } = require("./profile-enrichment.js");
+for (const t of IDX.teas) Object.assign(t, enrich(t, IDX, research));
+const { assess } = require("./caffeine.js");
+for (const t of [...teas, ...IDX.teas]) t.caffeine = assess(t);
 const data = { W, H, provinces, qhPath, teas: teas.map(t => ({ ...t })), types, X: IDX.teas, XS: IDX.sources, XG: IDX.groups || {}, PM: provMeta,
   researchSources: research.sources, HB: { tiles: HEALTH.tiles, sources: HEALTH.sources }, brewingGroups: research.brewingGroups, researchDate: research.checkedOn };
 let html = fs.readFileSync(__dirname + "/index.html", "utf8");

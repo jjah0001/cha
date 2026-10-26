@@ -1,0 +1,40 @@
+// Expand registered entries into the shared full-profile layout without inventing
+// individual tasting measurements, harvest dates, or historical events.
+const { pinyin } = require('pinyin-pro');
+const { suggestPairings } = require('./pairing-suggestions');
+const AX = ['floral','fruity','vegetal','roast','earthy','sweet'];
+const styles = {
+ green: {notes:'Fresh greens, sweet peas and a clean finish are useful tasting reference points; pan-fired examples may lean towards chestnut, while steamed examples can be more grassy.',f:[2,1,4,1,0.5,3],body:2,temp:[80,85],g:3,time:'30 s',inf:'3–4',western:'3 g · 250 ml · 2–3 min',process:'Green tea is heated early in manufacture to limit enzymatic oxidation, then shaped and dried. Pan-firing and steaming produce different expressions.',storage:'Keep sealed, cool, dry and away from light and kitchen odours. Buy smaller quantities for freshness.'},
+ white: {notes:'Hay, soft flowers and gentle fruit sweetness are reference points for young white tea. Storage age and the proportion of buds to mature leaves can change the cup substantially.',f:[3,2,2,0,1,3.5],body:2,temp:[90,95],g:5,time:'30 s',inf:'5–6',western:'3 g · 250 ml · 3–4 min',process:'White tea relies mainly on withering and drying, with relatively little mechanical handling. Bud-only and leafy grades should not be treated as identical.',storage:'Protect from moisture, sunlight and strong odours. Age alone does not guarantee quality; record the harvest and storage conditions.'},
+ yellow: {notes:'Sweet grain, gentle vegetal notes and a rounded finish are yellow-tea reference points. The degree of yellowing and final drying affects the balance.',f:[2,1,2.5,1.5,0.5,3.5],body:2.5,temp:[85,90],g:3,time:'30 s',inf:'3–4',western:'3 g · 250 ml · 2–3 min',process:'Yellow tea includes a controlled moist resting or yellowing stage after fixation. This distinguishes the craft from green tea even when the dry leaves look similar.',storage:'Store airtight in a cool, dry place. Handle delicate buds gently and avoid prolonged exposure to air.'},
+ oolong: {notes:'Floral aromas, fruit and a lingering sweet finish are broad oolong reference points. Oxidation and roasting range widely, so inspect the actual leaf before choosing a stronger brew.',f:[3.5,2.5,1.5,2,0.5,3],body:3,temp:[95,100],g:6,time:'20 s',inf:'6–8',western:'3 g · 250 ml · 3 min',process:'Oolong makers wither and bruise the leaf to develop partial oxidation, then heat, roll and dry it. Subsequent roasting may add a separate layer of aroma.',storage:'Seal well between sessions. Light, fresh styles are best protected from heat; roasted styles also need protection from humidity and foreign smells.'},
+ red: {notes:'Malt, sweet fruit and a brisk finish are black-tea reference points. Bud grade, cultivar and drying can shift the cup towards honey, flowers or cocoa.',f:[2,3,0.5,2,1,3.5],body:3,temp:[90,95],g:5,time:'15 s',inf:'4–5',western:'3 g · 250 ml · 3 min',process:'Chinese hongcha, literally red tea, is called black tea in English. Withering, rolling and extensive enzymatic oxidation precede final drying.',storage:'Keep airtight and dry, away from spices and coffee. A muted aroma may reflect storage rather than the identity of the tea.'},
+ dark: {notes:'Woody, earthy and mellow notes are reference points for many post-fermented teas, but raw Pu’er and different brick-tea traditions can taste very different.',f:[1,2,1,1,3.5,3],body:3.5,temp:[95,100],g:6,time:'15 s',inf:'6–8',western:'3 g · 250 ml · 3–4 min',process:'Dark-tea traditions involve microbial transformation during production or storage. The method and raw material vary by region; a regional name alone does not identify fermentation level.',storage:'Keep dry, clean and free from strong odours. Do not create damp conditions to accelerate ageing. Discard tea with visible unwanted mould or a spoiled smell.'},
+ wuyi: {notes:'Roasted grain, flowers, fruit and a mineral-like finish are rock-tea reference points. Roast level can mask cultivar differences when a tea is newly fired.',f:[3,2,0.5,4,1,3],body:3.5,temp:[95,100],g:6,time:'10 s',inf:'6–8',western:'3 g · 250 ml · 2–3 min'},
+ dancong: {notes:'Lifted flowers, fruit and a long aromatic finish are Phoenix Dancong reference points. Aroma names describe a tradition of selection, not added flavouring or a guarantee for every batch.',f:[4.5,3,1,2,0.5,3],body:3,temp:[95,100],g:5,time:'10 s',inf:'6–8',western:'3 g · 250 ml · 2 min'},
+ puer: {notes:'For a young raw Pu’er, look for fresh herbal notes, floral lift, briskness and returning sweetness. Ripe or long-stored tea may be darker and more woody; an origin name alone cannot settle the style.',f:[2,2,3,0.5,2,3],body:3,temp:[90,95],g:5,time:'15 s',inf:'6–8',western:'3 g · 250 ml · 2–3 min'},
+ scented: {notes:'Added flower fragrance sits over the tea base. Jasmine-scented examples often suggest white flowers and fresh greens; check the product label for the actual flower and base tea.',f:[4.5,1,3,0.5,0.5,3],body:2,temp:[80,85],g:3,time:'30 s',inf:'3–4',western:'3 g · 250 ml · 2–3 min'}
+};
+const roman = text => pinyin(text, {toneType:'none'}).replace(/\b\w/g,c=>c.toUpperCase());
+function enrich(x, idx, research) {
+ const e=research.teas.find(t=>t.zh===x.zh);
+ const key=x.scented?'scented':['wuyi','wuyihist'].includes(x.group)?'wuyi':['dancong','puer'].includes(x.group)?x.group:x.type;
+ const s={...styles[x.type],...styles[key]};
+ const kind=x.group==='wuyihist'?'Historic named bush':x.group==='puer'?"Pu’er origin":x.group==='ttes'?'Tea cultivar':x.group==='dancong'?'Phoenix Dancong selection':x.group==='wuyi'?'Wuyi rock tea selection':'Regional tea';
+ const region=e?.location?.text || (x.place?roman(x.place):x.prov);
+ const record=e?.history?.text || x.h;
+ const group=idx.groups[x.group];
+ const history=record || (group?`${x.en} belongs to the ${kind.toLowerCase()} records. Its individual naming date and biography are not established in the available material. The shared historical background below explains the tradition; it is not an individual origin story.`:`${x.en} is recorded in the linked tea register as a ${x.type==='red'?'black':x.type} tea associated with ${x.prov}. The register documents the name and regional association, but an individual founding date, inventor or tribute history has not been established. This entry preserves that distinction instead of assigning the wider region's history to this particular tea.`);
+ return {...s,fullProfile:true,profileKind:kind,alt:kind,region,
+   f:Object.fromEntries(AX.map((a,i)=>[a,s.f[i]])),
+   notes:e?.flavour?.text || s.notes,
+   flavourBasis:e?.flavour?'Source-described flavour; the radar is an editorial style guide, not a measured tasting.':'Tea-style reference, not a tasting of this named tea. Radar and body are illustrative style estimates.',
+   harvest:e?.harvest?.text || 'Individual harvest window not documented; consult the producer for the batch',
+   history,historyBasis:record?'Individual record':'Documented identity; individual history incomplete',
+   historySources:e?.history?.sources || [],
+   groupHistory:group?.t || '', groupSource:group?.s,
+   availability:x.group==='wuyihist'?'Historical register entry: survival of the original bush and present-day commercial availability are not confirmed. The brewing guide applies only to a verified modern tea of this style.':x.group==='ttes'?'A cultivar can be made into more than one tea style. Follow the processing description on the actual product.':x.group==='puer'?'This name identifies an origin, not a single finished product. Confirm whether the tea is raw or ripe, its harvest year and storage before brewing.':'',
+   brewBasis:key==='puer'?'Editorial starting point for young raw Pu’er; use hotter water for ripe or mature tea and adjust to the actual leaf.':'Editorial tea-style starting point, not a tested recipe for this named tea. Decant fully and adjust by taste.',
+   pair:suggestPairings(x).items.map(i=>i.food)};
+}
+module.exports={enrich,styles};

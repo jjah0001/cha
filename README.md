@@ -92,3 +92,25 @@ For a proper AI picker on the public site, deploy the Cloudflare Worker in `work
 3. **Local build with the proxy.** Set `PAIR_PROXY_URL=https://…/pair npm run build`, or add `"pairProxyUrl": "https://…/pair"` to `config.json`.
 
 Costs: the Worker free tier covers a personal site many times over; Anthropic bills per request. The per-IP rate limit caps the surprise-bill risk.
+
+## Expanded profile layout (2026-10-26)
+
+Use Node 24 or later (the build loads the ESM d3-geo dependency).
+`profile-enrichment.js` expands the 2,024 register records into the same
+`renderSpec` layout as the 152 original profiles. `idx` remains a map-location
+provenance flag; `fullProfile` controls the profile filter and shared renderer.
+IDs are unchanged, preserving shelf and rating associations.
+
+This is layout and editorial enrichment, not 2,024 newly researched monographs.
+Existing individual histories and field-level research take precedence. Missing
+individual history and harvest data remain explicit. Flavour radar, body and
+brewing defaults are labelled style guidance; historic bushes, cultivars and
+origins are identified separately. `caffeine.js` audits each entry without inferring caffeine rank from tea colour,
+roast or age. All existing records currently lack comparable caffeine measurements.
+The four-leaf display uses a labelled unverified state, not zero or a fabricated
+rank. Explicit harvest descriptions can support qualitative leaf-maturity notes.
+This is a catalogue audit, not an exhaustive literature search for every tea.
+
+After `npm run build`, run `npm run check:profiles` to validate all 2,176 cards,
+stable IDs, required fields and shared-template rendering. Existing catalogue
+and research checks remain available with `npm run check`.

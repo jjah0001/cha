@@ -8,7 +8,8 @@
     "build": "node build_idx.js && node build.js",
     "check": "node check.js && node check-research.js",
     "deploy": "wrangler deploy",
-    "preview": "wrangler dev"
+    "preview": "wrangler dev",
+    "check:profiles": "node check-profiles.js"
   },
   "dependencies": {
     "d3-geo": "3.1.0",
@@ -17,5 +18,8 @@
   },
   "devDependencies": {
     "wrangler": "^4.151.3"
+  },
+  "engines": {
+    "node": ">=24"
   }
 }
