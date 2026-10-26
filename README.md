@@ -107,8 +107,8 @@ individual history and harvest data remain explicit. Flavour radar, body and
 brewing defaults are labelled style guidance; historic bushes, cultivars and
 origins are identified separately. `caffeine.js` audits each entry without inferring caffeine rank from tea colour,
 roast or age. All existing records currently lack comparable caffeine measurements.
-The four-leaf display uses a labelled unverified state, not zero or a fabricated
-rank. Explicit harvest descriptions can support qualitative leaf-maturity notes.
+The visible four-leaf display retains the original editorial style estimates at
+the user’s request; an expandable note distinguishes these from measurements. Explicit harvest descriptions can support qualitative leaf-maturity notes.
 This is a catalogue audit, not an exhaustive literature search for every tea.
 
 After `npm run build`, run `npm run check:profiles` to validate all 2,176 cards,
