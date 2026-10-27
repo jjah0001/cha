@@ -1,4 +1,4 @@
--- Tea Time public star ratings — run once in Supabase: Dashboard → SQL Editor → New query → paste → Run.
+-- Cha public star ratings — run once in Supabase: Dashboard → SQL Editor → New query → paste → Run.
 -- Also turn on Authentication → Sign In / Providers → "Allow anonymous sign-ins".
 -- Each browser gets an anonymous session on its first vote; one rating per session per tea.
 

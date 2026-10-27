@@ -2,7 +2,7 @@
   "name": "tea-pair-worker",
   "private": true,
   "version": "1.0.0",
-  "description": "Cloudflare Worker: Anthropic-backed tea pairing proxy for the Tea Time GitHub Pages build.",
+  "description": "Cloudflare Worker: Anthropic-backed tea pairing proxy for the Cha GitHub Pages build.",
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",

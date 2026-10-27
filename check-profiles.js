@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const fs=require('fs');
 const vm=require('vm');
-const html=fs.readFileSync('dist/tea-time.html','utf8');
+const html=fs.readFileSync('dist/cha.html','utf8');
 const start=html.indexOf('const DATA = ')+13;
 const end=html.indexOf(';\nconst AX=',start);
 const data=JSON.parse(html.slice(start,end));

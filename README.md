@@ -1,16 +1,18 @@
-# Tea Time — source
+# Cha 茶 — source
 
-Builds `dist/tea-time.html`, a single self-contained page (map, profiles, timer, pairing, personality test, shelf).
+Cha: 茶 (chá, tea) and 查 (chá, to look up). Live at https://jjah0001.github.io/cha/
+
+Builds `dist/cha.html`, a single self-contained page (map, profiles, timer, pairing, personality test, shelf).
 
 ## Build
 ```
 npm install
 npm run setup     # one-off: county map data from GitHub (longwosion/geojson-map-china)
 npm run check     # validate the tea lists
-npm run build     # writes dist/tea-time.html
+npm run build     # writes dist/cha.html
 ```
 
-Open `dist/tea-time.html` in your browser after building. The root `index.html`
+Open `dist/cha.html` in your browser after building. The root `index.html`
 is the source template, not the runnable page: the build injects its tea data
 and reviews module. Opening the template directly causes `DATA is not defined`.
 

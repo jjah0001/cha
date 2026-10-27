@@ -138,5 +138,5 @@ console.log("pairing proxy:", pairCfg.proxyUrl || "none (local keyword fallback)
 html = html.replace("/*__RESEARCH_UI__*/", () => fs.readFileSync(__dirname + "/research-ui.js", "utf8"));
 console.log("reviews backend:", pub.supabaseUrl ? "supabase " + pub.supabaseUrl : "claude.ai db (or none)");
 fs.mkdirSync(__dirname + "/dist", { recursive: true });
-fs.writeFileSync(__dirname + "/dist/tea-time.html", html);
+fs.writeFileSync(__dirname + "/dist/cha.html", html);
 console.log("bytes", html.length, "provinces", provinces.length);

@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tea Time</title>
+<title>Cha 茶</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%238B2E2E'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Noto Serif SC,Songti SC,serif' font-size='22' fill='%23FBEFCF'%3E%E8%8C%B6%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -592,7 +592,7 @@ nav.chap{z-index:5}
   <header class="mast">
     <div class="seal" aria-hidden="true">茶</div>
     <div>
-      <h1>Tea Time <span class="seasonbadge" id="seasonBadge" hidden></span><button class="seasonaudio" id="seasonAudio" aria-pressed="false" aria-label="Toggle seasonal ambience" title="Seasonal ambience" hidden><svg class="mu" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2v8L5 10H3V6z" fill="currentColor"/><path d="M11 5l4 6M15 5l-4 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg><svg class="wv" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2v8L5 10H3V6z" fill="currentColor"/><path d="M10 5c1.4 1.5 1.4 4.5 0 6M12.5 3c2.5 2.4 2.5 7.2 0 10" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></button><button class="scslide" id="scToggle" aria-pressed="false" aria-label="简体 / 繁體" title="简体 / 繁體"><span>简</span><span>繁</span></button></h1>
+      <h1><span title="茶 chá, tea · 查 chá, to look up">Cha</span> <span class="seasonbadge" id="seasonBadge" hidden></span><button class="seasonaudio" id="seasonAudio" aria-pressed="false" aria-label="Toggle seasonal ambience" title="Seasonal ambience" hidden><svg class="mu" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2v8L5 10H3V6z" fill="currentColor"/><path d="M11 5l4 6M15 5l-4 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg><svg class="wv" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2v8L5 10H3V6z" fill="currentColor"/><path d="M10 5c1.4 1.5 1.4 4.5 0 6M12.5 3c2.5 2.4 2.5 7.2 0 10" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></button><button class="scslide" id="scToggle" aria-pressed="false" aria-label="简体 / 繁體" title="简体 / 繁體"><span>简</span><span>繁</span></button></h1>
       <p><span id="count">73</span> teas of mainland China and Taiwan: where they grow, how they taste, how to brew them, what to eat with them, and which one you are.</p>
     </div>
   </header>
@@ -1742,7 +1742,7 @@ function quizResult(){
 
 /* ── share the personality result as an image (1080×1350, fits Instagram, Facebook, WeChat, WhatsApp) ── */
 let LAST_RESULT=null;
-const SITE_URL="https://jjah0001.github.io/tea-time/";
+const SITE_URL="https://jjah0001.github.io/cha/";
 const CARD_C={paper:"#E8ECE5",card:"#F5F7F2",ink:"#1C2521",ink2:"#55625B",rule:"#C2CBC1",seal:"#B4382A",onSeal:"#FBF3EE",
   green:"#5A8829",white:"#8E8A74",yellow:"#AD850B",oolong:"#1C7668",red:"#A33B25",dark:"#4E3829"};
 function wrapLines(ctx,text,maxW){const words=String(text).split(/\s+/);const lines=[];let cur="";
@@ -1764,7 +1764,7 @@ async function renderResultCard(){
   // brand
   rrect(x,L,96,64,64,10);x.fillStyle=CARD_C.seal;x.fill();
   x.fillStyle=CARD_C.onSeal;x.font=`44px ${brush}`;x.textAlign="center";x.textBaseline="middle";x.fillText("茶",L+32,130);
-  x.textAlign="left";x.textBaseline="alphabetic";x.fillStyle=CARD_C.ink;x.font=`40px ${serif}`;x.fillText("Tea Time",L+84,143);
+  x.textAlign="left";x.textBaseline="alphabetic";x.fillStyle=CARD_C.ink;x.font=`40px ${serif}`;x.fillText("Cha",L+84,143);
   x.fillStyle=CARD_C.ink2;x.font=`500 24px ${sans}`;x.textAlign="right";x.fillText("TEA PERSONALITY",W-L,140);x.textAlign="left";
   // big persona character
   const cx=W-L-130, cy=330;
@@ -1995,15 +1995,15 @@ function paintShelfMap(items){
 $("shelfSort").querySelectorAll("button").forEach(b=>b.onclick=()=>{shelfSort=b.dataset.s;$("shelfSort").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));paintShelf()});
 let dl=null;(async()=>{try{dl=await window.claude?.use?.("downloads")}catch(e){dl=null}})();
 $("expBtn").onclick=async()=>{
-  const data=JSON.stringify({app:"Tea Time",v:1,exported:new Date().toISOString(),items:SHELF},null,2);
-  if(dl){try{await dl.save({filename:"tea-time-shelf.json",data});return}catch(e){if(e?.code==="declined")return}}
+  const data=JSON.stringify({app:"Cha",v:1,exported:new Date().toISOString(),items:SHELF},null,2);
+  if(dl){try{await dl.save({filename:"cha-shelf.json",data});return}catch(e){if(e?.code==="declined")return}}
   try{await navigator.clipboard.writeText(data);toast("Shelf copied to clipboard as JSON")}catch(e){$("shelfNote").textContent="Couldn't save a file here. Copy this instead: "+data.slice(0,2000)}
 };
 $("impFile").onchange=async ev=>{const f=ev.target.files[0]; if(!f) return;
   try{const o=JSON.parse(await f.text()); const it=o.items||o; let n=0;
     for(const [k,v] of Object.entries(it)) if(byId[k]&&v&&ST[v.st]){SHELF[k]={st:v.st,g:v.g??null,y:v.y??null,r:+v.r||0,n:String(v.n||"").slice(0,500),at:+v.at||Date.now()};n++}
     saveShelf();paintShelf();buildIndex();toast(`Imported ${n} teas`);
-  }catch(e){$("shelfNote").textContent="That file isn't a Tea Time shelf export. Choose the .json file you exported.";}
+  }catch(e){$("shelfNote").textContent="That file isn't a Cha shelf export. Choose the .json file you exported.";}
   ev.target.value="";};
 paintNav();
 
