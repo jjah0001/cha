@@ -591,12 +591,40 @@ nav.chap{z-index:5}
   background:radial-gradient(closest-side,var(--fx-mist),transparent);opacity:var(--op,.6);animation:smist var(--dur,70s) ease-in-out var(--dly,0s) infinite alternate}
 @keyframes smist{from{transform:translateX(-12vw)}to{transform:translateX(12vw)}}
 
+/* time of day (data-tod on :root, same bands as the ambience). Day is the plain scene. */
+.sky{position:fixed;inset:0;pointer-events:none;z-index:0;transition:background 2s}
+:root{--sky-dawn:radial-gradient(130% 60% at 50% 100%,rgba(255,180,135,.24),transparent 70%);
+  --sky-dusk:radial-gradient(130% 70% at 75% 100%,rgba(230,130,60,.24),transparent 70%),linear-gradient(rgba(120,90,140,.07),transparent 55%);
+  --sky-night:linear-gradient(rgba(28,42,90,.22),rgba(28,42,90,.1) 60%,rgba(28,42,90,.05));--fx-star:rgba(85,98,150,.6);--fx-lamp:#E2A93B}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sky-dawn:radial-gradient(130% 60% at 50% 100%,rgba(230,150,110,.12),transparent 70%);
+  --sky-dusk:radial-gradient(130% 70% at 75% 100%,rgba(220,120,55,.13),transparent 70%);--sky-night:linear-gradient(rgba(6,12,40,.42),rgba(6,12,40,.18));--fx-star:#F3EFD8;--fx-lamp:#F4C55A}}
+:root[data-theme="dark"]{--sky-dawn:radial-gradient(130% 60% at 50% 100%,rgba(230,150,110,.12),transparent 70%);
+  --sky-dusk:radial-gradient(130% 70% at 75% 100%,rgba(220,120,55,.13),transparent 70%);--sky-night:linear-gradient(rgba(6,12,40,.42),rgba(6,12,40,.18));--fx-star:#F3EFD8;--fx-lamp:#F4C55A}
+:root[data-tod="dawn"] .sky{background:var(--sky-dawn)}
+:root[data-tod="dusk"] .sky{background:var(--sky-dusk)}
+:root[data-tod="night"] .sky{background:var(--sky-night)}
+/* fireflies come out at dusk (half of them) and fill the night; none in daylight */
+:root:not([data-tod="dusk"]):not([data-tod="night"]) .seasonfx i.fly,:root[data-tod="dusk"] .seasonfx i.fly.odd{display:none}
+/* morning mist on the slopes at dawn, every season */
+.seasonfx i.mist.dawn{display:none}
+:root[data-tod="dawn"] .seasonfx i.mist.dawn{display:block}
+/* stars at night */
+.seasonfx i.star{display:none;left:var(--x);top:var(--y);width:var(--sz,2px);height:var(--sz,2px);border-radius:50%;background:var(--fx-star);animation:stwinkle var(--tw,4s) ease-in-out var(--dly,0s) infinite}
+:root[data-tod="night"] .seasonfx i.star{display:block}
+@keyframes stwinkle{0%,100%{opacity:calc(var(--op,.6)*.3)}50%{opacity:var(--op,.6)}}
+/* the picker goes home and the raft ties up after dark; the roasting house lamp is lit from dusk */
+:root[data-tod="night"] .wuyi .picker,:root[data-tod="night"] .wuyi .raft{display:none}
+.wuyi .lamp{fill:var(--fx-lamp);opacity:0;transition:opacity 2s}
+:root[data-tod="dusk"] .wuyi .lamp{opacity:.6}
+:root[data-tod="night"] .wuyi .lamp{opacity:.9;filter:drop-shadow(0 0 4px var(--fx-lamp))}
+
 /* reduced motion gets a gentler scene rather than none: slower falls with no spin or sway, fireflies that
    only glow, no fast rain streaks. The season badge still switches everything off. */
 @media (prefers-reduced-motion:reduce){
   .seasonfx span{animation:sfall calc(var(--dur,16s)*1.5) linear var(--dly,0s) infinite;--spin:0deg}
   :root[data-season="winter"] .seasonfx span{animation:srise calc(var(--dur,16s)*1.5) linear var(--dly,0s) infinite}
   .seasonfx i.rain{display:none}
+  .seasonfx i.star{animation:none;opacity:var(--op,.6)}
   .seasonfx i.fly{animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite}}
 </style>
 
@@ -1352,11 +1380,15 @@ function gorgeIR(){
     for(let e=1;e<30;e++){const at=Math.floor(sr*(e*p*(1+0.03*(c?1:-1))+Math.random()*0.003)); if(at<len) d[at]+=(e%2?-1:1)*0.5*Math.exp(-e*0.18);}}
   return NBUF[key]=b;
 }
+/* time of day, in the same bands for the ambience and the background: dawn 5–8, day 8–17, dusk 17–19, night 19–5.
+   ?time=dawn|day|dusk|night previews another time without changing the clock */
+const TOD_FORCE=(()=>{try{const t=new URLSearchParams(location.search).get("time");return ["dawn","day","dusk","night"].includes(t)?t:null;}catch(e){return null;}})();
+function todNow(){if(TOD_FORCE)return TOD_FORCE;const h=new Date().getHours();return h>=19||h<5?"night":h<8?"dawn":h<17?"day":"dusk";}
 function startSeasonalAudio(season){
   stopSeasonalAudio(); primeAudio(); if(!AC) return false;
   const me={nodes:[],timers:[]}; SA=me;
   const live=()=>SA===me, now=()=>AC.currentTime, R=(a,b)=>a+Math.random()*(b-a), chance=p=>Math.random()<p;
-  const hr=new Date().getHours(), night=hr>=19||hr<5, dawn=hr>=5&&hr<8, dusk=hr>=17&&hr<19;
+  const tod=todNow(), hr=TOD_FORCE?{dawn:6,day:12,dusk:18,night:22}[TOD_FORCE]:new Date().getHours(), night=tod==="night", dawn=tod==="dawn", dusk=tod==="dusk";
   const keep=n=>(me.nodes.push(n),n);
   const G=v=>{const g=AC.createGain();g.gain.value=v;return g;};
   const F=(type,f,Q)=>{const b=AC.createBiquadFilter();b.type=type;b.frequency.value=f;if(Q!=null)b.Q.value=Q;return b;};
@@ -2210,7 +2242,10 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   const season=flip[force]?force:south?flip[N[m]]:N[m];
   const names={spring:"Spring 春 · new buds & 清明 drizzle",summer:"Summer 夏 · fireflies over the tea rows",autumn:"Autumn 秋 · embers from the charcoal roast",winter:"Winter 冬 · kettle steam & morning mist"};
   document.documentElement.setAttribute("data-season",season);
-  const b=$("seasonBadge"); if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season].split(" · ")[0]}`;b.title=`Themed to ${names[season].toLowerCase()} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}). Click to toggle animation.`;}
+  const root=document.documentElement, todTxt={dawn:"dawn",day:"daytime",dusk:"dusk",night:"night"};
+  root.setAttribute("data-tod",todNow());
+  setInterval(()=>{const t=todNow(); if(root.getAttribute("data-tod")!==t) root.setAttribute("data-tod",t);},60000);
+  const b=$("seasonBadge"); if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season].split(" · ")[0]}`;b.title=`Themed to ${names[season].toLowerCase()} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}). It follows your clock too: ${todTxt[todNow()]} right now. Click to toggle animation.`;}
   /* 武夷 landscape along the bottom, drawn once in the season's accent colour */
   const rowPath=b=>{let d=""; for(let x=0;x<=1200;x+=24){const y=x=>b+5*Math.sin(x/170+b), y0=y(x), y1=y(x+24);
     d+=(x?"":`M0 ${y0.toFixed(1)}`)+`Q${x+12} ${((y0+y1)/2-9).toFixed(1)} ${x+24} ${y1.toFixed(1)}`;} return `<path d="${d}"/>`;};
@@ -2220,14 +2255,20 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     <path class="near" d="M0 260V200C150 175 300 165 450 180C600 195 700 205 850 190C1000 175 1100 185 1200 200V260Z"/>
     <g class="rows">${[204,217,230,243].map(rowPath).join("")}</g>
     <path class="creek" d="M0 236C90 228 170 246 260 242C350 238 400 230 480 238C560 246 640 236 760 248V253C640 244 560 252 480 245C400 238 350 247 260 249C170 252 90 236 0 245Z"/>
-    <g class="fig">
+    <g class="fig picker">
       <path d="M371 197L380 189L389 197Z"/><path d="M380 197L379 211" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="386" cy="205" r="4"/>
+    </g>
+    <g class="fig">
       <path d="M938 170Q952 169 970 154Q988 169 1002 170L996 174H944Z"/><rect x="946" y="174" width="48" height="16"/><rect x="984" y="150" width="6" height="14"/>
       <rect class="raft" x="0" y="238" width="36" height="4" rx="2"/>
     </g>
     <g class="fig raft"><circle cx="16" cy="224" r="3"/><path d="M16 227V238M28 240L42 210" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+    <rect class="lamp" x="956" y="178" width="9" height="7" rx="1"/>
     <g class="smoke"><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/></g>
   </svg>`;
+  /* sky wash behind everything: peach glow at dawn, amber at dusk, a deeper blue after 7 pm */
+  const sky=document.createElement("div"); sky.className="sky"; sky.setAttribute("aria-hidden","true");
+  document.body.insertBefore(sky,document.body.firstChild);
   document.body.appendChild(land);
   /* particle overlay: the season's leaves/buds/steam with randomised size, speed and delay */
   const fx=document.createElement("div"); fx.className="seasonfx"; fx.setAttribute("aria-hidden","true");
@@ -2240,11 +2281,15 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     dur:(14+rng()*18).toFixed(1)+"s", dly:(-rng()*24).toFixed(1)+"s", sway:(4+rng()*5).toFixed(1)+"s",
     op:(season==="winter"?.45:.5+rng()*.3).toFixed(2), spin:(season==="winter"?0:(rng()*720-360).toFixed(0))+"deg"});
   /* the season's memory: drizzle, fireflies, roasting embers; mist in spring and winter */
-  const extra=(cls,n,f)=>{for(let i=0;i<n;i++){const e=document.createElement("i"); e.className=cls; put(e,f());}};
+  const extra=(cls,n,f)=>{for(let i=0;i<n;i++){const e=document.createElement("i"); e.className=cls+(i%2?" odd":""); put(e,f());}};
   if(season==="spring") extra("rain",26,()=>({x:(rng()*120).toFixed(1)+"vw",len:(10+rng()*14).toFixed(0)+"px",dur:(1.1+rng()*.9).toFixed(2)+"s",dly:(-rng()*2).toFixed(2)+"s",op:(.25+rng()*.25).toFixed(2)}));
   if(season==="summer") extra("fly",16,()=>({x:(rng()*100).toFixed(1)+"vw",y:(45+rng()*50).toFixed(1)+"vh",blink:(2.2+rng()*2.5).toFixed(1)+"s",dur:(6+rng()*8).toFixed(1)+"s",dly:(-rng()*8).toFixed(1)+"s",dx:(rng()*80-40).toFixed(0)+"px",dy:(rng()*-50).toFixed(0)+"px",op:(.6+rng()*.35).toFixed(2)}));
   if(season==="autumn") extra("ember",12,()=>({x:(55+rng()*40).toFixed(1)+"vw",dur:(6+rng()*6).toFixed(1)+"s",dly:(-rng()*12).toFixed(1)+"s",dx:(rng()*60-20).toFixed(0)+"px",op:(.5+rng()*.4).toFixed(2)}));
   if(season==="spring"||season==="winter") extra("mist",3,()=>({x:(rng()*70-20).toFixed(0)+"vw",b:(rng()*18).toFixed(0)+"vh",w:(70+rng()*50).toFixed(0)+"vw",h:(14+rng()*14).toFixed(0)+"vh",dur:(50+rng()*40).toFixed(0)+"s",dly:(-rng()*60).toFixed(0)+"s",op:(season==="spring"?.7:.55).toFixed(2)}));
+  /* clock-bound extras, shown by CSS only at their time: morning mist at dawn, stars at night
+     (not in spring, when the 清明 drizzle has the sky) */
+  extra("mist dawn",3,()=>({x:(rng()*70-20).toFixed(0)+"vw",b:(rng()*14).toFixed(0)+"vh",w:(80+rng()*50).toFixed(0)+"vw",h:(16+rng()*12).toFixed(0)+"vh",dur:(60+rng()*40).toFixed(0)+"s",dly:(-rng()*60).toFixed(0)+"s",op:".8"}));
+  if(season!=="spring") extra("star",30,()=>({x:(rng()*100).toFixed(1)+"vw",y:(rng()*55).toFixed(1)+"vh",sz:(1+rng()*1.6).toFixed(1)+"px",tw:(2.5+rng()*4).toFixed(1)+"s",dly:(-rng()*6).toFixed(1)+"s",op:(.35+rng()*.5).toFixed(2)}));
   document.body.appendChild(fx);
   /* toggle particles via the badge; remember the choice */
   /* on unless switched off from the badge (reduced motion gets the gentler CSS version, not nothing).
