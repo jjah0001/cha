@@ -603,6 +603,12 @@ nav.chap{z-index:5}
 :root[data-tod="dawn"] .sky{background:var(--sky-dawn)}
 :root[data-tod="dusk"] .sky{background:var(--sky-dusk)}
 :root[data-tod="night"] .sky{background:var(--sky-night)}
+/* the sticky chapter bar is opaque paper, so give it the same wash, pinned to the viewport so it lines up */
+:root{--sky-top-dusk:rgba(120,90,140,.07);--sky-top-night:rgba(28,42,90,.22)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sky-top-dusk:rgba(220,120,55,.03);--sky-top-night:rgba(6,12,40,.42)}}
+:root[data-theme="dark"]{--sky-top-dusk:rgba(220,120,55,.03);--sky-top-night:rgba(6,12,40,.42)}
+:root[data-tod="dusk"] nav.chap{background:linear-gradient(var(--sky-top-dusk),var(--sky-top-dusk)),var(--paper)}
+:root[data-tod="night"] nav.chap{background:linear-gradient(var(--sky-top-night),var(--sky-top-night)),var(--paper)}
 /* fireflies come out at dusk (half of them) and fill the night; none in daylight */
 :root:not([data-tod="dusk"]):not([data-tod="night"]) .seasonfx i.fly,:root[data-tod="dusk"] .seasonfx i.fly.odd{display:none}
 /* morning mist on the slopes at dawn, every season */
