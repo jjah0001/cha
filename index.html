@@ -466,6 +466,17 @@ html{scroll-behavior:smooth}
 .stars.big button{font-size:30px}.stars.big button:hover,.stars.big button:focus-visible{transform:scale(1.12)}
 .stars.ghost button.on{color:var(--ink-2)}
 .stars button[disabled]{cursor:wait;opacity:.7}
+/* "Cha" pun tooltip: 茶 tea / 查 look up. Shows on hover, keyboard focus, or tap */
+.pun{position:relative;cursor:help;text-decoration:underline dotted 2px;text-decoration-color:var(--rule);text-underline-offset:7px;outline:none}
+.pun:focus-visible{text-decoration-color:var(--seal)}
+.puntip{position:absolute;left:-6px;top:calc(100% + 10px);display:grid;gap:4px;padding:10px 14px;border-radius:10px;background:var(--ink);color:var(--paper);
+  font:500 14px/1.3 var(--f-body);letter-spacing:0;white-space:nowrap;text-decoration:none;z-index:40;box-shadow:0 6px 20px rgba(0,0,0,.18);
+  opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity .15s,transform .15s,visibility .15s;pointer-events:none}
+.puntip::before{content:"";position:absolute;left:20px;top:-6px;border:6px solid transparent;border-top:0;border-bottom-color:var(--ink)}
+.puntip span{display:flex;align-items:center;gap:10px}
+.puntip b{font:26px/1 var(--f-brush);font-weight:400;color:var(--paper);background:var(--seal);border-radius:6px;width:34px;height:34px;display:grid;place-items:center}
+.pun:hover .puntip,.pun:focus .puntip,.pun.open .puntip{opacity:1;visibility:visible;transform:none}
+.mastwrap:has(.pun:hover,.pun:focus,.pun.open){z-index:6} /* lift the header above the sticky tab bar only while the tip shows */
 </style>
 <style>
 .evidence{border-left:3px solid var(--seal);padding:0 0 0 14px}
@@ -588,11 +599,11 @@ nav.chap{z-index:5}
   .seasonfx i.fly{animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite}}
 </style>
 
-<div class="wrap">
+<div class="wrap mastwrap">
   <header class="mast">
     <div class="seal" aria-hidden="true">茶</div>
     <div>
-      <h1><span title="茶 chá, tea · 查 chá, to look up">Cha</span> <span class="seasonbadge" id="seasonBadge" hidden></span><button class="seasonaudio" id="seasonAudio" aria-pressed="false" aria-label="Toggle seasonal ambience" title="Seasonal ambience" hidden><svg class="mu" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2v8L5 10H3V6z" fill="currentColor"/><path d="M11 5l4 6M15 5l-4 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg><svg class="wv" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2v8L5 10H3V6z" fill="currentColor"/><path d="M10 5c1.4 1.5 1.4 4.5 0 6M12.5 3c2.5 2.4 2.5 7.2 0 10" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></button><button class="scslide" id="scToggle" aria-pressed="false" aria-label="简体 / 繁體" title="简体 / 繁體"><span>简</span><span>繁</span></button></h1>
+      <h1><span class="pun" tabindex="0" aria-describedby="punTip">Cha<span class="puntip" id="punTip" role="tooltip"><span><b>茶</b>chá · tea</span><span><b>查</b>chá · to look up</span></span></span> <span class="seasonbadge" id="seasonBadge" hidden></span><button class="seasonaudio" id="seasonAudio" aria-pressed="false" aria-label="Toggle seasonal ambience" title="Seasonal ambience" hidden><svg class="mu" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2v8L5 10H3V6z" fill="currentColor"/><path d="M11 5l4 6M15 5l-4 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg><svg class="wv" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h2l3-2v8L5 10H3V6z" fill="currentColor"/><path d="M10 5c1.4 1.5 1.4 4.5 0 6M12.5 3c2.5 2.4 2.5 7.2 0 10" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg></button><button class="scslide" id="scToggle" aria-pressed="false" aria-label="简体 / 繁體" title="简体 / 繁體"><span>简</span><span>繁</span></button></h1>
       <p><span id="count">73</span> teas of mainland China and Taiwan: where they grow, how they taste, how to brew them, what to eat with them, and which one you are.</p>
     </div>
   </header>
@@ -2336,4 +2347,10 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
  buildMap(); buildChips(); buildColours(); quizStep(); render(); paintTOTD(); routeFromHash();
 $("sortSel").addEventListener("change",e=>{sortBy=e.target.value;page=1;buildIndex()});
 initReviews();
+
+/* tap support for the "Cha" pun tooltip on touch screens */
+{const pun=document.querySelector(".pun"); if(pun){
+  pun.addEventListener("click",e=>{e.stopPropagation();pun.classList.toggle("open")});
+  document.addEventListener("click",()=>pun.classList.remove("open"));
+  pun.addEventListener("keydown",e=>{if(e.key==="Escape"){pun.classList.remove("open");pun.blur()}});}}
 </script>
