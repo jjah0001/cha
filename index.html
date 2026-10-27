@@ -2248,18 +2248,29 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     ab.hidden=false;
     const seasonNames={spring:"spring rain in the rock gorges, cuckoos, and leaves shaken in sieves through the night",summer:"the Nine-Bend Stream lapping a bamboo raft, cicadas & paddy frogs",autumn:"charcoal roasting in the tea house, wind in the bamboo & crickets",winter:"a crackling wood stove & kettle"};
     ab.title=`Seasonal ambience: ${seasonNames[season]}, on Wuyi Mountain (武夷山)`;
-    const AKEY="teatime.ambience";
+    const AKEY="teatime.ambience.v2"; // v2: sound is on by default for everyone, including visitors who muted the old version
     let want; try{want=localStorage.getItem(AKEY);}catch(e){} if(want==null) want="on";
     const setOn=on=>ab.setAttribute("aria-pressed",on?"true":"false");
     ab.addEventListener("click",()=>{
       const on=ab.getAttribute("aria-pressed")==="true";
       if(on){stopSeasonalAudio();setOn(false);try{localStorage.setItem(AKEY,"off");}catch(e){}}
-      else{const ok=startSeasonalAudio(season); if(ok){setOn(true);try{localStorage.setItem(AKEY,"on");}catch(e){}}}
+      else{try{if(navigator.audioSession) navigator.audioSession.type="playback";}catch(e){}
+        const ok=startSeasonalAudio(season); if(ok){setOn(true);try{localStorage.setItem(AKEY,"on");}catch(e){}}}
     });
     if(want==="on"){
-      const kick=()=>{if(ab.getAttribute("aria-pressed")==="true")return; const ok=startSeasonalAudio(season); if(ok)setOn(true);};
-      const once={once:true,capture:true};
-      ["pointerdown","keydown","touchstart"].forEach(ev=>window.addEventListener(ev,kick,once));
+      /* Browsers only allow sound after a tap, click or key press. Listen for every kind of first interaction
+         (iPhone Safari ignores touchstart, so touchend/click matter there) and keep listening until audio is really running. */
+      const EVS=["pointerdown","pointerup","mousedown","touchend","click","keydown"];
+      const stop=()=>EVS.forEach(ev=>window.removeEventListener(ev,kick,true));
+      const kick=e=>{
+        if(e&&e.target&&ab.contains(e.target)) return;            // a tap on the speaker button is handled by the button itself
+        try{if(navigator.audioSession) navigator.audioSession.type="playback";}catch(err){} // Safari: play even with the ringer switch on silent
+        if(ab.getAttribute("aria-pressed")!=="true"){ const ok=startSeasonalAudio(season); if(ok) setOn(true); }
+        if(AC&&AC.state!=="running") AC.resume().then(()=>{if(AC.state==="running")stop()}).catch(()=>{}); else stop();
+      };
+      EVS.forEach(ev=>window.addEventListener(ev,kick,true));
+      /* if someone turns it off before it ever started, stop waiting */
+      ab.addEventListener("click",()=>{ if(ab.getAttribute("aria-pressed")!=="true") stop(); });
     }
   }
   /* ── 简/繁 toggle: lazy-loads OpenCC-derived dict (char + phrase), walks text nodes, remembers choice ── */
