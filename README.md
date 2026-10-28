@@ -31,16 +31,23 @@ real sunrise and sunset in their time zone, and the solar terms (节气). Each s
 | Autumn | 桂花 (白露–寒露) | osmanthus flowers drifting down, the charcoal roast |
 | Autumn | 霜降 | frost on the tea rows in the morning, fewer crickets |
 | Winter | 围炉 | wood stove and kettle |
-| Winter | 大寒 | snow on the summits and falling, the eaves frozen |
+| Winter | 寒潮 (大寒 to 雨水) | frost on the rows in the morning, cold drizzle, cloud between the peaks |
+| Winter | 瑞雪 | a rare snowfall: only every three or four years (2027, 2030, 2033, 2037…), for two or three days in the cold spell; snow on the summits and falling, the eaves frozen |
 
 The day runs late (after midnight) · dawn · day · noon · dusk · night: roosters before first light, the 午休 hush, dogs
 after dark, the roasting-house lamp left on through the night only when tea is being made. The moon shows its real phase.
-春节 (除夕 to 元宵) hangs lanterns and brings firecrackers; 中秋 lights the full moon. Festivals keep their real dates in
-both hemispheres. When the time band, weather or moment changes while the page is open, the sound crossfades into the new scene.
+Festivals keep their real dates in both hemispheres:
+
+- **春节**: lanterns on the tea house from 除夕 to 元宵. 除夕 night has the most firecrackers and fireworks over the
+  villages (each rocket whistles up and bangs, later the farther off it burst); 初一 to 初五 have firecrackers and
+  drum-and-gong troupes (锣鼓) by day; 元宵 strings lanterns along the path, with fireworks, 锣鼓 and a bamboo flute in the evening.
+- **中秋** (three nights): the clouds part for a bigger, glowing full moon, lanterns on the eaves, and a bamboo flute
+  playing now and then from across the valley. When the time band, weather or moment changes while the page is open, the sound crossfades into the new scene.
 
 Preview any of it with URL parameters, e.g. `?season=summer&moment=storms&time=day&weather=storm`:
-`season` spring|summer|autumn|winter · `moment` jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|snow ·
-`time` late|dawn|day|noon|dusk|night · `weather` clear|drizzle|rain|storm|snow · `fest` chunjie|zhongqiu.
+`season` spring|summer|autumn|winter · `moment` jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|hanchao|snow ·
+`time` late|dawn|day|noon|dusk|night · `weather` clear|drizzle|rain|storm|snow · `fest` chunjie|zhongqiu ·
+`festday` days from the festival (春节: −1 = 除夕, 0 = 初一, 14 = 元宵).
 
 ## Where the teas live
 - `teas.js` … `teas5.js` — the full profiles (tasting notes, history, brewing, coordinates). `pairs.js` holds food pairings.

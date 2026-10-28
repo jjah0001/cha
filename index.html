@@ -660,10 +660,21 @@ nav.chap{z-index:5}
 :root:is([data-weather="rain"],[data-weather="storm"]) .wuyi .raft{display:none}
 /* after midnight the house sleeps, unless tea is being made: 做青 in the harvest, 炭焙 in autumn */
 :root[data-tod-fine="late"]:not([data-moment="picking"]):not([data-moment="osmanthus"]):not([data-moment="frost"]) .wuyi .lamp{opacity:0;filter:none}
-/* 春节: two red lanterns on the eaves, glowing after dark */
-.wuyi .lanterns{display:none;fill:#C8352B;stroke:#C8352B;opacity:.6}
-:root[data-fest="chunjie"] .wuyi .lanterns{display:inline}
-:root[data-fest="chunjie"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
+/* 春节 (and 中秋 night): two red lanterns on the eaves, glowing after dark; on 元宵 a string of lanterns along the path */
+.wuyi .lanterns,.wuyi .lanternrow{display:none;fill:#C8352B;stroke:#C8352B;opacity:.6}
+:root[data-fest="chunjie"] .wuyi .lanterns,:root[data-fest="zhongqiu"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{display:inline}
+:root[data-fest]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
+:root[data-fest-part="yuanxiao"] .wuyi .lanternrow{display:inline}
+:root[data-fest-part="yuanxiao"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanternrow{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
+/* 烟花: a faint trail going up, then sparks bursting out and falling away */
+.fireworks{position:absolute;inset:0}
+.fireworks .fw{position:absolute;width:0;height:0;opacity:1}
+.fireworks .fw::before{content:"";position:absolute;left:-1px;top:0;width:2px;height:26px;border-radius:1px;background:linear-gradient(var(--c),transparent);
+  opacity:0;animation:sfwup var(--rise,1.2s) ease-out forwards}
+@keyframes sfwup{0%{transform:translateY(45vh);opacity:.8}90%{opacity:.8}100%{transform:translateY(0);opacity:0}}
+.fireworks .fw b{position:absolute;left:-2px;top:-2px;width:4px;height:4px;border-radius:50%;background:var(--c);box-shadow:0 0 6px 1px var(--c);
+  opacity:0;animation:sfwburst 2.2s cubic-bezier(.15,.7,.3,1) var(--rise,1.2s) forwards}
+@keyframes sfwburst{0%{transform:translate(0,0);opacity:1}70%{opacity:.8}100%{transform:translate(var(--dx),calc(var(--dy) + 40px));opacity:0}}
 /* rain falls only in wet weather: half of it in drizzle, all of it in rain and storms */
 .seasonfx i.rain{display:none}
 :root[data-weather="drizzle"] .seasonfx i.rain:not(.odd),:root:is([data-weather="rain"],[data-weather="storm"]) .seasonfx i.rain{display:block}
@@ -1413,8 +1424,8 @@ async function wake(on){
    mornings  = 天心寺's bell and bouts of 木鱼 drift up from the temple below 大红袍
    The scene clock below adds the solar-term moment and the hour: 惊蛰 thunder; the harvest (pickers calling, 做青 all night);
    the plum rains; summer afternoon storms (thunder answers the lightning drawn in the background); the 霜降 cold;
-   大寒 snow. Roosters from before first light, dogs after dark, the noon hush, the small hours with only tea-making awake,
-   and 春节 firecrackers. When the scene changes while you listen, it crossfades into the next one. */
+   大寒 cold rain and the rare snow. Roosters from before first light, dogs after dark, the noon hush, the small hours with only tea-making awake,
+   春节 firecrackers, fireworks and 锣鼓, and a bamboo flute on 中秋 night. When the scene changes while you listen, it crossfades into the next one. */
 let SA=null;
 const NBUF={};
 function noiseBuf(kind){
@@ -1459,7 +1470,8 @@ function gorgeIR(){
    Within the season, the solar terms (节气) give one Wuyi moment each — the tea year as it is lived on the mountain.
    Southern-hemisphere visitors get the same moment at the same point of their own season.
    Previews: ?season=spring|summer|autumn|winter  ?time=late|dawn|day|noon|dusk|night
-             ?moment=jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|snow  ?weather=storm  ?fest=chunjie|zhongqiu */
+             ?moment=jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|hanchao|snow  ?weather=storm
+             ?fest=chunjie|zhongqiu  ?festday=-1 (除夕) | 0 (初一) | 14 (元宵) */
 const QS=(()=>{try{return new URLSearchParams(location.search);}catch(e){return new URLSearchParams("");}})();
 const TODS=["late","dawn","day","noon","dusk","night"];
 const TOD_FORCE=TODS.includes(QS.get("time"))?QS.get("time"):null;
@@ -1505,8 +1517,9 @@ const MOMENTS={
  osmanthus:{zh:"桂花",en:"osmanthus and the charcoal roast",snd:"charcoal roasting in the tea house, wind in the bamboo & crickets"},
  frost:    {zh:"霜降",en:"frost on the tea rows",snd:"the last of the charcoal roast and a cold wind"},
  hearth:   {zh:"围炉",en:"kettle steam and morning mist",snd:"a crackling wood stove & kettle"},
- snow:     {zh:"大寒",en:"snow on the peaks",snd:"a banked stove while snow falls outside"}};
-const MOMENT_SEASON={jingzhe:"spring",qingming:"spring",picking:"spring",meiyu:"spring",storms:"summer",osmanthus:"autumn",frost:"autumn",hearth:"winter",snow:"winter"};
+ hanchao:  {zh:"寒潮",en:"frost, cold rain and mist",snd:"a wood stove & kettle while cold rain drips off the eaves"},
+ snow:     {zh:"瑞雪",en:"a rare snowfall on the peaks",snd:"a banked stove while snow falls outside, a rare thing on Wuyi"}};
+const MOMENT_SEASON={jingzhe:"spring",qingming:"spring",picking:"spring",meiyu:"spring",storms:"summer",osmanthus:"autumn",frost:"autumn",hearth:"winter",hanchao:"winter",snow:"winter"};
 /* the date in the Chinese (northern) tea year that matches this point of the visitor's season */
 function teaYearDate(d,season){
   const m=d.getMonth(), startN={spring:2,summer:5,autumn:8,winter:11}, startS={spring:8,summer:11,autumn:2,winter:5};
@@ -1521,29 +1534,43 @@ function momentOf(season,d=new Date()){
   if(season==="spring") return m===3||(m===4&&day<4)?"jingzhe":m===4&&day<20?"qingming":m===4||(m===5&&day<21)?"picking":"meiyu";
   if(season==="summer") return m===6||(m===7&&day<7)?"meiyu":"storms";
   if(season==="autumn") return m===9||(m===10&&day<23)?"osmanthus":"frost";
-  return (m===1&&day>=20)||(m===2&&day<19)?"snow":"hearth";
+  if((m===1&&day>=20)||(m===2&&day<19)) return snowsOn(d.getFullYear(),m,day)?"snow":"hanchao";
+  return "hearth";
+}
+/* Snow is rare on the tea slopes (a few hundred metres up; only the high peaks like 黄岗山 see it most winters).
+   So in the 大寒 cold spell it snows only every three or four years, for two or three days, the same days
+   for every visitor that year; the rest of the cold spell is frost, cold rain and mist (寒潮) */
+function snowsOn(y,m,day){
+  let h=Math.imul(y,2654435761)>>>0; h=(h^(h>>>15))>>>0; h=Math.imul(h,2246822519)>>>0; h=(h^(h>>>13))>>>0;
+  if(![0,3,7].includes(((y%10)+10)%10)) return false; // every three or four years: 2027, 2030, 2033, 2037, 2040…
+  const start=(h>>>8)%24, len=2+((h>>>16)%2), idx=m===1?day-20:11+day;
+  return idx>=start&&idx<start+len;
 }
 /* festivals keep their real calendar dates everywhere: 春节 from 除夕 to 元宵, 中秋 for three nights */
 const CNY={2025:"01-29",2026:"02-17",2027:"02-06",2028:"01-26",2029:"02-13",2030:"02-03",2031:"01-23",2032:"02-11",2033:"01-31",2034:"02-19",2035:"02-08",2036:"01-28"};
 const MIDAUTUMN={2025:"10-06",2026:"09-25",2027:"09-15",2028:"10-03",2029:"09-22",2030:"09-12",2031:"10-01",2032:"09-19",2033:"09-08",2034:"09-27",2035:"09-16",2036:"10-04"};
 function festOf(d=new Date()){
-  const f=QS.get("fest"); if(f==="chunjie"||f==="zhongqiu") return {name:f,day:f==="chunjie"?0:0};
+  const f=QS.get("fest"); if(f==="chunjie"||f==="zhongqiu") return {name:f,day:+(QS.get("festday")||0)||0};
   const y=d.getFullYear(), at=s=>new Date(y+"-"+s+"T00:00:00"), days=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-a)/864e5);
   if(CNY[y]){const k=days(at(CNY[y]),d); if(k>=-1&&k<=14) return {name:"chunjie",day:k};}
   if(MIDAUTUMN[y]){const k=days(at(MIDAUTUMN[y]),d); if(k>=-1&&k<=1) return {name:"zhongqiu",day:k};}
   return null;
 }
-/* weather that goes with the moment: drizzle, steady rain, the summer afternoon storm, snow, or clear */
-function weatherOf(moment,hr){
+/* weather that goes with the moment: drizzle, steady rain, the summer afternoon storm, snow, or clear.
+   On 中秋 night the clouds always part for the moon */
+function weatherOf(moment,hr,fest,tod){
   const f=QS.get("weather"); if(["clear","drizzle","rain","storm","snow"].includes(f)) return f;
-  return {jingzhe:"drizzle",qingming:"drizzle",meiyu:"rain",snow:"snow"}[moment]||(moment==="storms"&&hr>=14&&hr<18?"storm":"clear");
+  if(fest==="zhongqiu"&&(tod==="dusk"||tod==="night"||tod==="late")) return "clear";
+  return {jingzhe:"drizzle",qingming:"drizzle",hanchao:"drizzle",meiyu:"rain",snow:"snow"}[moment]||(moment==="storms"&&hr>=14&&hr<18?"storm":"clear");
 }
 function sceneNow(){
   const d=new Date(), tod=todFine(d), hr=TOD_FORCE?{late:2,dawn:6,day:10,noon:13,dusk:18,night:21}[TOD_FORCE]:d.getHours();
   const moment=momentOf(SC.season,d), fest=festOf(d);
-  return {season:SC.season,moment,tod,hr,weather:weatherOf(moment,hr),fest:fest&&fest.name,festDay:fest?fest.day:null,sun:sunTimes(d)};
+  return {season:SC.season,moment,tod,hr,weather:weatherOf(moment,hr,fest&&fest.name,tod),fest:fest&&fest.name,festDay:fest?fest.day:null,sun:sunTimes(d)};
 }
-const sceneKey=s=>[s.season,s.moment,s.tod,s.weather,s.fest].join("|");
+/* 春节 has its own days: 除夕 (day −1), 初一 to 初五, the quieter days after, and 元宵 (day 14) */
+const festPart=s=>s.fest!=="chunjie"?(s.fest||""):s.festDay<0?"chuxi":s.festDay<=4?"chuyi":s.festDay>=13?"yuanxiao":"after";
+const sceneKey=s=>[s.season,s.moment,s.tod,s.weather,festPart(s)].join("|");
 /* moon phase 0…1 (0 = new, 0.5 = full), from a known new moon */
 function moonPhase(d=new Date()){const P=29.530588853, ref=Date.UTC(2000,0,6,18,14); const a=((d-ref)/864e5)%P; return (a<0?a+P:a)/P;}
 function startSeasonalAudio(season,opts={}){
@@ -1710,6 +1737,43 @@ function startSeasonalAudio(season,opts={}){
   const crackers=(t,dest,amp)=>{const k=30+Math.floor(R(0,110)); let s=t;
     for(let i=0;i<k;i++){s+=R(0.018,0.085); burst(s,dest,R(0.004,0.015),"highpass",R(1500,4200),0.7,amp*R(0.4,1));}
     if(chance(0.5)) burst(t+R(0,s-t),dest,0.12,"bandpass",R(300,500),0.9,amp*1.6,0.002);};
+  /* 烟花: a rocket whistling up, then the bang and a shower of crackles */
+  const firework=(t,dest,rise,dist,amp)=>{
+    const o=AC.createOscillator(), g=AC.createGain(), f0=R(700,1000);
+    o.frequency.setValueAtTime(f0,t); o.frequency.exponentialRampToValueAtTime(f0*R(2.2,2.8),t+rise);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(amp*0.12,t+0.1); g.gain.linearRampToValueAtTime(0,t+rise);
+    o.connect(g).connect(dest); o.start(t); o.stop(t+rise+0.05);
+    const b=t+rise+dist*1.6;
+    burst(b,dest,R(0.25,0.4),"lowpass",R(500,800),0.7,amp,0.002);
+    for(let i=0,k=15+Math.floor(R(0,30));i<k;i++) burst(b+0.15+R(0,1.4),dest,R(0.003,0.01),"highpass",R(2500,6000),0.7,amp*R(0.05,0.2));};
+  /* 锣鼓: a village drum-and-gong troupe (舞狮), the 锣鼓经 rhythm: drum strokes, 小锣 that rises in pitch, 钹 crashes */
+  const drum=(t,dest,amp)=>{bubble(t,dest,R(150,175),0.2,amp,0.6); burst(t,dest,0.04,"lowpass",450,0.8,amp*0.5,0.002);};
+  const gong=(t,dest,amp)=>{const f=R(520,640), o=AC.createOscillator(), g=AC.createGain();
+    o.type="triangle"; o.frequency.setValueAtTime(f,t); o.frequency.linearRampToValueAtTime(f*1.07,t+0.25);
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(amp*0.6,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.9);
+    o.connect(g).connect(dest); o.start(t); o.stop(t+1);
+    burst(t,dest,0.7,"highpass",R(4500,6500),0.5,amp*0.5,0.002);};
+  const luogu=(t,dest,amp)=>{const beat=R(0.2,0.26), bars=4+Math.floor(R(0,6)), pats=["D.D.DDG.","D.DDG.G.","DDD.G...","D.D.G.D.","DDDDG.G."];
+    let at=t; for(let b=0;b<bars;b++){const pt=any(pats);
+      for(let i=0;i<8;i++){const c=pt[i], x=at+i*beat*R(0.97,1.03); if(c==="D") drum(x,dest,amp); if(c==="G"){drum(x,dest,amp*0.8); gong(x,dest,amp);}}
+      at+=8*beat;}
+    gong(at,dest,amp*1.2);};
+  /* 竹笛: someone playing a bamboo flute on 中秋 night, a slow phrase in the pentatonic scale, from across the valley */
+  const flute=(t,dest,amp)=>{const sc=[587.3,659.3,740,880,987.8,1174.7,1318.5], n=5+Math.floor(R(0,5));
+    const o=AC.createOscillator(), o2=AC.createOscillator(), g=AC.createGain(), g2=AC.createGain(), vib=AC.createOscillator(), vd=AC.createGain();
+    const br=AC.createBufferSource(), bp=F("bandpass",900,6), bg=AC.createGain();
+    vib.frequency.value=5.2; vib.connect(vd); vd.connect(o.frequency); vd.gain.value=0;
+    br.buffer=noiseBuf("white"); br.loop=true; br.connect(bp).connect(bg).connect(dest);
+    o.connect(g); o2.connect(g2); g2.connect(g); g.connect(dest); g2.gain.value=0.22; g.gain.setValueAtTime(0,t); bg.gain.setValueAtTime(0,t);
+    let at=t, idx=2+Math.floor(R(0,3));
+    for(let i=0;i<n;i++){idx=Math.max(0,Math.min(sc.length-1,idx+any([-2,-1,-1,1,1,2,0]))); const f=sc[idx], d=i===n-1?R(1.6,2.4):any([0.35,0.5,0.5,0.75,1.1]);
+      o.frequency.setTargetAtTime(f,at,0.025); o2.frequency.setTargetAtTime(f*2,at,0.025); bp.frequency.setTargetAtTime(f,at,0.03);
+      g.gain.setTargetAtTime(amp,at,0.04); bg.gain.setTargetAtTime(amp*0.08,at,0.04);
+      vd.gain.setValueAtTime(0,at); vd.gain.linearRampToValueAtTime(f*0.008,at+Math.min(d,0.6));
+      if(chance(0.3)&&i<n-1){g.gain.setTargetAtTime(amp*0.2,at+d-0.06,0.015);}
+      at+=d;}
+    g.gain.setTargetAtTime(0,at,0.15); bg.gain.setTargetAtTime(0,at,0.15);
+    [o,o2,vib].forEach(x=>{x.start(t); x.stop(at+1);}); br.start(t,R(0,5)); br.stop(at+1);};
   /* 雷: a crack when it is close, then the long roll down the valley */
   const thunder=(t,dest,near,amp)=>{
     if(near) burst(t,dest,0.3,"bandpass",R(900,1800),0.6,amp*0.6,0.003);
@@ -1834,9 +1898,18 @@ function startSeasonalAudio(season,opts={}){
   if(dawn){recur(14,40,t=>rooster(t,any(village),0.022),R(1,6));}
   else if(tod==="day"&&hr<12) recur(240,600,t=>rooster(t,any(village),0.018),R(30,120));
   if((night||dusk)&&wx!=="storm"&&wx!=="rain") recur(late?150:90,late?420:260,t=>dog(t,any(village),0.02),R(15,60));
-  /* 春节: firecrackers from the villages, thickest on New Year's Eve night and the first days, a few until 元宵 */
-  if(S.fest==="chunjie"){const k=S.festDay, busy=k<=0&&(night||dusk)?1:k<=5?(night||dusk||dawn?0.6:0.3):0.12;
-    recur(25/busy,90/busy,t=>crackers(t,any(village),0.05),R(3,15));}
+  /* 春节: firecrackers from the villages, thickest on 除夕 night and through 初一 to 初五, a few after, more again on 元宵.
+     Drum-and-gong troupes go round by day in the first days and on 元宵 evening; fireworks (drawn in the sky) on 除夕, 初一 and 元宵 nights */
+  const part=festPart(S);
+  if(S.fest==="chunjie"){
+    const busy=part==="chuxi"?(night||dusk?1.4:0.5):part==="chuyi"?(night||dusk||dawn?0.7:0.4):part==="yuanxiao"?(night||dusk?0.7:0.25):0.12;
+    recur(25/busy,90/busy,t=>crackers(t,any(village),0.05),R(3,15));
+    if((part==="chuyi"&&!night)||(part==="yuanxiao"&&(dusk||(night&&!late)))) recur(150,330,t=>luogu(t,any(village),0.05),R(10,40));}
+  const pop=e=>{if(!live())return; const d=(e&&e.detail)||{}, dist=d.dist!=null?d.dist:0.6;
+    firework(now()+0.05,place(R(-0.9,0.9),0.55+dist*0.35),d.rise||1.2,dist,0.09-dist*0.04);};
+  window.addEventListener("cha-firework",pop); me.offs.push(()=>window.removeEventListener("cha-firework",pop));
+  /* 中秋 night (and 元宵): a bamboo flute from somewhere across the valley now and then */
+  if((S.fest==="zhongqiu"||part==="yuanxiao")&&(dusk||(night&&!late))) recur(70,160,t=>flute(t,place(R(-0.8,0.8),0.7),0.035),R(6,20));
   /* the temple below 大红袍: a bell in the early morning, 木鱼 in bouts through the day (but not over the noon rest) */
   const temple=place(R(-0.9,0.9),0.95);
   if(hr>=5&&hr<10&&!late) recur(150,300,t=>bell(t,temple,0.05),12);
@@ -2509,6 +2582,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     <g class="fig raft"><circle cx="16" cy="224" r="3"/><path d="M16 227V238M28 240L42 210" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
     <rect class="lamp" x="956" y="178" width="9" height="7" rx="1"/>
     <g class="lanterns"><path d="M950 174V177M990 174V177" stroke-width="1"/><ellipse cx="950" cy="181" rx="3.6" ry="4.6"/><ellipse cx="990" cy="181" rx="3.6" ry="4.6"/></g>
+    <g class="lanternrow"><path d="M560 186Q640 176 720 184T880 172" fill="none" stroke-width=".8"/>${[[580,186],[620,182],[660,180],[700,183],[740,185],[780,182],[820,177],[860,174]].map(([x,y])=>`<ellipse cx="${x}" cy="${y+6}" rx="3" ry="3.8"/>`).join("")}</g>
     <g class="smoke"><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/></g>
   </svg>`;
   /* sky wash behind everything: peach glow at dawn, amber at dusk, deep blue at night and deeper after midnight,
@@ -2531,12 +2605,12 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   /* the season's memories. Which of them show is decided in CSS from data-moment / data-weather / data-tod,
      so the scene can move on (dusk into night, the afternoon storm coming in) without rebuilding anything */
   const extra=(cls,n,f)=>{for(let i=0;i<n;i++){const e=document.createElement("i"); e.className=cls+(i%2?" odd":""); put(e,f());}};
-  if(season==="spring"||season==="summer") extra("rain",34,()=>({x:(rng()*120).toFixed(1)+"vw",len:(10+rng()*14).toFixed(0)+"px",dur:(1.1+rng()*.9).toFixed(2)+"s",dly:(-rng()*2).toFixed(2)+"s",op:(.25+rng()*.25).toFixed(2)}));
+  if(season!=="autumn") extra("rain",34,()=>({x:(rng()*120).toFixed(1)+"vw",len:(10+rng()*14).toFixed(0)+"px",dur:(1.1+rng()*.9).toFixed(2)+"s",dly:(-rng()*2).toFixed(2)+"s",op:(.25+rng()*.25).toFixed(2)}));
   if(season==="summer") extra("fly",16,()=>({x:(rng()*100).toFixed(1)+"vw",y:(45+rng()*50).toFixed(1)+"vh",blink:(2.2+rng()*2.5).toFixed(1)+"s",dur:(6+rng()*8).toFixed(1)+"s",dly:(-rng()*8).toFixed(1)+"s",dx:(rng()*80-40).toFixed(0)+"px",dy:(rng()*-50).toFixed(0)+"px",op:(.6+rng()*.35).toFixed(2)}));
   if(season==="autumn") extra("ember",12,()=>({x:(55+rng()*40).toFixed(1)+"vw",dur:(6+rng()*6).toFixed(1)+"s",dly:(-rng()*12).toFixed(1)+"s",dx:(rng()*60-20).toFixed(0)+"px",op:(.5+rng()*.4).toFixed(2)}));
   /* 桂花: tiny four-petalled osmanthus flowers drifting down in 白露–寒露 */
   if(season==="autumn") extra("gui",22,()=>({x:(rng()*100).toFixed(1)+"vw",sz:(6+rng()*5).toFixed(1)+"px",dur:(16+rng()*14).toFixed(1)+"s",dly:(-rng()*30).toFixed(1)+"s",sway:(3+rng()*4).toFixed(1)+"s",spin:(rng()*900-450).toFixed(0)+"deg",op:(.55+rng()*.35).toFixed(2)}));
-  /* 大寒 snow */
+  /* the rare snowfall in the 大寒 cold spell */
   if(season==="winter") extra("flake",36,()=>({x:(rng()*100).toFixed(1)+"vw",sz:(2+rng()*3.5).toFixed(1)+"px",dur:(12+rng()*14).toFixed(1)+"s",dly:(-rng()*26).toFixed(1)+"s",sway:(3+rng()*4).toFixed(1)+"s",op:(.45+rng()*.45).toFixed(2)}));
   if(season==="spring"||season==="winter") extra("mist",3,()=>({x:(rng()*70-20).toFixed(0)+"vw",b:(rng()*18).toFixed(0)+"vh",w:(70+rng()*50).toFixed(0)+"vw",h:(14+rng()*14).toFixed(0)+"vh",dur:(50+rng()*40).toFixed(0)+"s",dly:(-rng()*60).toFixed(0)+"s",op:(season==="spring"?.7:.55).toFixed(2)}));
   /* clock-bound extras, shown by CSS only at their time: morning mist at dawn, stars on clear nights */
@@ -2544,13 +2618,16 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   extra("star",30,()=>({x:(rng()*100).toFixed(1)+"vw",y:(rng()*55).toFixed(1)+"vh",sz:(1+rng()*1.6).toFixed(1)+"px",tw:(2.5+rng()*4).toFixed(1)+"s",dly:(-rng()*6).toFixed(1)+"s",op:(.35+rng()*.5).toFixed(2)}));
   /* the moon, in its real phase tonight, low over the valley, between the peaks (mirrored south of the equator, where it is seen the other way up) */
   const moon=land.querySelector(".moon");
-  const drawMoon=()=>{const p=moonPhase(), r=1, rx=Math.abs(Math.cos(2*Math.PI*p))*r, wax=p<0.5, fat=(p>0.25&&p<0.75);
+  const drawMoon=()=>{const big=root.getAttribute("data-fest")==="zhongqiu", k=big?16:11;
+    moon.setAttribute("transform",`translate(642,${big?110:113}) scale(${south?-k:k},${k})`);
+    const p=moonPhase(), r=1, rx=Math.abs(Math.cos(2*Math.PI*p))*r, wax=p<0.5, fat=(p>0.25&&p<0.75);
     const outer=wax?`M0 ${-r}A${r} ${r} 0 0 1 0 ${r}`:`M0 ${-r}A${r} ${r} 0 0 0 0 ${r}`;
     const term=`A${rx.toFixed(3)} ${r} 0 0 ${wax?(fat?1:0):(fat?0:1)} 0 ${-r}Z`;
     const lit=(1-Math.cos(2*Math.PI*p))/2;
     moon.dataset.lit=lit<0.06?"new":lit>0.97?"full":"part";
     moon.innerHTML=`<circle class="shade" r="${r}"/><path class="lit" d="${outer}${term}"/>`;};
   drawMoon();
+  const fw=document.createElement("div"); fw.className="fireworks"; fx.appendChild(fw);
   document.body.appendChild(fx);
 
   /* ── apply the scene: attributes for CSS, the badge, and the moon. Runs every minute; returns whether anything changed ── */
@@ -2559,12 +2636,13 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     root.setAttribute("data-tod",tod); root.setAttribute("data-tod-fine",S.tod);
     root.setAttribute("data-moment",S.moment); root.setAttribute("data-weather",S.weather);
     if(S.fest) root.setAttribute("data-fest",S.fest); else root.removeAttribute("data-fest");
+    if(S.fest) root.setAttribute("data-fest-part",festPart(S)); else root.removeAttribute("data-fest-part");
     /* frost lies on the rows from first light until the sun is well up */
-    root.toggleAttribute("data-frost",S.moment==="frost"&&(S.tod==="dawn"||(S.tod==="day"&&S.hr<10)));
+    root.toggleAttribute("data-frost",(S.moment==="frost"||S.moment==="hanchao")&&(S.tod==="dawn"||(S.tod==="day"&&S.hr<10)));
     drawMoon();
     if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]} · ${M.zh}`;
       b.title=`Themed to ${season} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}): ${M.zh}, ${M.en}.`+
-        `${S.fest==="chunjie"?" 春节 lanterns are up.":S.fest==="zhongqiu"?" 中秋: a full moon tonight.":""}`+
+        `${S.fest==="chunjie"?({chuxi:" 除夕: lanterns up, firecrackers and fireworks tonight.",chuyi:" 春节: lanterns, firecrackers and drum-and-gong troupes.",yuanxiao:" 元宵: lanterns along the path and fireworks.",after:" 春节 lanterns are still up."}[festPart(S)]):S.fest==="zhongqiu"?" 中秋: the clouds part for the full moon.":""}`+
         ` It follows your clock and the sun too: ${todTxt[S.tod]} right now (sunrise ${hhmm(S.sun.rise)}, sunset ${hhmm(S.sun.set)}). Click to toggle animation.`;}
     const changed=key!==lastKey; lastKey=key; return changed;};
   applyScene();
@@ -2585,6 +2663,20 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
       window.dispatchEvent(new CustomEvent("cha-flash",{detail:{dist}}));}
     setTimeout(strike,(14+Math.random()*36)*1000);};
   setTimeout(strike,(4+Math.random()*10)*1000);
+  /* fireworks over the villages on 除夕 night, the small hours of 初一, and 元宵 night. Each rocket is heard too:
+     a whistle going up, then the bang, later the farther off it burst */
+  const COLS=["#F2C14E","#E2453C","#F59A4A","#FFF1C9","#E86A8C"];
+  const rocket=()=>{const part=root.getAttribute("data-fest-part"), tf=root.getAttribute("data-tod-fine");
+    const on=(part==="chuxi"&&(tf==="dusk"||tf==="night"||tf==="late"))||(part==="chuyi"&&tf==="late"&&sceneNow().festDay===0)||(part==="yuanxiao"&&(tf==="dusk"||tf==="night"));
+    if(on){const dist=Math.random(), rise=1+Math.random()*0.6;
+      if(fxOn&&!still()){const x=8+Math.random()*84, y=10+Math.random()*30, c=COLS[Math.floor(Math.random()*COLS.length)], sz=(1-dist*0.55)*(70+Math.random()*60);
+        const el=document.createElement("i"); el.className="fw"; el.style.cssText=`left:${x}vw;top:${y}vh;--c:${c};--rise:${rise}s`;
+        for(let k=0,n=16+Math.floor(Math.random()*10);k<n;k++){const sp=document.createElement("b"), a=k/n*Math.PI*2;
+          sp.style.cssText=`--dx:${(Math.cos(a)*sz).toFixed(0)}px;--dy:${(Math.sin(a)*sz).toFixed(0)}px`; el.appendChild(sp);}
+        fw.appendChild(el); setTimeout(()=>el.remove(),(rise+3)*1000);}
+      window.dispatchEvent(new CustomEvent("cha-firework",{detail:{dist,rise}}));}
+    setTimeout(rocket,(on?(part==="chuxi"?2.5+Math.random()*7:8+Math.random()*20):30)*1000);};
+  setTimeout(rocket,2000);
   /* the scene moves on by itself: every minute check the time band, the weather and the moment */
   let onScene=null;
   setInterval(()=>{if(applyScene()&&onScene) onScene();},60000);
