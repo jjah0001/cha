@@ -567,7 +567,7 @@ nav.chap{z-index:5}
 :root[data-theme="dark"]{--fx-mist:rgba(190,212,202,.08);--fx-rain:rgba(180,210,200,.4);--fx-fly:#F4DA6A;--fx-fly-glow:rgba(244,218,106,.6);--fx-ember:#F08A3E;--fx-steam:#E6EEF0}
 .wuyi{position:fixed;left:0;right:0;bottom:0;height:clamp(110px,24vh,260px);pointer-events:none;z-index:0;color:var(--season-accent,var(--t-oolong))}
 .wuyi svg{display:block;width:100%;height:100%}
-.wuyi .far{opacity:.07}.wuyi .near{opacity:.09}.wuyi .rows{opacity:.12}.wuyi .fig{opacity:.2}
+.wuyi .far{opacity:.1;color:var(--danxia)}.wuyi .near{opacity:.09}.wuyi .rows{opacity:.12}.wuyi .fig{opacity:.2}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wuyi{filter:brightness(.7)}}
 :root[data-theme="dark"] .wuyi{filter:brightness(.7)}
 .wuyi .rows path{fill:none;stroke:currentColor;stroke-width:4.5;stroke-linecap:round}
@@ -616,7 +616,7 @@ nav.chap{z-index:5}
 :root[data-tod="dawn"] .seasonfx i.mist.dawn{display:block}
 /* stars at night */
 .seasonfx i.star{display:none;left:var(--x);top:var(--y);width:var(--sz,2px);height:var(--sz,2px);border-radius:50%;background:var(--fx-star);animation:stwinkle var(--tw,4s) ease-in-out var(--dly,0s) infinite}
-:root[data-tod="night"] .seasonfx i.star{display:block}
+:root[data-tod="night"][data-weather="clear"] .seasonfx i.star{display:block}
 @keyframes stwinkle{0%,100%{opacity:calc(var(--op,.6)*.3)}50%{opacity:var(--op,.6)}}
 /* the picker goes home and the raft ties up after dark; the roasting house lamp is lit from dusk */
 :root[data-tod="night"] .wuyi .picker,:root[data-tod="night"] .wuyi .raft{display:none}
@@ -624,12 +624,75 @@ nav.chap{z-index:5}
 :root[data-tod="dusk"] .wuyi .lamp{opacity:.6}
 :root[data-tod="night"] .wuyi .lamp{opacity:.9;filter:drop-shadow(0 0 4px var(--fx-lamp))}
 
+/* ── the scene in more detail (data-moment, data-weather, data-tod-fine, data-fest, data-frost on :root) ── */
+/* 丹霞: the cliffs stay rust-red whatever the season; only the hills and tea rows change colour */
+:root{--danxia:#A6532F;--snow:#93A9BB;--frost:#9DB2C2;--cloud:#FFFDF8;--fx-gui:#D99A1E;--fx-flake:#8FA6B8;--moon:#C9B98A;--moon-shade:rgba(120,120,140,.12);
+  --sky-late:linear-gradient(rgba(18,28,70,.3),rgba(18,28,70,.14) 60%,rgba(18,28,70,.08));--sky-wet:linear-gradient(rgba(80,92,98,.12),rgba(80,92,98,.04));
+  --sky-storm:linear-gradient(rgba(58,66,76,.24),rgba(58,66,76,.08) 70%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--danxia:#D27A52;--snow:#E8EEF2;--frost:#DCE6EC;--cloud:var(--paper);--fx-gui:#F2B640;--fx-flake:#E9EFF3;--moon:#F1E7C4;--moon-shade:rgba(220,225,240,.07);
+  --sky-late:linear-gradient(rgba(3,6,26,.55),rgba(3,6,26,.25));--sky-wet:linear-gradient(rgba(20,26,30,.25),rgba(20,26,30,.08));--sky-storm:linear-gradient(rgba(14,18,24,.42),rgba(14,18,24,.15) 70%)}}
+:root[data-theme="dark"]{--danxia:#D27A52;--snow:#E8EEF2;--frost:#DCE6EC;--cloud:var(--paper);--fx-gui:#F2B640;--fx-flake:#E9EFF3;--moon:#F1E7C4;--moon-shade:rgba(220,225,240,.07);
+  --sky-late:linear-gradient(rgba(3,6,26,.55),rgba(3,6,26,.25));--sky-wet:linear-gradient(rgba(20,26,30,.25),rgba(20,26,30,.08));--sky-storm:linear-gradient(rgba(14,18,24,.42),rgba(14,18,24,.15) 70%)}
+:root[data-tod-fine="late"] .sky{background:var(--sky-late)}
+:root[data-tod-fine="late"] nav.chap{background:linear-gradient(var(--sky-top-night),var(--sky-top-night)),var(--paper)}
+:root[data-tod="day"][data-weather="rain"] .sky{background:var(--sky-wet)}
+:root[data-weather="storm"]:not([data-tod="night"]) .sky{background:var(--sky-storm)}
+/* lightning: a quick double flicker over the background */
+.flash{position:fixed;inset:0;pointer-events:none;z-index:0;background:#fff;opacity:0}
+.flash.go{animation:sflash .9s ease-out}
+@keyframes sflash{0%{opacity:0}6%{opacity:var(--fl,.4)}14%{opacity:0}24%{opacity:calc(var(--fl,.4)*.6)}100%{opacity:0}}
+/* sea of cloud between the peaks: at dawn, and all day in the drizzle and the plum rains */
+.wuyi .cloudsea{fill:var(--cloud);opacity:0;transition:opacity 3s;animation:scloud 120s ease-in-out infinite alternate}
+@keyframes scloud{from{transform:translateX(-40px)}to{transform:translateX(40px)}}
+:root[data-tod="dawn"] .wuyi .cloudsea,:root[data-weather="drizzle"] .wuyi .cloudsea,:root[data-weather="rain"] .wuyi .cloudsea{opacity:.9}
+/* snow on the summits in 大寒; frost on the tea rows on 霜降 mornings */
+.wuyi .snowcap{fill:var(--snow);opacity:0;transition:opacity 3s}
+:root[data-moment="snow"] .wuyi .snowcap{opacity:.26}
+.wuyi .frostrows path{fill:none;stroke:var(--frost);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:.5 7}
+.wuyi .frostrows{opacity:0;transition:opacity 4s}
+:root[data-frost] .wuyi .frostrows{opacity:.7}
+/* the harvest: more pickers on the slopes and sieves of leaves withering in front of the tea house, by day */
+.wuyi .picker.more,.wuyi .trays{display:none}
+:root[data-moment="picking"]:is([data-tod="day"],[data-tod="dawn"]) .wuyi .picker.more{display:inline}
+:root[data-moment="picking"][data-tod="day"] .wuyi .trays{display:inline}
+/* no picking in the rain or the storm */
+:root:is([data-weather="rain"],[data-weather="storm"]) .wuyi .picker{display:none}
+:root:is([data-weather="rain"],[data-weather="storm"]) .wuyi .raft{display:none}
+/* after midnight the house sleeps, unless tea is being made: 做青 in the harvest, 炭焙 in autumn */
+:root[data-tod-fine="late"]:not([data-moment="picking"]):not([data-moment="osmanthus"]):not([data-moment="frost"]) .wuyi .lamp{opacity:0;filter:none}
+/* 春节: two red lanterns on the eaves, glowing after dark */
+.wuyi .lanterns{display:none;fill:#C8352B;stroke:#C8352B;opacity:.6}
+:root[data-fest="chunjie"] .wuyi .lanterns{display:inline}
+:root[data-fest="chunjie"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
+/* rain falls only in wet weather: half of it in drizzle, all of it in rain and storms */
+.seasonfx i.rain{display:none}
+:root[data-weather="drizzle"] .seasonfx i.rain:not(.odd),:root:is([data-weather="rain"],[data-weather="storm"]) .seasonfx i.rain{display:block}
+/* fireflies don't fly in the rain */
+:root:is([data-weather="rain"],[data-weather="storm"]) .seasonfx i.fly{display:none}
+/* 桂花 and 大寒 snow */
+.seasonfx i.gui,.seasonfx i.flake{display:none;top:-5%;left:var(--x);width:var(--sz,8px);height:var(--sz,8px);
+  animation:sfall var(--dur,20s) linear var(--dly,0s) infinite,ssway var(--sway,5s) ease-in-out var(--dly,0s) infinite alternate}
+.seasonfx i.gui{background:var(--fx-gui);-webkit-mask:var(--sfx-gui) center/contain no-repeat;mask:var(--sfx-gui) center/contain no-repeat}
+.seasonfx i.flake{border-radius:50%;background:var(--fx-flake);--spin:0deg}
+:root[data-moment="osmanthus"] .seasonfx i.gui{display:block}
+:root[data-weather="snow"] .seasonfx i.flake{display:block}
+:root{--sfx-gui:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><g fill='%23000'><ellipse cx='10' cy='5' rx='3.4' ry='4.2'/><ellipse cx='10' cy='15' rx='3.4' ry='4.2'/><ellipse cx='5' cy='10' rx='4.2' ry='3.4'/><ellipse cx='15' cy='10' rx='4.2' ry='3.4'/></g></svg>")}
+/* the moon, in tonight's real phase, between the peaks; brighter for 中秋 */
+.wuyi .moon{display:none}
+.wuyi .moon .lit{fill:var(--moon)}
+.wuyi .moon .shade{fill:var(--moon-shade)}
+:root[data-tod="night"]:is([data-weather="clear"],[data-weather="snow"]) .wuyi .moon:not([data-lit="new"]){display:inline}
+:root[data-weather="snow"] .wuyi .moon{opacity:.5}
+:root[data-fest="zhongqiu"] .wuyi .moon{filter:drop-shadow(0 0 6px var(--moon))}
 /* reduced motion gets a gentler scene rather than none: slower falls with no spin or sway, fireflies that
    only glow, no fast rain streaks. The season badge still switches everything off. */
 @media (prefers-reduced-motion:reduce){
   .seasonfx span{animation:sfall calc(var(--dur,16s)*1.5) linear var(--dly,0s) infinite;--spin:0deg}
   :root[data-season="winter"] .seasonfx span{animation:srise calc(var(--dur,16s)*1.5) linear var(--dly,0s) infinite}
-  .seasonfx i.rain{display:none}
+  .seasonfx i.rain{display:none!important}
+  .flash.go{animation:none}
+  .wuyi .cloudsea{animation:none}
+  .seasonfx i.gui,.seasonfx i.flake{animation:sfall calc(var(--dur,20s)*1.5) linear var(--dly,0s) infinite;--spin:0deg}
   .seasonfx i.star{animation:none;opacity:var(--op,.6)}
   .seasonfx i.fly{animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite}}
 </style>
@@ -1347,7 +1410,11 @@ async function wake(on){
    autumn 秋 = 炭焙 in the roasting room: charcoal ticking under the baskets, a basket turned now and then;
               wind through bamboo and tea bushes outside, crickets
    winter 冬 = 围炉煮茶 by the wood stove: crackling fire, kettle simmering, cold wind and drips outside
-   mornings  = 天心寺's bell and bouts of 木鱼 drift up from the temple below 大红袍 */
+   mornings  = 天心寺's bell and bouts of 木鱼 drift up from the temple below 大红袍
+   The scene clock below adds the solar-term moment and the hour: 惊蛰 thunder; the harvest (pickers calling, 做青 all night);
+   the plum rains; summer afternoon storms (thunder answers the lightning drawn in the background); the 霜降 cold;
+   大寒 snow. Roosters from before first light, dogs after dark, the noon hush, the small hours with only tea-making awake,
+   and 春节 firecrackers. When the scene changes while you listen, it crossfades into the next one. */
 let SA=null;
 const NBUF={};
 function noiseBuf(kind){
@@ -1386,15 +1453,111 @@ function gorgeIR(){
     for(let e=1;e<30;e++){const at=Math.floor(sr*(e*p*(1+0.03*(c?1:-1))+Math.random()*0.003)); if(at<len) d[at]+=(e%2?-1:1)*0.5*Math.exp(-e*0.18);}}
   return NBUF[key]=b;
 }
-/* time of day, in the same bands for the ambience and the background: dawn 5–8, day 8–17, dusk 17–19, night 19–5.
-   ?time=dawn|day|dusk|night previews another time without changing the clock */
-const TOD_FORCE=(()=>{try{const t=new URLSearchParams(location.search).get("time");return ["dawn","day","dusk","night"].includes(t)?t:null;}catch(e){return null;}})();
-function todNow(){if(TOD_FORCE)return TOD_FORCE;const h=new Date().getHours();return h>=19||h<5?"night":h<8?"dawn":h<17?"day":"dusk";}
-function startSeasonalAudio(season){
-  stopSeasonalAudio(); primeAudio(); if(!AC) return false;
-  const me={nodes:[],timers:[]}; SA=me;
+/* ── the scene clock: shared by the background and the ambience ──
+   Time of day follows the real sun where you are (NOAA sunrise/sunset from your time zone's city), in six bands:
+   late (after midnight) · dawn (cock-crow to just after sunrise) · day · noon (12:00–14:30, the 午休 hush) · dusk · night.
+   Within the season, the solar terms (节气) give one Wuyi moment each — the tea year as it is lived on the mountain.
+   Southern-hemisphere visitors get the same moment at the same point of their own season.
+   Previews: ?season=spring|summer|autumn|winter  ?time=late|dawn|day|noon|dusk|night
+             ?moment=jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|snow  ?weather=storm  ?fest=chunjie|zhongqiu */
+const QS=(()=>{try{return new URLSearchParams(location.search);}catch(e){return new URLSearchParams("");}})();
+const TODS=["late","dawn","day","noon","dusk","night"];
+const TOD_FORCE=TODS.includes(QS.get("time"))?QS.get("time"):null;
+/* rough coordinates for the time zone's city, so sunrise lands near the truth; anything else falls back to the
+   time zone's offset for longitude and a mid latitude for the hemisphere */
+const TZ_LL={"Australia/Melbourne":[-37.8,145],"Australia/Sydney":[-33.9,151.2],"Australia/Brisbane":[-27.5,153],"Australia/Adelaide":[-34.9,138.6],
+ "Australia/Perth":[-31.95,115.9],"Australia/Hobart":[-42.9,147.3],"Australia/Darwin":[-12.5,130.8],"Australia/Canberra":[-35.3,149.1],"Pacific/Auckland":[-36.85,174.8],
+ "Asia/Shanghai":[31.2,121.5],"Asia/Hong_Kong":[22.3,114.2],"Asia/Macau":[22.2,113.5],"Asia/Taipei":[25,121.5],"Asia/Singapore":[1.35,103.8],"Asia/Kuala_Lumpur":[3.1,101.7],
+ "Asia/Jakarta":[-6.2,106.8],"Asia/Bangkok":[13.75,100.5],"Asia/Ho_Chi_Minh":[10.8,106.7],"Asia/Manila":[14.6,121],"Asia/Tokyo":[35.7,139.7],"Asia/Seoul":[37.6,127],
+ "Asia/Kolkata":[19.1,72.9],"Asia/Dubai":[25.2,55.3],"Europe/London":[51.5,-0.1],"Europe/Paris":[48.9,2.35],"Europe/Berlin":[52.5,13.4],"Europe/Madrid":[40.4,-3.7],
+ "Europe/Rome":[41.9,12.5],"Europe/Amsterdam":[52.4,4.9],"Europe/Zurich":[47.4,8.5],"Europe/Moscow":[55.75,37.6],"America/New_York":[40.7,-74],"America/Toronto":[43.7,-79.4],
+ "America/Chicago":[41.9,-87.6],"America/Denver":[39.7,-105],"America/Los_Angeles":[34,-118.2],"America/Vancouver":[49.3,-123.1],"America/Sao_Paulo":[-23.5,-46.6],
+ "America/Mexico_City":[19.4,-99.1],"Africa/Johannesburg":[-26.2,28]};
+function sunTimes(d){
+  let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||"";}catch(e){}
+  const off=-d.getTimezoneOffset(), ll=TZ_LL[tz]||[/^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji)|^America\/(Argentina|Santiago|Sao_Paulo|Montevideo)|^Africa\/(Johannesburg|Maputo)/.test(tz)?-33:35,off/4];
+  const rad=Math.PI/180, n=Math.floor((d-new Date(d.getFullYear(),0,0))/864e5), g=2*Math.PI/365*(n-1);
+  const eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g));
+  const dec=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g);
+  const la=ll[0]*rad, c=Math.cos(90.833*rad)/(Math.cos(la)*Math.cos(dec))-Math.tan(la)*Math.tan(dec), ha=Math.acos(Math.max(-1,Math.min(1,c)))/rad;
+  return {rise:720-4*(ll[1]+ha)-eq+off, set:720-4*(ll[1]-ha)-eq+off};
+}
+function todFine(d=new Date()){
+  if(TOD_FORCE) return TOD_FORCE;
+  const m=d.getHours()*60+d.getMinutes(), s=sunTimes(d);
+  if(m<s.rise-70) return "late";
+  if(m<s.rise+80) return "dawn";
+  if(m>=Math.min(s.set+45,1439)) return "night";
+  if(m>=s.set-60) return "dusk";
+  if(m>=720&&m<870) return "noon";
+  return "day";
+}
+/* the four broad bands the stylesheet knows */
+function todNow(){return {late:"night",noon:"day"}[todFine()]||todFine();}
+/* SC is filled in by the background set-up below: the season shown and whether this visitor is south of the equator */
+const SC={season:"spring",south:false,forced:false};
+const MOMENTS={
+ jingzhe:  {zh:"惊蛰",en:"first thunder wakes the hills",snd:"spring drizzle in the rock gorges and the first thunder of the year"},
+ qingming: {zh:"清明",en:"drizzle and mountain mist",snd:"清明 drizzle in the rock gorges, cuckoos and bulbuls"},
+ picking:  {zh:"开山采茶",en:"the rock-tea harvest",snd:"the rock-tea harvest: pickers calling across the slopes by day, leaves shaken in sieves all night"},
+ meiyu:    {zh:"梅雨",en:"the plum rains",snd:"the plum rains on the eaves, a swollen stream and frogs"},
+ storms:   {zh:"三伏",en:"cicadas and afternoon storms",snd:"the Nine-Bend Stream lapping a bamboo raft, cicadas, and thunderstorms in the afternoon"},
+ osmanthus:{zh:"桂花",en:"osmanthus and the charcoal roast",snd:"charcoal roasting in the tea house, wind in the bamboo & crickets"},
+ frost:    {zh:"霜降",en:"frost on the tea rows",snd:"the last of the charcoal roast and a cold wind"},
+ hearth:   {zh:"围炉",en:"kettle steam and morning mist",snd:"a crackling wood stove & kettle"},
+ snow:     {zh:"大寒",en:"snow on the peaks",snd:"a banked stove while snow falls outside"}};
+const MOMENT_SEASON={jingzhe:"spring",qingming:"spring",picking:"spring",meiyu:"spring",storms:"summer",osmanthus:"autumn",frost:"autumn",hearth:"winter",snow:"winter"};
+/* the date in the Chinese (northern) tea year that matches this point of the visitor's season */
+function teaYearDate(d,season){
+  const m=d.getMonth(), startN={spring:2,summer:5,autumn:8,winter:11}, startS={spring:8,summer:11,autumn:2,winter:5};
+  const local=SC.south?startS:startN, here=Object.keys(local).find(k=>((m-local[k]+12)%12)<3)||season;
+  const pos=(m-local[here]+12)%12;
+  return {m:(startN[season]+pos)%12+1, d:d.getDate()};
+}
+function momentOf(season,d=new Date()){
+  const f=QS.get("moment"); if(MOMENTS[f]&&MOMENT_SEASON[f]===season) return f;
+  if(f==="meiyu"&&season==="summer") return "meiyu";
+  const {m,d:day}=teaYearDate(d,season);
+  if(season==="spring") return m===3||(m===4&&day<4)?"jingzhe":m===4&&day<20?"qingming":m===4||(m===5&&day<21)?"picking":"meiyu";
+  if(season==="summer") return m===6||(m===7&&day<7)?"meiyu":"storms";
+  if(season==="autumn") return m===9||(m===10&&day<23)?"osmanthus":"frost";
+  return (m===1&&day>=20)||(m===2&&day<19)?"snow":"hearth";
+}
+/* festivals keep their real calendar dates everywhere: 春节 from 除夕 to 元宵, 中秋 for three nights */
+const CNY={2025:"01-29",2026:"02-17",2027:"02-06",2028:"01-26",2029:"02-13",2030:"02-03",2031:"01-23",2032:"02-11",2033:"01-31",2034:"02-19",2035:"02-08",2036:"01-28"};
+const MIDAUTUMN={2025:"10-06",2026:"09-25",2027:"09-15",2028:"10-03",2029:"09-22",2030:"09-12",2031:"10-01",2032:"09-19",2033:"09-08",2034:"09-27",2035:"09-16",2036:"10-04"};
+function festOf(d=new Date()){
+  const f=QS.get("fest"); if(f==="chunjie"||f==="zhongqiu") return {name:f,day:f==="chunjie"?0:0};
+  const y=d.getFullYear(), at=s=>new Date(y+"-"+s+"T00:00:00"), days=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-a)/864e5);
+  if(CNY[y]){const k=days(at(CNY[y]),d); if(k>=-1&&k<=14) return {name:"chunjie",day:k};}
+  if(MIDAUTUMN[y]){const k=days(at(MIDAUTUMN[y]),d); if(k>=-1&&k<=1) return {name:"zhongqiu",day:k};}
+  return null;
+}
+/* weather that goes with the moment: drizzle, steady rain, the summer afternoon storm, snow, or clear */
+function weatherOf(moment,hr){
+  const f=QS.get("weather"); if(["clear","drizzle","rain","storm","snow"].includes(f)) return f;
+  return {jingzhe:"drizzle",qingming:"drizzle",meiyu:"rain",snow:"snow"}[moment]||(moment==="storms"&&hr>=14&&hr<18?"storm":"clear");
+}
+function sceneNow(){
+  const d=new Date(), tod=todFine(d), hr=TOD_FORCE?{late:2,dawn:6,day:10,noon:13,dusk:18,night:21}[TOD_FORCE]:d.getHours();
+  const moment=momentOf(SC.season,d), fest=festOf(d);
+  return {season:SC.season,moment,tod,hr,weather:weatherOf(moment,hr),fest:fest&&fest.name,festDay:fest?fest.day:null,sun:sunTimes(d)};
+}
+const sceneKey=s=>[s.season,s.moment,s.tod,s.weather,s.fest].join("|");
+/* moon phase 0…1 (0 = new, 0.5 = full), from a known new moon */
+function moonPhase(d=new Date()){const P=29.530588853, ref=Date.UTC(2000,0,6,18,14); const a=((d-ref)/864e5)%P; return (a<0?a+P:a)/P;}
+function startSeasonalAudio(season,opts={}){
+  const xf=opts.xfade?4:3;
+  stopSeasonalAudio(opts.xfade?4:0.4); primeAudio(); if(!AC) return false;
+  const me={nodes:[],timers:[],offs:[]}; SA=me;
   const live=()=>SA===me, now=()=>AC.currentTime, R=(a,b)=>a+Math.random()*(b-a), chance=p=>Math.random()<p;
-  const tod=todNow(), hr=TOD_FORCE?{dawn:6,day:12,dusk:18,night:22}[TOD_FORCE]:new Date().getHours(), night=tod==="night", dawn=tod==="dawn", dusk=tod==="dusk";
+  const S=sceneNow(), mo=S.moment, wx=S.weather, fine=S.tod, hr=S.hr;
+  const late=fine==="late", noon=fine==="noon", tod={late:"night",noon:"day"}[fine]||fine;
+  /* "night" covers the small hours too; late is the deepest part of it, when only tea-making is still awake */
+  const night=tod==="night", dawn=tod==="dawn", dusk=tod==="dusk";
+  const wetDay=wx==="rain"||wx==="storm";
+  /* birds go quiet in the heat of noon and in heavy rain */
+  const birdPace=(noon?3:1)*(wetDay?2.5:1);
   const keep=n=>(me.nodes.push(n),n);
   const G=v=>{const g=AC.createGain();g.gain.value=v;return g;};
   const F=(type,f,Q)=>{const b=AC.createBiquadFilter();b.type=type;b.frequency.value=f;if(Q!=null)b.Q.value=Q;return b;};
@@ -1405,7 +1568,7 @@ function startSeasonalAudio(season){
   /* master: gentle limiter → speakers; a shared valley reverb everything can send into */
   const comp=keep(AC.createDynamicsCompressor()); comp.threshold.value=-12; comp.knee.value=8; comp.ratio.value=6; comp.connect(AC.destination);
   const out=keep(G(0)); me.out=out; out.connect(keep(F("highpass",90))).connect(comp); // no rumble: low drones read as traffic and air-con
-  out.gain.setValueAtTime(0,now()); out.gain.linearRampToValueAtTime(1.8,now()+3);
+  out.gain.setValueAtTime(0,now()); out.gain.linearRampToValueAtTime(1.8,now()+xf);
   const verb=keep(AC.createConvolver()); verb.buffer=season==="spring"?gorgeIR():valleyIR(); verb.connect(keep(G(0.6))).connect(out);
   /* a spot in the landscape: pan −1…1, distance 0 (at your ear) … 1 (across the valley) */
   const place=(pan,dist)=>{
@@ -1529,6 +1692,33 @@ function startSeasonalAudio(season){
       o.connect(g).connect(dest); o.start(t); o.stop(t+d+0.05);});
     burst(t,dest,0.05,"bandpass",f*6,1,amp*0.4);};
 
+  /* ── the village ── */
+  /* 鸡鸣: a rooster down in the village, "喔—喔—喔——", two slightly detuned voices for the rasp, always far off */
+  const rooster=(t,dest,amp)=>{const f=R(430,560), n=[[0,0.17,f*0.9,f*1.12,amp,0,0.02],[0.21,0.15,f*1.18,f*1.24,amp,0,0.02],
+      [0.4,0.19,f*1.24,f*1.3,amp,0,0.02],[0.63,R(0.8,1.1),f*1.34,f*0.98,amp,0.012,0.04]];
+    voice(t,dest,n,"sawtooth",2100); voice(t+0.004,dest,n.map(x=>[x[0],x[1],x[2]*1.013,x[3]*1.013,x[4]*0.55,x[5],x[6]]),"sawtooth",1800);};
+  /* a village dog: a bout of short rough barks, echoing off the hills */
+  const dog=(t,dest,amp)=>{const f=R(280,420), k=2+Math.floor(R(0,4)), gap=R(0.32,0.55);
+    for(let i=0;i<k;i++){const s=t+i*gap*R(0.9,1.15);
+      voice(s,dest,[[0,R(0.09,0.14),f*R(1.1,1.25),f*0.75,amp,0,0.006]],"sawtooth",1600);
+      burst(s,dest,0.08,"bandpass",R(800,1200),1.2,amp*0.5,0.004);}};
+  /* 采茶人 calling across the slopes: a long wordless "喂——哦", and an answer from the other side of the valley */
+  const calls=(spots2,amp)=>recur(45,110,t=>{const a=any(spots2), b=spots2.find(x=>x!==a)||a, f=R(250,420);
+      const call=(s,dest,f0)=>voice(s,dest,[[0,R(0.3,0.45),f0,f0*1.22,amp,0,0.09],[R(0.45,0.55),R(0.9,1.4),f0*1.22,f0*R(1,1.08),amp,0.012,0.12]],"triangle",1300);
+      call(t,a,f); if(chance(0.7)) call(t+R(2.2,4),b,f*R(0.85,1.2));},R(8,20));
+  /* 鞭炮: strings of firecrackers in the villages, with the odd big bang */
+  const crackers=(t,dest,amp)=>{const k=30+Math.floor(R(0,110)); let s=t;
+    for(let i=0;i<k;i++){s+=R(0.018,0.085); burst(s,dest,R(0.004,0.015),"highpass",R(1500,4200),0.7,amp*R(0.4,1));}
+    if(chance(0.5)) burst(t+R(0,s-t),dest,0.12,"bandpass",R(300,500),0.9,amp*1.6,0.002);};
+  /* 雷: a crack when it is close, then the long roll down the valley */
+  const thunder=(t,dest,near,amp)=>{
+    if(near) burst(t,dest,0.3,"bandpass",R(900,1800),0.6,amp*0.6,0.003);
+    const s=AC.createBufferSource(), lp=F("lowpass",near?650:300), g=AC.createGain(), dur=near?R(5,8):R(6,11), t0=t+(near?0.05:0.35);
+    s.buffer=noiseBuf("brown"); s.loop=true; g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(amp*R(0.6,1),t0+(near?0.15:0.8));
+    for(let x=t0+0.5;x<t0+dur;x+=R(0.25,0.7)) g.gain.linearRampToValueAtTime(amp*R(0.25,1)*Math.pow(1-(x-t0)/dur,1.3),x);
+    g.gain.linearRampToValueAtTime(0,t0+dur);
+    s.connect(lp).connect(g).connect(dest); s.start(t,R(0,5)); s.stop(t0+dur+0.2);};
+
   /* ── weather & water ── */
   const rain=(level,eaves)=>{const w=walk(0.1,1,8,25), wash=bed("pink",place(0,0.25),[F("highpass",500),F("lowpass",7000)],0);
     follow(wash.gain,()=>0.03*w()*level);
@@ -1559,76 +1749,112 @@ function startSeasonalAudio(season){
   const wind=(lo,hi,fLo,fHi,lpf)=>{const w=walk(0,1,3,9), bp=F("bandpass",fLo,0.7), g=bed("pink",place(0,0.3),lpf?[F("lowpass",lpf),bp]:[bp],lo);
     follow(g.gain,()=>{const x=w();return lo+(hi-lo)*x*x;}); follow(bp.frequency,()=>fLo+(fHi-fLo)*w()); return w;};
 
+  /* ── weather that can come with any moment ── */
+  /* rain: drizzle is the old spring wash; steady rain and storms run it on the eaves too */
+  const rainLevel={drizzle:0.8,rain:1.05,storm:1.15}[wx]||0;
+  const wet=rainLevel?rain(rainLevel,wx!=="drizzle"):()=>0;
+  /* lightning is drawn by the background; each flash is heard after a delay that says how far off it was */
+  const strike=e=>{if(!live())return; const d=(e&&e.detail&&e.detail.dist)||0.6, near=d<0.35;
+    thunder(now()+0.3+d*3.5,place(R(-0.8,0.8),near?0.35:0.8),near,near?0.22:0.14);};
+  if(wx==="storm"){window.addEventListener("cha-flash",strike); me.offs.push(()=>window.removeEventListener("cha-flash",strike));}
+  /* 惊蛰: the first thunder of the year, low and far, rolling around the peaks with no flash */
+  if(mo==="jingzhe") recur(70,170,t=>thunder(t,place(R(-1,1),0.9),false,0.12),R(10,30));
+
   if(season==="spring"){
-    /* 春茶 in the 坑涧: drizzle over the tea rows, a trickle down the gorge, drips off the cliffs */
-    const wet=rain(0.8,false); stream(0.35,-0.7);
+    /* 春茶 in the 坑涧: a trickle down the gorge, drips off the cliffs */
+    stream(mo==="meiyu"?0.7:0.35,-0.7);
     const cliff=spots(3,[-0.9,0.9],[0.3,0.6]); recur(1.5,5,t=>drip(t,any(cliff)),1);
-    /* 做青 runs through the night: leaves shaken in sieves in the tea house up the path */
-    if(night||dusk){shaking(place(0.35,0.2)); frogs(night?5:2,0.03);}
-    if(!night){const trees=spots(4,[-0.9,0.9],[0.25,0.55]), pace=dawn?0.5:1;
+    /* 做青 runs through the night in the harvest: leaves shaken in sieves in the tea house up the path */
+    if(mo==="picking"&&(night||dusk)) shaking(place(0.35,0.2));
+    if(night||dusk) frogs(late?2:night?(mo==="meiyu"?7:5):2,0.03);
+    else if(mo==="meiyu") frogs(2,0.025);
+    if(!night){const trees=spots(4,[-0.9,0.9],[0.25,0.55]), pace=(dawn?0.5:1)*birdPace*(mo==="picking"?0.8:1);
       recur(6*pace,16*pace,t=>{if(wet()<0.85||chance(0.2)) bird(t,any(trees),"bulbul",0.03);},3);
       recur(15*pace,35*pace,t=>{if(wet()<0.7) bird(t,any(trees),"hwamei",0.03);},8);}
+    /* the harvest: pickers calling to each other across the slopes, from first light until the baskets go in */
+    if(mo==="picking"&&(tod==="day"||(dawn&&hr>=6))&&!noon) calls(spots(2,[-1,1],[0.85,0.95]),0.022);
     const valley=spots(2,[-0.8,0.8],[0.75,0.9]);
-    recur(night?40:25,night?90:55,t=>cuckoo(t,any(valley),0.05),night?20:5);
+    if(!late) recur(night?40:25,night?90:55,t=>cuckoo(t,any(valley),0.05),night?20:5);
   } else if(season==="summer"){
-    river(night?0.9:0.7);
-    if(!night){const raft=place(R(-0.4,0.4),0.3); recur(9,20,t=>pole(t,raft),4);}
-    if(night||dusk){frogs(night?7:3,0.035); spots(3,[-0.8,0.8],[0.3,0.7]).forEach(sp=>cricket(sp,0.01));}
-    if(!night){
-      /* the hills full of cicadas: a shimmering distant mass, with nearer individuals swelling in and out */
+    river(mo==="meiyu"?1:night?0.9:0.7);
+    /* the rafts stop running when the rain sets in */
+    if(!night&&!wetDay){const raft=place(R(-0.4,0.4),0.3); recur(9,20,t=>pole(t,raft),4);}
+    if(night||dusk){frogs(late?3:night?(mo==="meiyu"?9:7):3,0.035); spots(late?2:3,[-0.8,0.8],[0.3,0.7]).forEach(sp=>cricket(sp,0.01));}
+    if(!night&&!wetDay){
+      /* the hills full of cicadas: a shimmering distant mass, with nearer individuals swelling in and out; loudest in the noon heat */
+      const heat=noon?1.35:dusk?0.4:1;
       const mass=walk(0.4,1,6,18), hill=bed("white",place(0,0.75),[F("bandpass",5200,1.1)],0);
-      follow(hill.gain,()=>0.025*mass()*(dusk?0.4:1));
+      follow(hill.gain,()=>0.025*mass()*heat);
       const trees=spots(5,[-1,1],[0.15,0.55]);
-      recur(dusk?6:2,dusk?14:6,t=>cicada(t,any(trees),R(0.05,0.11)),0.5);
+      recur(dusk?6:noon?1.5:2,dusk?14:noon?5:6,t=>cicada(t,any(trees),R(0.05,0.11)),0.5);
       const far=spots(2,[-0.7,0.7],[0.5,0.7]);
-      recur(20,45,t=>dove(t,any(far),0.05),6);
-      recur(15,30,t=>bird(t,any(trees),"bulbul",0.025),10);}
+      recur(noon?12:20,noon?28:45,t=>dove(t,any(far),0.05),6);
+      recur(15*birdPace,30*birdPace,t=>bird(t,any(trees),"bulbul",0.025),10);}
+    else if(!night&&mo==="meiyu"){const far=spots(2,[-0.7,0.7],[0.5,0.7]); recur(40,90,t=>dove(t,any(far),0.04),15);}
   } else if(season==="autumn"){
     /* 秋风 through tea rows and a bamboo grove: rustling leaves and hollow stalks knocking in the gusts */
-    /* 炭焙 in the roasting room, the door open to the wind */
-    roast(place(0.2,0.06));
-    const gust=wind(night?0.02:0.035,night?0.07:0.14,350,1100);
+    /* 炭焙 in the roasting room, the door open to the wind; by 霜降 the cold has the door half shut */
+    roast(place(0.2,mo==="frost"?0.12:0.06));
+    const cold=mo==="frost"?0.75:1, still=late?0.6:1;
+    const gust=wind((night?0.02:0.035)*still,(night?0.07:0.14)*cold*still,mo==="frost"?300:350,mo==="frost"?900:1100);
     const grove=spots(4,[-1,1],[0.15,0.5]);
     scatter(()=>2+30*Math.pow(gust(),2),t=>burst(t,any(grove),R(0.005,0.03),"bandpass",R(2800,7000),1.2,R(0.015,0.07)));
     const stalks=spots(2,[-0.8,0.8],[0.2,0.45]);
     scatter(()=>gust()>0.55?0.6*gust():0,t=>{const sp=any(stalks), f=R(320,560);
       [0,R(0.12,0.3)].forEach((d,i)=>{if(i&&chance(0.4))return; bubble(t+d,sp,f*R(0.95,1.05),0.07,0.035,0.96); burst(t+d,sp,0.01,"bandpass",f*3,3,0.02);});});
-    const k=night?6:2, crk=spots(k,[-0.9,0.9],night?[0.2,0.6]:[0.5,0.8]); crk.forEach(sp=>cricket(sp,night?0.012:0.006));
-    if(!night){const trees=spots(3,[-0.9,0.9],[0.3,0.6]); recur(14,30,t=>bird(t,any(trees),"bulbul",0.025),6);}
+    /* crickets thin out as the frosts come */
+    const k=(night?6:2)-(mo==="frost"?(night?3:1):0), crk=spots(k,[-0.9,0.9],night?[0.2,0.6]:[0.5,0.8]); crk.forEach(sp=>cricket(sp,night?0.012:0.006));
+    if(!night){const trees=spots(3,[-0.9,0.9],[0.3,0.6]); recur(14*birdPace,30*birdPace,t=>bird(t,any(trees),"bulbul",0.025),6);}
   } else { // winter
-    /* 围炉: the wood stove crackling close by, a kettle simmering on it */
+    /* 围炉: the wood stove crackling close by, a kettle simmering on it; after midnight the fire is banked down */
+    const banked=late?0.45:1, snow=mo==="snow";
     const fire=place(0.25,0.04), flick=walk(0.3,1,1.5,5);
-    const roar=bed("pink",fire,[F("bandpass",500,0.8)],0); follow(roar.gain,()=>0.02+0.025*flick());
-    const hiss=bed("white",fire,[F("highpass",6000)],0); follow(hiss.gain,()=>0.0025*Math.max(0,flick()-0.5));
+    const roar=bed("pink",fire,[F("bandpass",500,0.8)],0); follow(roar.gain,()=>(0.02+0.025*flick())*banked);
+    const hiss=bed("white",fire,[F("highpass",6000)],0); follow(hiss.gain,()=>0.0025*Math.max(0,flick()-0.5)*banked);
     const crackle=walk(3,14,2,6);
-    scatter(crackle,t=>burst(t,fire,R(0.002,0.012),"highpass",R(1200,4500),0.7,Math.min(0.12,0.015/Math.pow(Math.random(),0.8))));
-    scatter(()=>0.12,t=>{burst(t,fire,0.035,"bandpass",R(700,1200),1,0.12);
+    scatter(()=>crackle()*banked,t=>burst(t,fire,R(0.002,0.012),"highpass",R(1200,4500),0.7,Math.min(0.12,0.015/Math.pow(Math.random(),0.8))));
+    scatter(()=>0.12*banked,t=>{burst(t,fire,0.035,"bandpass",R(700,1200),1,0.12);
       for(let i=0,k=3+Math.floor(R(0,6));i<k;i++) burst(t+R(0.02,0.4),fire,0.006,"highpass",3000,0.7,R(0.01,0.04));});
-    const kettle=place(-0.15,0.08), boil=walk(1,9,10,30), inside=keep(F("lowpass",1800)); inside.connect(kettle);
-    bed("pink",kettle,[F("bandpass",320,1.5)],0.004);
-    scatter(boil,t=>bubble(t,inside,R(180,600),R(0.03,0.09),R(0.01,0.035),R(1.4,2.5)));
-    /* outside: cold mountain wind heard through the walls, the odd whistle at a gap, drips off the eaves */
-    const gust=wind(0.01,0.06,250,600,700);
+    if(!late){const kettle=place(-0.15,0.08), boil=walk(1,9,10,30), inside=keep(F("lowpass",1800)); inside.connect(kettle);
+      bed("pink",kettle,[F("bandpass",320,1.5)],0.004);
+      scatter(boil,t=>bubble(t,inside,R(180,600),R(0.03,0.09),R(0.01,0.035),R(1.4,2.5)));}
+    /* outside: cold mountain wind heard through the walls, the odd whistle at a gap, drips off the eaves.
+       Snow hushes all of it: softer wind, and the eaves are frozen */
+    const hush=snow?0.5:1;
+    const gust=wind(0.01*hush,0.06*hush,250,600,snow?500:700);
     const gap=keep(F("bandpass",800,14)), wh=bed("white",place(-0.5,0.5),[gap],0);
-    follow(wh.gain,()=>0.006*Math.pow(gust(),3)); follow(gap.frequency,()=>600+500*gust());
-    const eave=place(-0.6,0.35), f=R(700,1000);
-    recur(1.5,4,t=>{bubble(t,eave,f*R(0.92,1.08),0.06,0.04,1.3); burst(t,eave,0.012,"bandpass",2200,2,0.02);},2);
+    follow(wh.gain,()=>0.006*hush*Math.pow(gust(),3)); follow(gap.frequency,()=>600+500*gust());
+    if(!snow){const eave=place(-0.6,0.35), f=R(700,1000);
+      recur(1.5,4,t=>{bubble(t,eave,f*R(0.92,1.08),0.06,0.04,1.3); burst(t,eave,0.012,"bandpass",2200,2,0.02);},2);}
+    /* snow sliding off a bamboo branch now and then */
+    else recur(25,70,t=>burst(t,place(R(-0.8,0.8),R(0.3,0.6)),R(0.4,0.8),"lowpass",R(900,1600),0.7,0.02,0.05),10);
   }
-  /* the temple below 大红袍: a bell in the early morning, 木鱼 in bouts through the day */
+  /* the village below: roosters from before first light, the odd crow through the morning; dogs in the dark */
+  const village=spots(3,[-1,1],[0.82,0.95]);
+  if(dawn){recur(14,40,t=>rooster(t,any(village),0.022),R(1,6));}
+  else if(tod==="day"&&hr<12) recur(240,600,t=>rooster(t,any(village),0.018),R(30,120));
+  if((night||dusk)&&wx!=="storm"&&wx!=="rain") recur(late?150:90,late?420:260,t=>dog(t,any(village),0.02),R(15,60));
+  /* 春节: firecrackers from the villages, thickest on New Year's Eve night and the first days, a few until 元宵 */
+  if(S.fest==="chunjie"){const k=S.festDay, busy=k<=0&&(night||dusk)?1:k<=5?(night||dusk||dawn?0.6:0.3):0.12;
+    recur(25/busy,90/busy,t=>crackers(t,any(village),0.05),R(3,15));}
+  /* the temple below 大红袍: a bell in the early morning, 木鱼 in bouts through the day (but not over the noon rest) */
   const temple=place(R(-0.9,0.9),0.95);
-  if(hr>=5&&hr<10) recur(150,300,t=>bell(t,temple,0.05),12);
-  if(hr>=5&&hr<18) recur(180,420,t=>woodfish(t,temple),45);
+  if(hr>=5&&hr<10&&!late) recur(150,300,t=>bell(t,temple,0.05),12);
+  if(hr>=5&&hr<18&&!noon&&!late) recur(180,420,t=>woodfish(t,temple),45);
   return true;
 }
-function stopSeasonalAudio(){
+/* fade: 0.4 s when switched off; a few seconds when the scene moves on (dusk into night, the rain setting in),
+   so the old scene crossfades into the new one instead of cutting */
+function stopSeasonalAudio(fade=0.4){
   if(!SA) return;
   const s=SA; SA=null;
   s.timers.forEach(t=>{clearTimeout(t);clearInterval(t);});
+  (s.offs||[]).forEach(f=>{try{f();}catch(e){}});
   const out=s.out;
   try{ out.gain.cancelScheduledValues(AC.currentTime);
        out.gain.setValueAtTime(out.gain.value, AC.currentTime);
-       out.gain.linearRampToValueAtTime(0, AC.currentTime+0.4); }catch(e){}
-  setTimeout(()=>{ s.nodes.forEach(n=>{try{n.stop&&n.stop();}catch(e){} try{n.disconnect&&n.disconnect();}catch(e){}}); }, 600);
+       out.gain.linearRampToValueAtTime(0, AC.currentTime+fade); }catch(e){}
+  setTimeout(()=>{ s.nodes.forEach(n=>{try{n.stop&&n.stop();}catch(e){} try{n.disconnect&&n.disconnect();}catch(e){}}); }, fade*1000+200);
 }
 
 /* ── six colours ── */
@@ -2244,37 +2470,53 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   const m=new Date().getMonth();  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
   const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
   /* ?season=summer etc. previews another season (visuals + ambience) without changing the clock */
-  const force=new URLSearchParams(location.search).get("season");
+  const force=QS.get("season");
   const season=flip[force]?force:south?flip[N[m]]:N[m];
-  const names={spring:"Spring 春 · new buds & 清明 drizzle",summer:"Summer 夏 · fireflies over the tea rows",autumn:"Autumn 秋 · embers from the charcoal roast",winter:"Winter 冬 · kettle steam & morning mist"};
-  document.documentElement.setAttribute("data-season",season);
-  const root=document.documentElement, todTxt={dawn:"dawn",day:"daytime",dusk:"dusk",night:"night"};
-  root.setAttribute("data-tod",todNow());
-  setInterval(()=>{const t=todNow(); if(root.getAttribute("data-tod")!==t) root.setAttribute("data-tod",t);},60000);
-  const b=$("seasonBadge"); if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season].split(" · ")[0]}`;b.title=`Themed to ${names[season].toLowerCase()} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}). It follows your clock too: ${todTxt[todNow()]} right now. Click to toggle animation.`;}
-  /* 武夷 landscape along the bottom, drawn once in the season's accent colour */
+  SC.season=season; SC.south=south; SC.forced=!!flip[force];
+  const names={spring:"Spring 春",summer:"Summer 夏",autumn:"Autumn 秋",winter:"Winter 冬"};
+  const root=document.documentElement, todTxt={late:"the small hours",dawn:"dawn",day:"daytime",noon:"the noon rest",dusk:"dusk",night:"night"};
+  root.setAttribute("data-season",season);
+  const b=$("seasonBadge");
+  const hhmm=x=>{x=((Math.round(x)%1440)+1440)%1440; return String(Math.floor(x/60)).padStart(2,"0")+":"+String(x%60).padStart(2,"0");};
+  /* 武夷 landscape along the bottom. The danxia cliffs keep their own rust-red all year; the tea rows and hills
+     take the season's colour. Hidden pieces come out with the scene: extra pickers and drying sieves in the harvest,
+     a sea of cloud between the peaks, frost on the rows, snow on the summits, lanterns at New Year */
   const rowPath=b=>{let d=""; for(let x=0;x<=1200;x+=24){const y=x=>b+5*Math.sin(x/170+b), y0=y(x), y1=y(x+24);
     d+=(x?"":`M0 ${y0.toFixed(1)}`)+`Q${x+12} ${((y0+y1)/2-9).toFixed(1)} ${x+24} ${y1.toFixed(1)}`;} return `<path d="${d}"/>`;};
+  const rows=[204,217,230,243].map(rowPath).join("");
+  const FAR="M0 260V170C30 160 50 150 70 150C95 150 100 120 110 95C118 70 150 65 160 90C170 115 172 140 190 150C220 160 250 150 270 140C285 132 290 80 300 60C312 35 345 32 355 60C365 88 362 130 380 140C410 155 450 150 480 145C500 140 505 110 515 100C528 88 550 90 558 105C566 120 570 140 600 145C640 150 680 130 700 120C712 110 715 60 728 45C742 30 770 32 778 55C788 80 785 118 805 130C840 148 880 140 910 135C930 130 935 95 948 85C962 75 985 80 990 100C996 120 1000 140 1030 145C1070 150 1100 140 1130 130C1150 125 1160 100 1172 95C1185 92 1195 105 1200 115V260Z";
+  const picker=`<path d="M371 197L380 189L389 197Z"/><path d="M380 197L379 211" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="386" cy="205" r="4"/>`;
   const land=document.createElement("div"); land.className="wuyi"; land.setAttribute("aria-hidden","true");
   land.innerHTML=`<svg viewBox="0 0 1200 260" preserveAspectRatio="xMidYMax slice" fill="currentColor">
-    <path class="far" d="M0 260V170C30 160 50 150 70 150C95 150 100 120 110 95C118 70 150 65 160 90C170 115 172 140 190 150C220 160 250 150 270 140C285 132 290 80 300 60C312 35 345 32 355 60C365 88 362 130 380 140C410 155 450 150 480 145C500 140 505 110 515 100C528 88 550 90 558 105C566 120 570 140 600 145C640 150 680 130 700 120C712 110 715 60 728 45C742 30 770 32 778 55C788 80 785 118 805 130C840 148 880 140 910 135C930 130 935 95 948 85C962 75 985 80 990 100C996 120 1000 140 1030 145C1070 150 1100 140 1130 130C1150 125 1160 100 1172 95C1185 92 1195 105 1200 115V260Z"/>
+    <defs><clipPath id="wycap"><path d="M0 0H1200V114C1100 120 1000 110 900 117C800 124 700 112 600 118C500 124 400 113 300 119C200 125 100 114 0 118Z"/></clipPath>
+      <filter id="wyblur" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="9"/></filter></defs>
+    <g class="moon" transform="translate(642,113) scale(${south?-11:11},11)"></g>
+    <path class="far" d="${FAR}"/>
+    <path class="snowcap" d="${FAR}" clip-path="url(#wycap)"/>
+    <g class="cloudsea" filter="url(#wyblur)"><ellipse cx="150" cy="150" rx="230" ry="16"/><ellipse cx="520" cy="146" rx="260" ry="18"/><ellipse cx="880" cy="150" rx="240" ry="15"/><ellipse cx="1180" cy="140" rx="200" ry="17"/></g>
     <path class="near" d="M0 260V200C150 175 300 165 450 180C600 195 700 205 850 190C1000 175 1100 185 1200 200V260Z"/>
-    <g class="rows">${[204,217,230,243].map(rowPath).join("")}</g>
+    <g class="rows">${rows}</g>
+    <g class="frostrows" transform="translate(0,-3)">${rows}</g>
     <path class="creek" d="M0 236C90 228 170 246 260 242C350 238 400 230 480 238C560 246 640 236 760 248V253C640 244 560 252 480 245C400 238 350 247 260 249C170 252 90 236 0 245Z"/>
-    <g class="fig picker">
-      <path d="M371 197L380 189L389 197Z"/><path d="M380 197L379 211" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="386" cy="205" r="4"/>
-    </g>
+    <g class="fig picker">${picker}</g>
+    <g class="fig picker more" transform="translate(150,14)">${picker}</g>
+    <g class="fig picker more" transform="translate(280,6)">${picker}</g>
+    <g class="fig trays"><ellipse cx="912" cy="191" rx="12" ry="2.6"/><ellipse cx="1018" cy="190" rx="12" ry="2.6"/><ellipse cx="1045" cy="192" rx="10" ry="2.3"/></g>
     <g class="fig">
       <path d="M938 170Q952 169 970 154Q988 169 1002 170L996 174H944Z"/><rect x="946" y="174" width="48" height="16"/><rect x="984" y="150" width="6" height="14"/>
       <rect class="raft" x="0" y="238" width="36" height="4" rx="2"/>
     </g>
     <g class="fig raft"><circle cx="16" cy="224" r="3"/><path d="M16 227V238M28 240L42 210" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
     <rect class="lamp" x="956" y="178" width="9" height="7" rx="1"/>
+    <g class="lanterns"><path d="M950 174V177M990 174V177" stroke-width="1"/><ellipse cx="950" cy="181" rx="3.6" ry="4.6"/><ellipse cx="990" cy="181" rx="3.6" ry="4.6"/></g>
     <g class="smoke"><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/></g>
   </svg>`;
-  /* sky wash behind everything: peach glow at dawn, amber at dusk, a deeper blue after 7 pm */
+  /* sky wash behind everything: peach glow at dawn, amber at dusk, deep blue at night and deeper after midnight,
+     grey under rain; a flash layer for summer lightning */
   const sky=document.createElement("div"); sky.className="sky"; sky.setAttribute("aria-hidden","true");
   document.body.insertBefore(sky,document.body.firstChild);
+  const flash=document.createElement("div"); flash.className="flash"; flash.setAttribute("aria-hidden","true");
+  document.body.insertBefore(flash,sky.nextSibling);
   document.body.appendChild(land);
   /* particle overlay: the season's leaves/buds/steam with randomised size, speed and delay */
   const fx=document.createElement("div"); fx.className="seasonfx"; fx.setAttribute("aria-hidden","true");
@@ -2286,17 +2528,46 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     x:(rng()*100).toFixed(2)+"vw", sz:minSz+Math.floor(rng()*(maxSz-minSz))+"px",
     dur:(14+rng()*18).toFixed(1)+"s", dly:(-rng()*24).toFixed(1)+"s", sway:(4+rng()*5).toFixed(1)+"s",
     op:(season==="winter"?.45:.5+rng()*.3).toFixed(2), spin:(season==="winter"?0:(rng()*720-360).toFixed(0))+"deg"});
-  /* the season's memory: drizzle, fireflies, roasting embers; mist in spring and winter */
+  /* the season's memories. Which of them show is decided in CSS from data-moment / data-weather / data-tod,
+     so the scene can move on (dusk into night, the afternoon storm coming in) without rebuilding anything */
   const extra=(cls,n,f)=>{for(let i=0;i<n;i++){const e=document.createElement("i"); e.className=cls+(i%2?" odd":""); put(e,f());}};
-  if(season==="spring") extra("rain",26,()=>({x:(rng()*120).toFixed(1)+"vw",len:(10+rng()*14).toFixed(0)+"px",dur:(1.1+rng()*.9).toFixed(2)+"s",dly:(-rng()*2).toFixed(2)+"s",op:(.25+rng()*.25).toFixed(2)}));
+  if(season==="spring"||season==="summer") extra("rain",34,()=>({x:(rng()*120).toFixed(1)+"vw",len:(10+rng()*14).toFixed(0)+"px",dur:(1.1+rng()*.9).toFixed(2)+"s",dly:(-rng()*2).toFixed(2)+"s",op:(.25+rng()*.25).toFixed(2)}));
   if(season==="summer") extra("fly",16,()=>({x:(rng()*100).toFixed(1)+"vw",y:(45+rng()*50).toFixed(1)+"vh",blink:(2.2+rng()*2.5).toFixed(1)+"s",dur:(6+rng()*8).toFixed(1)+"s",dly:(-rng()*8).toFixed(1)+"s",dx:(rng()*80-40).toFixed(0)+"px",dy:(rng()*-50).toFixed(0)+"px",op:(.6+rng()*.35).toFixed(2)}));
   if(season==="autumn") extra("ember",12,()=>({x:(55+rng()*40).toFixed(1)+"vw",dur:(6+rng()*6).toFixed(1)+"s",dly:(-rng()*12).toFixed(1)+"s",dx:(rng()*60-20).toFixed(0)+"px",op:(.5+rng()*.4).toFixed(2)}));
+  /* 桂花: tiny four-petalled osmanthus flowers drifting down in 白露–寒露 */
+  if(season==="autumn") extra("gui",22,()=>({x:(rng()*100).toFixed(1)+"vw",sz:(6+rng()*5).toFixed(1)+"px",dur:(16+rng()*14).toFixed(1)+"s",dly:(-rng()*30).toFixed(1)+"s",sway:(3+rng()*4).toFixed(1)+"s",spin:(rng()*900-450).toFixed(0)+"deg",op:(.55+rng()*.35).toFixed(2)}));
+  /* 大寒 snow */
+  if(season==="winter") extra("flake",36,()=>({x:(rng()*100).toFixed(1)+"vw",sz:(2+rng()*3.5).toFixed(1)+"px",dur:(12+rng()*14).toFixed(1)+"s",dly:(-rng()*26).toFixed(1)+"s",sway:(3+rng()*4).toFixed(1)+"s",op:(.45+rng()*.45).toFixed(2)}));
   if(season==="spring"||season==="winter") extra("mist",3,()=>({x:(rng()*70-20).toFixed(0)+"vw",b:(rng()*18).toFixed(0)+"vh",w:(70+rng()*50).toFixed(0)+"vw",h:(14+rng()*14).toFixed(0)+"vh",dur:(50+rng()*40).toFixed(0)+"s",dly:(-rng()*60).toFixed(0)+"s",op:(season==="spring"?.7:.55).toFixed(2)}));
-  /* clock-bound extras, shown by CSS only at their time: morning mist at dawn, stars at night
-     (not in spring, when the 清明 drizzle has the sky) */
+  /* clock-bound extras, shown by CSS only at their time: morning mist at dawn, stars on clear nights */
   extra("mist dawn",3,()=>({x:(rng()*70-20).toFixed(0)+"vw",b:(rng()*14).toFixed(0)+"vh",w:(80+rng()*50).toFixed(0)+"vw",h:(16+rng()*12).toFixed(0)+"vh",dur:(60+rng()*40).toFixed(0)+"s",dly:(-rng()*60).toFixed(0)+"s",op:".8"}));
-  if(season!=="spring") extra("star",30,()=>({x:(rng()*100).toFixed(1)+"vw",y:(rng()*55).toFixed(1)+"vh",sz:(1+rng()*1.6).toFixed(1)+"px",tw:(2.5+rng()*4).toFixed(1)+"s",dly:(-rng()*6).toFixed(1)+"s",op:(.35+rng()*.5).toFixed(2)}));
+  extra("star",30,()=>({x:(rng()*100).toFixed(1)+"vw",y:(rng()*55).toFixed(1)+"vh",sz:(1+rng()*1.6).toFixed(1)+"px",tw:(2.5+rng()*4).toFixed(1)+"s",dly:(-rng()*6).toFixed(1)+"s",op:(.35+rng()*.5).toFixed(2)}));
+  /* the moon, in its real phase tonight, low over the valley, between the peaks (mirrored south of the equator, where it is seen the other way up) */
+  const moon=land.querySelector(".moon");
+  const drawMoon=()=>{const p=moonPhase(), r=1, rx=Math.abs(Math.cos(2*Math.PI*p))*r, wax=p<0.5, fat=(p>0.25&&p<0.75);
+    const outer=wax?`M0 ${-r}A${r} ${r} 0 0 1 0 ${r}`:`M0 ${-r}A${r} ${r} 0 0 0 0 ${r}`;
+    const term=`A${rx.toFixed(3)} ${r} 0 0 ${wax?(fat?1:0):(fat?0:1)} 0 ${-r}Z`;
+    const lit=(1-Math.cos(2*Math.PI*p))/2;
+    moon.dataset.lit=lit<0.06?"new":lit>0.97?"full":"part";
+    moon.innerHTML=`<circle class="shade" r="${r}"/><path class="lit" d="${outer}${term}"/>`;};
+  drawMoon();
   document.body.appendChild(fx);
+
+  /* ── apply the scene: attributes for CSS, the badge, and the moon. Runs every minute; returns whether anything changed ── */
+  let lastKey="";
+  const applyScene=()=>{const S=sceneNow(), key=sceneKey(S), M=MOMENTS[S.moment], tod={late:"night",noon:"day"}[S.tod]||S.tod;
+    root.setAttribute("data-tod",tod); root.setAttribute("data-tod-fine",S.tod);
+    root.setAttribute("data-moment",S.moment); root.setAttribute("data-weather",S.weather);
+    if(S.fest) root.setAttribute("data-fest",S.fest); else root.removeAttribute("data-fest");
+    /* frost lies on the rows from first light until the sun is well up */
+    root.toggleAttribute("data-frost",S.moment==="frost"&&(S.tod==="dawn"||(S.tod==="day"&&S.hr<10)));
+    drawMoon();
+    if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]} · ${M.zh}`;
+      b.title=`Themed to ${season} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}): ${M.zh}, ${M.en}.`+
+        `${S.fest==="chunjie"?" 春节 lanterns are up.":S.fest==="zhongqiu"?" 中秋: a full moon tonight.":""}`+
+        ` It follows your clock and the sun too: ${todTxt[S.tod]} right now (sunrise ${hhmm(S.sun.rise)}, sunset ${hhmm(S.sun.set)}). Click to toggle animation.`;}
+    const changed=key!==lastKey; lastKey=key; return changed;};
+  applyScene();
   /* toggle particles via the badge; remember the choice */
   /* on unless switched off from the badge (reduced motion gets the gentler CSS version, not nothing).
      v2 key: drops "off" choices saved by older builds, when the badge was the only way to get motion back */
@@ -2305,12 +2576,25 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   const setFx=on=>{fx.style.display=on?"":"none"; land.classList.toggle("still",!on);};
   setFx(fxOn);
   if(b) b.addEventListener("click",()=>{fxOn=!fxOn; setFx(fxOn); try{localStorage.setItem(KEY,fxOn?"on":"off");}catch(e){}});
+  /* summer storms: lightning every so often. The flash is drawn here (not with reduced motion, not with the animation off);
+     the ambience hears the same strike as thunder, later the farther off it was */
+  const still=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches;}catch(e){return false;}};
+  const strike=()=>{if(root.getAttribute("data-weather")==="storm"){
+      const dist=Math.random();
+      if(fxOn&&!still()&&dist<0.75){flash.style.setProperty("--fl",(0.55-dist*0.5).toFixed(2)); flash.classList.remove("go"); void flash.offsetWidth; flash.classList.add("go");}
+      window.dispatchEvent(new CustomEvent("cha-flash",{detail:{dist}}));}
+    setTimeout(strike,(14+Math.random()*36)*1000);};
+  setTimeout(strike,(4+Math.random()*10)*1000);
+  /* the scene moves on by itself: every minute check the time band, the weather and the moment */
+  let onScene=null;
+  setInterval(()=>{if(applyScene()&&onScene) onScene();},60000);
   /* seasonal ambience toggle — reveal only if Web Audio is available. Defaults ON: starts on first user gesture (browsers block pre-gesture audio), and remembers the preference across visits. */
   const ab=$("seasonAudio");
   if(ab && (window.AudioContext||window.webkitAudioContext)){
     ab.hidden=false;
-    const seasonNames={spring:"spring rain in the rock gorges, cuckoos, and leaves shaken in sieves through the night",summer:"the Nine-Bend Stream lapping a bamboo raft, cicadas & paddy frogs",autumn:"charcoal roasting in the tea house, wind in the bamboo & crickets",winter:"a crackling wood stove & kettle"};
-    ab.title=`Seasonal ambience: ${seasonNames[season]}, on Wuyi Mountain (武夷山)`;
+    /* the tooltip names what you're hearing: this moment of the tea year on the mountain */
+    const sayWhat=()=>{ab.title=`Seasonal ambience: ${MOMENTS[sceneNow().moment].snd}, on Wuyi Mountain (武夷山)`;};
+    sayWhat();
     const AKEY="teatime.ambience.v2"; // v2: sound is on by default for everyone, including visitors who muted the old version
     let want; try{want=localStorage.getItem(AKEY);}catch(e){} if(want==null) want="on";
     const setOn=on=>ab.setAttribute("aria-pressed",on?"true":"false");
@@ -2345,6 +2629,8 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
       /* if someone turns it off before it ever started, stop waiting */
       ab.addEventListener("click",()=>{ if(ab.getAttribute("aria-pressed")!=="true") stop(); });
     }
+    /* when the scene moves on (dusk into night, the afternoon storm rolling in), crossfade into the new one */
+    onScene=()=>{sayWhat(); if(ab.getAttribute("aria-pressed")==="true"&&SA&&AC&&AC.state==="running") startSeasonalAudio(season,{xfade:true});};
   }
   /* ── 简/繁 toggle: lazy-loads OpenCC-derived dict (char + phrase), walks text nodes, remembers choice ── */
   const sc=$("scToggle");

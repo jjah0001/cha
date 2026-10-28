@@ -16,6 +16,32 @@ Open `dist/cha.html` in your browser after building. The root `index.html`
 is the source template, not the runnable page: the build injects its tea data
 and reviews module. Opening the template directly causes `DATA is not defined`.
 
+## Background and ambience (武夷山 through the year)
+
+The page background is a Wuyi tea mountain that follows the visitor's own season (flipped south of the equator), the
+real sunrise and sunset in their time zone, and the solar terms (节气). Each season has its moments:
+
+| Season | Moment | What you see and hear |
+|---|---|---|
+| Spring | 惊蛰 | drizzle, mist between the peaks, the first thunder far off |
+| Spring | 清明 | drizzle and mountain mist, cuckoos |
+| Spring | 开山采茶 (谷雨–立夏) | pickers on the slopes calling to each other, sieves of leaves withering, 做青 all night |
+| Spring / Summer | 梅雨 | steady rain on the eaves, cloud between the peaks, frogs |
+| Summer | 三伏 | cicadas loudest at noon, a thunderstorm most afternoons (14:00–18:00) with lightning |
+| Autumn | 桂花 (白露–寒露) | osmanthus flowers drifting down, the charcoal roast |
+| Autumn | 霜降 | frost on the tea rows in the morning, fewer crickets |
+| Winter | 围炉 | wood stove and kettle |
+| Winter | 大寒 | snow on the summits and falling, the eaves frozen |
+
+The day runs late (after midnight) · dawn · day · noon · dusk · night: roosters before first light, the 午休 hush, dogs
+after dark, the roasting-house lamp left on through the night only when tea is being made. The moon shows its real phase.
+春节 (除夕 to 元宵) hangs lanterns and brings firecrackers; 中秋 lights the full moon. Festivals keep their real dates in
+both hemispheres. When the time band, weather or moment changes while the page is open, the sound crossfades into the new scene.
+
+Preview any of it with URL parameters, e.g. `?season=summer&moment=storms&time=day&weather=storm`:
+`season` spring|summer|autumn|winter · `moment` jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|snow ·
+`time` late|dawn|day|noon|dusk|night · `weather` clear|drizzle|rain|storm|snow · `fest` chunjie|zhongqiu.
+
 ## Where the teas live
 - `teas.js` … `teas5.js` — the full profiles (tasting notes, history, brewing, coordinates). `pairs.js` holds food pairings.
 - `idx/*.txt` — the listed teas, one file per source batch. Each file:
