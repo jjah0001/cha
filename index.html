@@ -666,6 +666,25 @@ nav.chap{z-index:5}
 :root[data-fest]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
 :root[data-fest-part="yuanxiao"] .wuyi .lanternrow{display:inline}
 :root[data-fest-part="yuanxiao"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanternrow{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
+/* 喊山: red flags at the imperial tea garden by the stream */
+.wuyi .flags,.wuyi .climbers,.wuyi .ju,.wuyi .crowd,.wuyi .banner,.wuyi .hedeng{display:none}
+.wuyi .flags{fill:#C8352B;stroke:currentColor;opacity:.7}
+:root[data-fest="hanshan"]:is([data-tod="dawn"],[data-tod="day"]) .wuyi .flags{display:inline}
+/* 斗茶赛 and 茶博会: people gathered at the tea house, a red banner over the door */
+.wuyi .crowd{opacity:.24}
+.wuyi .banner{fill:#C8352B;opacity:.8}
+:root:is([data-fest="doucha"],[data-fest="chabo"])[data-tod="day"] .wuyi .crowd{display:inline}
+:root[data-fest="doucha"] .wuyi .banner{display:inline}
+/* 重阳: climbers on the summit, chrysanthemums by the door */
+.wuyi .climbers{stroke:currentColor;opacity:.4}
+.wuyi .ju{fill:#E0A526;opacity:.85}
+:root[data-fest="chongyang"][data-tod="day"] .wuyi .climbers,:root[data-fest="chongyang"] .wuyi .ju{display:inline}
+/* 中元: river lanterns drifting down the stream after dark */
+.wuyi .hedeng circle{fill:#F2B140;filter:drop-shadow(0 0 3px #F2B140);animation:shedeng 132s linear infinite}
+@keyframes shedeng{0%{transform:translateX(-20px);opacity:0}5%{opacity:.95}90%{opacity:.85}100%{transform:translateX(760px);opacity:0}}
+:root[data-fest="zhongyuan"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .hedeng{display:inline}
+/* 腊八: the porridge pot on from first light */
+:root[data-fest="laba"]:is([data-tod="dawn"],[data-tod="day"]) .wuyi .smoke path{stroke-width:3.6;animation-duration:5s}
 /* 冬至: the lamp comes on early and burns bright on the longest night; on the morning, more smoke from the kitchen */
 :root[data-fest="dongzhi"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lamp{opacity:1;filter:drop-shadow(0 0 6px var(--fx-lamp))}
 :root[data-fest="dongzhi"][data-tod="dawn"] .wuyi .smoke path{stroke-width:3.6;animation-duration:5s}
@@ -711,6 +730,7 @@ nav.chap{z-index:5}
   .seasonfx i.rain{display:none!important}
   .flash.go{animation:none}
   .wuyi .cloudsea{animation:none}
+  .wuyi .hedeng circle{animation-duration:260s}
   .seasonfx i.gui,.seasonfx i.flake{animation:sfall calc(var(--dur,20s)*1.5) linear var(--dly,0s) infinite;--spin:0deg}
   .seasonfx i.star{animation:none;opacity:var(--op,.6)}
   .seasonfx i.fly{animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite}}
@@ -1479,7 +1499,7 @@ function gorgeIR(){
    Southern-hemisphere visitors get the same moment at the same point of their own season.
    Previews: ?season=spring|summer|autumn|winter  ?time=late|dawn|day|noon|dusk|night
              ?moment=jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|hanchao|snow  ?weather=storm
-             ?fest=chunjie|duanwu|zhongqiu|dongzhi  ?festday=-1 (除夕) | 0 (初一) | 14 (元宵) */
+             ?fest=chunjie|duanwu|zhongqiu|dongzhi|laba|zhongyuan|chongyang|hanshan|chabo|doucha  ?festday=-1 (除夕) | 0 (初一) | 14 (元宵) */
 const QS=(()=>{try{return new URLSearchParams(location.search);}catch(e){return new URLSearchParams("");}})();
 const TODS=["late","dawn","day","noon","dusk","night"];
 const TOD_FORCE=TODS.includes(QS.get("time"))?QS.get("time"):null;
@@ -1554,22 +1574,37 @@ function snowsOn(y,m,day){
   const start=(h>>>8)%24, len=2+((h>>>16)%2), idx=m===1?day-20:11+day;
   return idx>=start&&idx<start+len;
 }
-/* the lunar festivals keep their real calendar dates everywhere: 春节 from 除夕 to 元宵, 端午 and 中秋 for three days each.
-   冬至 (the eve and the day) is the shortest day where the visitor lives */
+/* the lunar festivals keep their real calendar dates everywhere: 春节 from 除夕 to 元宵, 端午 and 中秋 for three days each,
+   腊八, 中元 and 重阳 for the day. 冬至 (the eve and the day) is the shortest day where the visitor lives. 喊山 and the
+   斗茶赛 belong to the tea year, so they follow the visitor's season; the 茶博会 keeps its November dates */
 const CNY={2025:"01-29",2026:"02-17",2027:"02-06",2028:"01-26",2029:"02-13",2030:"02-03",2031:"01-23",2032:"02-11",2033:"01-31",2034:"02-19",2035:"02-08",2036:"01-28"};
 /* 端午 (五月初五), checked against lunar-javascript */
 const DUANWU={2025:"05-31",2026:"06-19",2027:"06-09",2028:"05-28",2029:"06-16",2030:"06-05",2031:"06-24",2032:"06-12",2033:"06-01",2034:"06-20",2035:"06-10",2036:"05-30"};
 /* 冬至 follows the sun, so it follows the visitor's own winter: the December solstice north of the equator, the June one
    south of it (checked against lunar-javascript) */
 const DONGZHI_N={2025:"12-21",2026:"12-22",2027:"12-22",2028:"12-21",2029:"12-21",2030:"12-22",2031:"12-22",2032:"12-21",2033:"12-21",2034:"12-22",2035:"12-22",2036:"12-21"};
+/* 重阳 (九月初九), 中元 (七月十五), 腊八 (腊月初八) and 惊蛰, checked against lunar-javascript */
+const CHONGYANG={2025:"10-29",2026:"10-18",2027:"10-08",2028:"10-26",2029:"10-16",2030:"10-05",2031:"10-24",2032:"10-12",2033:"10-01",2034:"10-20",2035:"10-09",2036:"10-27"};
+const ZHONGYUAN={2025:"09-06",2026:"08-27",2027:"08-16",2028:"09-03",2029:"08-24",2030:"08-13",2031:"09-01",2032:"08-20",2033:"08-09",2034:"08-28",2035:"08-18",2036:"09-05"};
+const LABA={2025:"01-07",2026:"01-26",2027:"01-15",2028:"01-04",2029:"01-22",2030:"01-11",2031:"01-01",2032:"01-20",2033:"01-08",2034:"01-27",2035:"01-16",2036:"01-05"};
+const JINGZHE={2025:"03-05",2026:"03-05",2027:"03-06",2028:"03-05",2029:"03-05",2030:"03-05",2031:"03-06",2032:"03-05",2033:"03-05",2034:"03-05",2035:"03-06",2036:"03-05"};
 const MIDAUTUMN={2025:"10-06",2026:"09-25",2027:"09-15",2028:"10-03",2029:"09-22",2030:"09-12",2031:"10-01",2032:"09-19",2033:"09-08",2034:"09-27",2035:"09-16",2036:"10-04"};
 function festOf(d=new Date()){
-  const f=QS.get("fest"); if(f==="chunjie"||f==="zhongqiu"||f==="duanwu"||f==="dongzhi") return {name:f,day:+(QS.get("festday")||0)||0};
+  const f=QS.get("fest"); if(["chunjie","zhongqiu","duanwu","dongzhi","laba","zhongyuan","chongyang","hanshan","chabo","doucha"].includes(f)) return {name:f,day:+(QS.get("festday")||0)||0};
   const y=d.getFullYear(), at=s=>new Date(y+"-"+s+"T00:00:00"), days=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-a)/864e5);
   if(CNY[y]){const k=days(at(CNY[y]),d); if(k>=-1&&k<=14) return {name:"chunjie",day:k};}
   if(MIDAUTUMN[y]){const k=days(at(MIDAUTUMN[y]),d); if(k>=-1&&k<=1) return {name:"zhongqiu",day:k};}
   if(DUANWU[y]){const k=days(at(DUANWU[y]),d); if(k>=-1&&k<=1) return {name:"duanwu",day:k};}
   {const dz=SC.south?"06-21":DONGZHI_N[y]; if(dz){const k=days(at(dz),d); if(k>=-1&&k<=0) return {name:"dongzhi",day:k};}}
+  const on=(T,name)=>T[y]&&days(at(T[y]),d)===0?{name,day:0}:null;
+  const lunar=on(LABA,"laba")||on(ZHONGYUAN,"zhongyuan")||on(CHONGYANG,"chongyang"); if(lunar) return lunar;
+  /* the tea year's own days follow the visitor's season, like the solar-term moments:
+     喊山 on 惊蛰 itself, and the spring 斗茶赛 once the spring tea is made (no fixed date; a few days after 小满) */
+  if(SC.season==="spring"){const t=teaYearDate(d,"spring"), md=String(t.m).padStart(2,"0")+"-"+String(t.d).padStart(2,"0");
+    if(JINGZHE[y]&&md===JINGZHE[y]) return {name:"hanshan",day:0};
+    if(t.m===5&&t.d>=24&&t.d<=26) return {name:"doucha",day:t.d-24};}
+  /* 海峡两岸茶博会 is held in 武夷山市 every November (the 17th ran 16–20 Nov 2025); dates move a little each year */
+  if(d.getMonth()===10&&d.getDate()>=15&&d.getDate()<=19) return {name:"chabo",day:d.getDate()-15};
   return null;
 }
 /* weather that goes with the moment: drizzle, steady rain, the summer afternoon storm, snow, or clear.
@@ -1948,6 +1983,35 @@ function startSeasonalAudio(season,opts={}){
     if(S.festDay===0&&(dawn||(tod==="day"&&hr<11))){const pot=place(-0.3,0.1), heat=walk(2,7,8,20); bed("pink",pot,[F("bandpass",240,1.2)],0.005);
       scatter(heat,t=>bubble(t,pot,R(120,340),R(0.05,0.12),R(0.012,0.03),R(1.2,1.8)));
       recur(6,18,t=>{const f=R(2600,3400); for(let i=0,k=1+Math.floor(R(0,3));i<k;i++) bubble(t+i*R(0.2,0.5),table,f*R(0.97,1.03),0.12,0.008,1.0);},4);}}
+  /* 喊山: on the morning of 惊蛰, at the old imperial tea garden by the fourth bend, gongs and drums, and then the whole
+     crowd shouting "茶发芽！" three times to wake the tea bushes, echoing round the peaks */
+  const shout=(t,dest,amp)=>{for(let v=0;v<16;v++){const f=R(170,330), j=R(0,0.06);
+      voice(t+j,dest,[[0,0.3,f,f*1.06,amp,0,0.03],[0.4,0.3,f*1.36,f*1.42,amp,0,0.03],[0.8,R(0.7,0.95),f*1.34,f*0.86,amp,0.01,0.04]],v%3?"triangle":"sawtooth",v%3?1200:900);}};
+  if(S.fest==="hanshan"&&(dawn||(tod==="day"&&hr<12))){const garden=place(R(-0.7,-0.3),0.55);
+    recur(80,170,t=>{luogu(t,garden,0.06); const at=t+16; for(let i=0;i<3;i++) shout(at+i*2.6,garden,0.012); luogu(at+9,garden,0.05);},R(4,12));}
+  /* a crowd of people at the tea house: a murmur that swells and falls, the odd voice above it */
+  const crowd=(dest,lvl)=>{const w=walk(0.4,1,4,12), m=bed("pink",dest,[F("bandpass",520,1.3)],0); follow(m.gain,()=>0.012*lvl*w());
+    scatter(()=>1.2*lvl,t=>{const f=R(160,320); voice(t,dest,[[0,R(0.12,0.3),f,f*R(0.85,1.2),0.008*lvl,0,0.02]],"triangle",1100);});};
+  /* 斗茶赛: the judging at the tea house, cups set down and filled, kettles pouring, a cheer and applause for the 茶王 */
+  if(S.fest==="doucha"&&tod==="day"&&!noon){const hall=place(0.3,0.15); crowd(hall,1);
+    recur(3,9,t=>{for(let i=0,k=1+Math.floor(R(0,3));i<k;i++) bubble(t+i*R(0.15,0.4),hall,R(2600,3600),0.1,0.01,1);},2);
+    recur(25,60,t=>burst(t,hall,R(0.8,1.6),"bandpass",R(1300,1900),0.9,0.012,0.15),6);
+    recur(200,420,t=>{for(let v=0;v<8;v++){const f=R(220,380); voice(t+R(0,0.2),hall,[[0,R(0.4,0.7),f,f*1.25,0.012,0,0.04]],"triangle",1400);}
+      for(let i=0;i<120;i++) burst(t+0.3+R(0,3.5)*Math.sqrt(Math.random()),hall,0.012,"bandpass",R(1500,3500),0.8,R(0.008,0.02));},R(40,120));}
+  /* 茶博会 week: visitors from town on the path to the tea house all day, talking as they come and go */
+  if(S.fest==="chabo"&&tod==="day") crowd(place(R(0.1,0.5),0.3),0.6);
+  /* 重阳: people climbing the peaks; calls from the summits carried on a stronger wind */
+  if(S.fest==="chongyang"&&tod==="day"){calls(spots(2,[-0.6,0.6],[0.9,0.97]),0.02); wind(0.01,0.05,500,1300);}
+  /* 中元: a quiet evening; the temple bell at dusk, 木鱼 and chanting from the temple, lanterns set floating on the stream */
+  if(S.fest==="zhongyuan"&&(dusk||(night&&!late))){const tmp=place(R(-0.9,0.9),0.9);
+    if(dusk) recur(60,140,t=>bell(t,tmp,0.05),5);
+    recur(90,200,t=>woodfish(t,tmp),12);
+    recur(80,180,t=>{const f=R(130,155), n=[]; let at=0; for(let i=0,k=24+Math.floor(R(0,20));i<k;i++){const d=R(0.32,0.42); n.push([at,d,f*(i%8===7?0.89:1),f*(i%8===7?0.89:1),0.02,0,0.03]); at+=d+0.02;}
+      voice(t,tmp,n,"sawtooth",700); voice(t+0.02,tmp,n.map(x=>[x[0],x[1],x[2]*1.5,x[3]*1.5,x[4]*0.5,0,x[6]]),"triangle",900);},20);}
+  /* 腊八: a big pot of 腊八粥 on the stove from first light, the temple bell longer that morning (temples give out the porridge) */
+  if(S.fest==="laba"&&(dawn||(tod==="day"&&hr<11))){const pot=place(-0.3,0.1), heat=walk(1.5,4,10,25); bed("pink",pot,[F("bandpass",180,1.2)],0.006);
+    scatter(heat,t=>bubble(t,pot,R(80,200),R(0.1,0.2),R(0.015,0.035),R(1.1,1.4)));
+    recur(90,180,t=>bell(t,place(R(-0.9,0.9),0.95),0.05),8);}
   /* 中秋 night (and 元宵): a bamboo flute from somewhere across the valley now and then */
   if((S.fest==="zhongqiu"||part==="yuanxiao")&&(dusk||(night&&!late))) recur(70,160,t=>flute(t,place(R(-0.8,0.8),0.7),0.035),R(6,20));
   /* the temple below 大红袍: a bell in the early morning, 木鱼 in bouts through the day (but not over the noon rest) */
@@ -2623,6 +2687,12 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     <rect class="lamp" x="956" y="178" width="9" height="7" rx="1"/>
     <g class="lanterns"><path d="M950 174V177M990 174V177" stroke-width="1"/><ellipse cx="950" cy="181" rx="3.6" ry="4.6"/><ellipse cx="990" cy="181" rx="3.6" ry="4.6"/></g>
     <g class="lanternrow"><path d="M560 186Q640 176 720 184T880 172" fill="none" stroke-width=".8"/>${[[580,186],[620,182],[660,180],[700,183],[740,185],[780,182],[820,177],[860,174]].map(([x,y])=>`<ellipse cx="${x}" cy="${y+6}" rx="3" ry="3.8"/>`).join("")}</g>
+    <g class="flags"><path d="M150 214V190M178 210V186M206 213V189" stroke-width="1.4" fill="none"/><path d="M150 190L161 193.5L150 197ZM178 186L189 189.5L178 193ZM206 189L217 192.5L206 196Z"/></g>
+    <g class="climbers"><circle cx="531" cy="88" r="1.9"/><path d="M531 89.8V95" stroke-width="1.6"/><circle cx="544" cy="86" r="1.9"/><path d="M544 87.8V93" stroke-width="1.6"/><circle cx="557" cy="99" r="1.9"/><path d="M557 100.8V106" stroke-width="1.6"/><circle cx="951" cy="80" r="1.9"/><path d="M951 81.8V87" stroke-width="1.6"/><circle cx="964" cy="82" r="1.9"/><path d="M964 83.8V89" stroke-width="1.6"/></g>
+    <g class="ju">${[[938,191],[943,192.5],[999,191.5],[1004,192.5],[1009,191]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2"/>`).join("")}</g>
+    <g class="crowd">${[[904,192],[916,194],[927,193],[1012,193],[1024,195],[1036,193],[1049,195],[1061,194]].map(([x,y])=>`<circle cx="${x}" cy="${y-9}" r="2.6"/><path d="M${x-3} ${y}Q${x} ${y-9} ${x+3} ${y}Z"/>`).join("")}</g>
+    <rect class="banner" x="950" y="175.5" width="40" height="3.2" rx=".6"/>
+    <g class="hedeng">${[0,1,2,3,4,5].map(i=>`<circle cx="0" cy="${241+(i%2)*2}" r="2.4" style="animation-delay:${-i*22}s"/>`).join("")}</g>
     <g class="aicao"><path d="M944 173L940 189M944 173L943.5 190M944 173L947 189M996 173L992 189M996 173L996.5 190M996 173L999 189"/>
       <ellipse cx="941" cy="183" rx="2.2" ry="1.4"/><ellipse cx="947" cy="185" rx="2.2" ry="1.4"/><ellipse cx="993" cy="184" rx="2.2" ry="1.4"/><ellipse cx="999" cy="182" rx="2.2" ry="1.4"/>
       <path class="tie" d="M942.5 174H945.5M994.5 174H997.5"/></g>
@@ -2685,7 +2755,10 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     drawMoon();
     if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]} · ${M.zh}`;
       b.title=`Themed to ${season} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}): ${M.zh}, ${M.en}.`+
-        `${S.fest==="dongzhi"?(S.festDay<0?" 冬至 eve: rolling 冬至圆 at the table, the lamp lit early on the longest night.":" 冬至: 汤圆 on the stove at first light."):S.fest==="duanwu"?" 端午: mugwort and calamus by the door, 粽子 on the stove, dragon-boat drums from the river.":S.fest==="chunjie"?({chuxi:" 除夕: lanterns up, firecrackers and fireworks tonight.",chuyi:" 春节: lanterns, firecrackers and drum-and-gong troupes.",yuanxiao:" 元宵: lanterns along the path and fireworks.",after:" 春节 lanterns are still up."}[festPart(S)]):S.fest==="zhongqiu"?" 中秋: the clouds part for the full moon.":""}`+
+        `${({hanshan:" 喊山: on the morning of 惊蛰, gongs and drums at the imperial tea garden and the shout of 茶发芽！",
+          doucha:" 斗茶赛: the spring tea contest at the tea house.",chabo:" 茶博会 week in 武夷山: visitors from town on the path.",
+          chongyang:" 重阳: people climbing the peaks; chrysanthemums by the door.",zhongyuan:" 中元: the temple bell at dusk and lanterns floating down the stream.",
+          laba:" 腊八: a pot of 腊八粥 on the stove from first light."})[S.fest]||""}${S.fest==="dongzhi"?(S.festDay<0?" 冬至 eve: rolling 冬至圆 at the table, the lamp lit early on the longest night.":" 冬至: 汤圆 on the stove at first light."):S.fest==="duanwu"?" 端午: mugwort and calamus by the door, 粽子 on the stove, dragon-boat drums from the river.":S.fest==="chunjie"?({chuxi:" 除夕: lanterns up, firecrackers and fireworks tonight.",chuyi:" 春节: lanterns, firecrackers and drum-and-gong troupes.",yuanxiao:" 元宵: lanterns along the path and fireworks.",after:" 春节 lanterns are still up."}[festPart(S)]):S.fest==="zhongqiu"?" 中秋: the clouds part for the full moon.":""}`+
         ` It follows your clock and the sun too: ${todTxt[S.tod]} right now (sunrise ${hhmm(S.sun.rise)}, sunset ${hhmm(S.sun.set)}). Click to toggle animation.`;}
     const changed=key!==lastKey; lastKey=key; return changed;};
   applyScene();

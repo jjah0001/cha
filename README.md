@@ -36,7 +36,15 @@ real sunrise and sunset in their time zone, and the solar terms (节气). Each s
 
 The day runs late (after midnight) · dawn · day · noon · dusk · night: roosters before first light, the 午休 hush, dogs
 after dark, the roasting-house lamp left on through the night only when tea is being made. The moon shows its real phase.
-The lunar festivals keep their real dates in both hemispheres, as Chinese communities there keep them; 冬至 follows the visitor's own winter:
+The lunar festivals keep their real dates in both hemispheres, as Chinese communities there keep them; 冬至 follows the visitor's own winter;
+the tea year's own days (喊山, 斗茶赛) follow the visitor's season like the solar-term moments:
+
+- **喊山** (惊蛰 day, mornings): Wuyi's old rite at the imperial tea garden by the fourth bend — red flags, gongs and drums,
+  and the crowd shouting "茶发芽！" three times to wake the tea bushes.
+- **斗茶赛** (a few days after 小满, by day; the real contests have no fixed date): people gathered at the tea house under a
+  red banner, cups and kettles, and a cheer and applause for the 茶王.
+- **茶博会** (15–19 November, the usual week of the 海峡两岸茶业博览会 in 武夷山市; the exact dates move a little each year):
+  visitors from town on the path to the tea house.
 
 - **春节**: lanterns on the tea house from 除夕 to 元宵. 除夕 night has the most firecrackers and fireworks over the
   villages (each rocket whistles up and bangs, later the farther off it burst); 初一 to 初五 have firecrackers and
@@ -48,12 +56,15 @@ The lunar festivals keep their real dates in both hemispheres, as Chinese commun
 - **冬至** (the eve and the day): follows the sun, so it falls in the visitor's own winter — 21/22 December north of the
   equator, 21 June south of it. On the eve the family rolls 冬至圆 at the table and the lamp burns bright from dusk on
   the longest night; on the morning, 汤圆 boil on the stove.
+- **腊八** (腊月初八): a pot of 腊八粥 on the stove from first light, the temple bell longer that morning.
+- **中元** (七月十五): a quiet evening — the temple bell at dusk, 木鱼 and chanting, river lanterns drifting down the stream.
+- **重阳** (九月初九): climbers on the summit, chrysanthemums by the door, calls from the peaks on a stronger wind.
 - **中秋** (three nights): the clouds part for a bigger, glowing full moon, lanterns on the eaves, and a bamboo flute
   playing now and then from across the valley. When the time band, weather or moment changes while the page is open, the sound crossfades into the new scene.
 
 Preview any of it with URL parameters, e.g. `?season=summer&moment=storms&time=day&weather=storm`:
 `season` spring|summer|autumn|winter · `moment` jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|hanchao|snow ·
-`time` late|dawn|day|noon|dusk|night · `weather` clear|drizzle|rain|storm|snow · `fest` chunjie|duanwu|zhongqiu|dongzhi ·
+`time` late|dawn|day|noon|dusk|night · `weather` clear|drizzle|rain|storm|snow · `fest` chunjie|duanwu|zhongqiu|dongzhi|laba|zhongyuan|chongyang|hanshan|chabo|doucha ·
 `festday` days from the festival (春节: −1 = 除夕, 0 = 初一, 14 = 元宵).
 
 ## Where the teas live
