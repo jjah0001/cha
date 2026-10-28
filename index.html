@@ -2321,17 +2321,27 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
         const ok=startSeasonalAudio(season); if(ok){setOn(true);try{localStorage.setItem(AKEY,"on");}catch(e){}}}
     });
     if(want==="on"){
-      /* Browsers only allow sound after a tap, click or key press. Listen for every kind of first interaction
-         (iPhone Safari ignores touchstart, so touchend/click matter there) and keep listening until audio is really running. */
+      /* Start with the page, like Oelek. Where the browser allows autoplay (e.g. Chrome once you've used the site,
+         Safari/Firefox with autoplay allowed) it plays straight away. Where it doesn't, the audio waits suspended and
+         starts on the first tap, click or key press (iPhone Safari ignores touchstart, so touchend/click matter there). */
+      try{if(navigator.audioSession) navigator.audioSession.type="playback";}catch(err){} // Safari: play even with the ringer switch on silent
+      if(startSeasonalAudio(season)) setOn(true);
+      let held=!AC||AC.state!=="running";   // started while the browser was holding audio back
       const EVS=["pointerdown","pointerup","mousedown","touchend","click","keydown"];
       const stop=()=>EVS.forEach(ev=>window.removeEventListener(ev,kick,true));
+      /* the speaker already shows on, so a first tap on it means "play", not "switch off" (Oelek does the same) */
+      let woke=false;
+      window.addEventListener("click",e=>{ if(woke&&ab.contains(e.target)){ woke=false; e.stopPropagation(); } },true);
       const kick=e=>{
-        if(e&&e.target&&ab.contains(e.target)) return;            // a tap on the speaker button is handled by the button itself
-        try{if(navigator.audioSession) navigator.audioSession.type="playback";}catch(err){} // Safari: play even with the ringer switch on silent
-        if(ab.getAttribute("aria-pressed")!=="true"){ const ok=startSeasonalAudio(season); if(ok) setOn(true); }
-        if(AC&&AC.state!=="running") AC.resume().then(()=>{if(AC.state==="running")stop()}).catch(()=>{}); else stop();
+        if(ab.getAttribute("aria-pressed")!=="true"){ stop(); return; }
+        if(held&&e&&e.type!=="click"&&e.type!=="keydown"&&e.target&&ab.contains(e.target)){ woke=true; setTimeout(()=>woke=false,1500); }
+        try{if(navigator.audioSession) navigator.audioSession.type="playback";}catch(err){}
+        if(AC&&AC.state!=="running") AC.resume().then(()=>{ if(AC.state!=="running") return; stop();
+            /* sounds queued while held back would all fire at once, so restart the scene fresh */
+            if(held){ held=false; startSeasonalAudio(season); } }).catch(()=>{});
+        else stop();
       };
-      EVS.forEach(ev=>window.addEventListener(ev,kick,true));
+      if(held) EVS.forEach(ev=>window.addEventListener(ev,kick,true));
       /* if someone turns it off before it ever started, stop waiting */
       ab.addEventListener("click",()=>{ if(ab.getAttribute("aria-pressed")!=="true") stop(); });
     }
