@@ -36,7 +36,7 @@ real sunrise and sunset in their time zone, and the solar terms (节气). Each s
 
 The day runs late (after midnight) · dawn · day · noon · dusk · night: roosters before first light, the 午休 hush, dogs
 after dark, the roasting-house lamp left on through the night only when tea is being made. The moon shows its real phase.
-Festivals keep their real dates in both hemispheres:
+The lunar festivals keep their real dates in both hemispheres, as Chinese communities there keep them; 冬至 follows the visitor's own winter:
 
 - **春节**: lanterns on the tea house from 除夕 to 元宵. 除夕 night has the most firecrackers and fireworks over the
   villages (each rocket whistles up and bangs, later the farther off it burst); 初一 to 初五 have firecrackers and
@@ -45,12 +45,15 @@ Festivals keep their real dates in both hemispheres:
   kitchen, 粽子 boiling on the stove, a few firecrackers on the day, and dragon-boat races carried up the valley from the
   river in town: the big drum, gong, the crews' shouts and paddles, speeding up in the sprint. It falls in the plum rains,
   so it usually rains.
+- **冬至** (the eve and the day): follows the sun, so it falls in the visitor's own winter — 21/22 December north of the
+  equator, 21 June south of it. On the eve the family rolls 冬至圆 at the table and the lamp burns bright from dusk on
+  the longest night; on the morning, 汤圆 boil on the stove.
 - **中秋** (three nights): the clouds part for a bigger, glowing full moon, lanterns on the eaves, and a bamboo flute
   playing now and then from across the valley. When the time band, weather or moment changes while the page is open, the sound crossfades into the new scene.
 
 Preview any of it with URL parameters, e.g. `?season=summer&moment=storms&time=day&weather=storm`:
 `season` spring|summer|autumn|winter · `moment` jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|hanchao|snow ·
-`time` late|dawn|day|noon|dusk|night · `weather` clear|drizzle|rain|storm|snow · `fest` chunjie|duanwu|zhongqiu ·
+`time` late|dawn|day|noon|dusk|night · `weather` clear|drizzle|rain|storm|snow · `fest` chunjie|duanwu|zhongqiu|dongzhi ·
 `festday` days from the festival (春节: −1 = 除夕, 0 = 初一, 14 = 元宵).
 
 ## Where the teas live
