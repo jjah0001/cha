@@ -666,6 +666,11 @@ nav.chap{z-index:5}
 :root[data-fest]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
 :root[data-fest-part="yuanxiao"] .wuyi .lanternrow{display:inline}
 :root[data-fest-part="yuanxiao"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanternrow{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
+/* 端午: mugwort (艾草) and calamus (菖蒲) hung either side of the tea-house door, more smoke from the kitchen */
+.wuyi .aicao{display:none;fill:#4E7A34;stroke:#4E7A34;stroke-width:1.3;stroke-linecap:round;opacity:.75}
+.wuyi .aicao .tie{stroke:#C8352B;stroke-width:1.6}
+:root[data-fest="duanwu"] .wuyi .aicao{display:inline}
+:root[data-fest="duanwu"] .wuyi .smoke path{stroke-width:3.6;animation-duration:5s}
 /* 烟花: a faint trail going up, then sparks bursting out and falling away */
 .fireworks{position:absolute;inset:0}
 .fireworks .fw{position:absolute;width:0;height:0;opacity:1}
@@ -1471,7 +1476,7 @@ function gorgeIR(){
    Southern-hemisphere visitors get the same moment at the same point of their own season.
    Previews: ?season=spring|summer|autumn|winter  ?time=late|dawn|day|noon|dusk|night
              ?moment=jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|hanchao|snow  ?weather=storm
-             ?fest=chunjie|zhongqiu  ?festday=-1 (除夕) | 0 (初一) | 14 (元宵) */
+             ?fest=chunjie|duanwu|zhongqiu  ?festday=-1 (除夕) | 0 (初一) | 14 (元宵) */
 const QS=(()=>{try{return new URLSearchParams(location.search);}catch(e){return new URLSearchParams("");}})();
 const TODS=["late","dawn","day","noon","dusk","night"];
 const TOD_FORCE=TODS.includes(QS.get("time"))?QS.get("time"):null;
@@ -1546,14 +1551,17 @@ function snowsOn(y,m,day){
   const start=(h>>>8)%24, len=2+((h>>>16)%2), idx=m===1?day-20:11+day;
   return idx>=start&&idx<start+len;
 }
-/* festivals keep their real calendar dates everywhere: 春节 from 除夕 to 元宵, 中秋 for three nights */
+/* festivals keep their real calendar dates everywhere: 春节 from 除夕 to 元宵, 端午 and 中秋 for three days each */
 const CNY={2025:"01-29",2026:"02-17",2027:"02-06",2028:"01-26",2029:"02-13",2030:"02-03",2031:"01-23",2032:"02-11",2033:"01-31",2034:"02-19",2035:"02-08",2036:"01-28"};
+/* 端午 (五月初五), checked against lunar-javascript */
+const DUANWU={2025:"05-31",2026:"06-19",2027:"06-09",2028:"05-28",2029:"06-16",2030:"06-05",2031:"06-24",2032:"06-12",2033:"06-01",2034:"06-20",2035:"06-10",2036:"05-30"};
 const MIDAUTUMN={2025:"10-06",2026:"09-25",2027:"09-15",2028:"10-03",2029:"09-22",2030:"09-12",2031:"10-01",2032:"09-19",2033:"09-08",2034:"09-27",2035:"09-16",2036:"10-04"};
 function festOf(d=new Date()){
-  const f=QS.get("fest"); if(f==="chunjie"||f==="zhongqiu") return {name:f,day:+(QS.get("festday")||0)||0};
+  const f=QS.get("fest"); if(f==="chunjie"||f==="zhongqiu"||f==="duanwu") return {name:f,day:+(QS.get("festday")||0)||0};
   const y=d.getFullYear(), at=s=>new Date(y+"-"+s+"T00:00:00"), days=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-a)/864e5);
   if(CNY[y]){const k=days(at(CNY[y]),d); if(k>=-1&&k<=14) return {name:"chunjie",day:k};}
   if(MIDAUTUMN[y]){const k=days(at(MIDAUTUMN[y]),d); if(k>=-1&&k<=1) return {name:"zhongqiu",day:k};}
+  if(DUANWU[y]){const k=days(at(DUANWU[y]),d); if(k>=-1&&k<=1) return {name:"duanwu",day:k};}
   return null;
 }
 /* weather that goes with the moment: drizzle, steady rain, the summer afternoon storm, snow, or clear.
@@ -1908,6 +1916,21 @@ function startSeasonalAudio(season,opts={}){
   const pop=e=>{if(!live())return; const d=(e&&e.detail)||{}, dist=d.dist!=null?d.dist:0.6;
     firework(now()+0.05,place(R(-0.9,0.9),0.55+dist*0.35),d.rise||1.2,dist,0.09-dist*0.04);};
   window.addEventListener("cha-firework",pop); me.offs.push(()=>window.removeEventListener("cha-firework",pop));
+  /* 端午: rice dumplings (粽子) boiling in the kitchen all day, the odd string of firecrackers, and, carried up the valley
+     from the river in town, the dragon-boat races: the big drum driving the stroke, a gong, the crews' shouts and
+     paddles in the water, faster in the sprint to the line */
+  if(S.fest==="duanwu"){
+    if(!night){const pot=place(-0.3,0.1), heat=walk(2,6,8,20); bed("pink",pot,[F("bandpass",240,1.2)],0.005);
+      scatter(heat,t=>bubble(t,pot,R(110,320),R(0.05,0.12),R(0.012,0.03),R(1.2,1.8)));}
+    if(S.festDay===0&&(dawn||tod==="day")) recur(120,300,t=>crackers(t,any(village),0.045),R(5,20));
+    if((dawn&&hr>=7)||tod==="day"){const river=place(R(-0.9,-0.5),0.9);
+      recur(100,260,t=>{let at=t, per=R(0.44,0.5); const n=50+Math.floor(R(0,40)), sprint=n-18;
+        for(let i=0;i<n;i++){if(i>sprint) per=Math.max(0.3,per*0.985);
+          drum(at,river,0.09); if(i%4===0) gong(at,river,0.03);
+          if(i%2===0) [0,1,2].forEach(v=>voice(at+R(0,0.03),river,[[0,R(0.14,0.2),R(190,260),R(170,230),0.012,0,0.02]],"triangle",900));
+          burst(at+0.12,river,0.12,"lowpass",R(500,800),0.7,0.018,0.01);
+          at+=per*R(0.98,1.02);}
+        gong(at,river,0.05);},R(15,45));}}
   /* 中秋 night (and 元宵): a bamboo flute from somewhere across the valley now and then */
   if((S.fest==="zhongqiu"||part==="yuanxiao")&&(dusk||(night&&!late))) recur(70,160,t=>flute(t,place(R(-0.8,0.8),0.7),0.035),R(6,20));
   /* the temple below 大红袍: a bell in the early morning, 木鱼 in bouts through the day (but not over the noon rest) */
@@ -2583,6 +2606,9 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     <rect class="lamp" x="956" y="178" width="9" height="7" rx="1"/>
     <g class="lanterns"><path d="M950 174V177M990 174V177" stroke-width="1"/><ellipse cx="950" cy="181" rx="3.6" ry="4.6"/><ellipse cx="990" cy="181" rx="3.6" ry="4.6"/></g>
     <g class="lanternrow"><path d="M560 186Q640 176 720 184T880 172" fill="none" stroke-width=".8"/>${[[580,186],[620,182],[660,180],[700,183],[740,185],[780,182],[820,177],[860,174]].map(([x,y])=>`<ellipse cx="${x}" cy="${y+6}" rx="3" ry="3.8"/>`).join("")}</g>
+    <g class="aicao"><path d="M944 173L940 189M944 173L943.5 190M944 173L947 189M996 173L992 189M996 173L996.5 190M996 173L999 189"/>
+      <ellipse cx="941" cy="183" rx="2.2" ry="1.4"/><ellipse cx="947" cy="185" rx="2.2" ry="1.4"/><ellipse cx="993" cy="184" rx="2.2" ry="1.4"/><ellipse cx="999" cy="182" rx="2.2" ry="1.4"/>
+      <path class="tie" d="M942.5 174H945.5M994.5 174H997.5"/></g>
     <g class="smoke"><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/></g>
   </svg>`;
   /* sky wash behind everything: peach glow at dawn, amber at dusk, deep blue at night and deeper after midnight,
@@ -2642,7 +2668,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     drawMoon();
     if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]} · ${M.zh}`;
       b.title=`Themed to ${season} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}): ${M.zh}, ${M.en}.`+
-        `${S.fest==="chunjie"?({chuxi:" 除夕: lanterns up, firecrackers and fireworks tonight.",chuyi:" 春节: lanterns, firecrackers and drum-and-gong troupes.",yuanxiao:" 元宵: lanterns along the path and fireworks.",after:" 春节 lanterns are still up."}[festPart(S)]):S.fest==="zhongqiu"?" 中秋: the clouds part for the full moon.":""}`+
+        `${S.fest==="duanwu"?" 端午: mugwort and calamus by the door, 粽子 on the stove, dragon-boat drums from the river.":S.fest==="chunjie"?({chuxi:" 除夕: lanterns up, firecrackers and fireworks tonight.",chuyi:" 春节: lanterns, firecrackers and drum-and-gong troupes.",yuanxiao:" 元宵: lanterns along the path and fireworks.",after:" 春节 lanterns are still up."}[festPart(S)]):S.fest==="zhongqiu"?" 中秋: the clouds part for the full moon.":""}`+
         ` It follows your clock and the sun too: ${todTxt[S.tod]} right now (sunrise ${hhmm(S.sun.rise)}, sunset ${hhmm(S.sun.set)}). Click to toggle animation.`;}
     const changed=key!==lastKey; lastKey=key; return changed;};
   applyScene();
