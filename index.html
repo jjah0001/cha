@@ -2045,10 +2045,37 @@ function startSeasonalAudio(season,opts={}){
       recur(6,18,t=>{const f=R(2600,3400); for(let i=0,k=1+Math.floor(R(0,3));i<k;i++) bubble(t+i*R(0.2,0.5),table,f*R(0.97,1.03),0.12,0.008,1.0);},4);}}
   /* 喊山: on the morning of 惊蛰, at the old imperial tea garden by the fourth bend, gongs and drums, and then the whole
      crowd shouting "茶发芽！" three times to wake the tea bushes, echoing round the peaks */
-  const shout=(t,dest,amp)=>{for(let v=0;v<16;v++){const f=R(170,330), j=R(0,0.06);
-      voice(t+j,dest,[[0,0.3,f,f*1.06,amp,0,0.03],[0.4,0.3,f*1.36,f*1.42,amp,0,0.03],[0.8,R(0.7,0.95),f*1.34,f*0.86,amp,0.01,0.04]],v%3?"triangle":"sawtooth",v%3?1200:900);}};
-  if(S.fest==="hanshan"&&(dawn||(tod==="day"&&hr<12))){const garden=place(R(-0.7,-0.3),0.55);
-    recur(80,170,t=>{luogu(t,garden,0.06); const at=t+16; for(let i=0;i<3;i++) shout(at+i*2.6,garden,0.012); luogu(at+9,garden,0.05);},R(4,12));}
+  /* 喊山 "茶发芽！": a crowd of shouting voices, each a sawtooth through three vowel formants ("a"), with the 'ch' and 'f'
+     consonants as short noise bursts; 茶 rises, 发 holds high, 芽 glides in from "i" and rises, the longest syllable */
+  const shout=(t,dest,amp)=>{const VA=[850,1250,2700], VI=[300,2250,3000];
+    for(let v=0;v<14;v++){const f=R(190,280)*(chance(0.25)?1.55:1), s=t+R(0,0.05);
+      const o=AC.createOscillator(), vib=AC.createOscillator(), vd=AC.createGain(), g=AC.createGain();
+      o.type="sawtooth"; vib.frequency.value=R(4,6.5); vd.gain.value=f*0.015; vib.connect(vd).connect(o.frequency);
+      const fs=VA.map((fr,k)=>F("bandpass",fr,[4,6,8][k])), ws=[1,0.7,0.35].map(G);
+      fs.forEach((b,k)=>{o.connect(b); b.connect(ws[k]).connect(g);}); g.connect(dest);
+      g.gain.setValueAtTime(0,s);
+      /* 茶 chá */
+      o.frequency.setValueAtTime(f,s); o.frequency.linearRampToValueAtTime(f*1.22,s+0.32);
+      g.gain.linearRampToValueAtTime(amp,s+0.05); g.gain.setValueAtTime(amp,s+0.26); g.gain.linearRampToValueAtTime(amp*0.02,s+0.34);
+      /* 发 fā */
+      const s2=s+0.44; o.frequency.setValueAtTime(f*1.3,s2);
+      g.gain.setValueAtTime(amp*0.02,s2); g.gain.linearRampToValueAtTime(amp,s2+0.05); g.gain.setValueAtTime(amp,s2+0.27); g.gain.linearRampToValueAtTime(amp*0.02,s2+0.34);
+      /* 芽 yá */
+      const s3=s2+0.42; o.frequency.setValueAtTime(f*1.05,s3); o.frequency.linearRampToValueAtTime(f*1.42,s3+0.55); o.frequency.linearRampToValueAtTime(f*1.22,s3+0.88);
+      fs.forEach((b,k)=>{b.frequency.setValueAtTime(VA[k],s3-0.02); b.frequency.setValueAtTime(VI[k],s3); b.frequency.exponentialRampToValueAtTime(VA[k],s3+0.13);});
+      g.gain.setValueAtTime(amp*0.02,s3); g.gain.linearRampToValueAtTime(amp*1.15,s3+0.13); g.gain.setValueAtTime(amp*1.15,s3+0.62); g.gain.linearRampToValueAtTime(0,s3+0.92);
+      o.start(s); vib.start(s); o.stop(s3+1); vib.stop(s3+1);
+      burst(s,dest,0.08,"bandpass",R(3200,4200),1.4,amp*1.4,0.005);
+      burst(s2-0.08,dest,0.1,"bandpass",R(3500,5500),0.7,amp*0.8,0.03);}};
+  /* 喊山 call: a drum roll quickening into a gong, then the crowd shouts 茶发芽 three times, each answered by drum and gong */
+  const hanshanCall=(t,dest)=>{let at=t, per=0.42;
+    while(per>0.07){drum(at,dest,0.07); at+=per; per*=0.86;}
+    for(let i=0;i<10;i++){drum(at,dest,0.06); at+=0.07;}
+    gong(at,dest,0.08); at+=1.1;
+    for(let i=0;i<3;i++){shout(at,dest,0.05); drum(at+1.95,dest,0.08); gong(at+1.95,dest,0.07); at+=2.9;}
+    luogu(at+0.6,dest,0.055);};
+  if(S.fest==="hanshan"&&(dawn||(tod==="day"&&hr<12))){const garden=place(R(-0.5,-0.2),0.4);
+    recur(70,150,t=>hanshanCall(t,garden),R(3,8));}
   /* 斗茶赛: the judging at the tea house, cups set down and filled, kettles pouring, a cheer and applause for the 茶王 */
   if(S.fest==="doucha"&&tod==="day"&&!noon){const hall=place(0.3,0.15); crowd(hall,1);
     recur(3,9,t=>{for(let i=0,k=1+Math.floor(R(0,3));i<k;i++) bubble(t+i*R(0.15,0.4),hall,R(2600,3600),0.1,0.01,1);},2);
