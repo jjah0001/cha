@@ -666,6 +666,34 @@ nav.chap{z-index:5}
 :root[data-fest]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
 :root[data-fest-part="yuanxiao"] .wuyi .lanternrow{display:inline}
 :root[data-fest-part="yuanxiao"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanternrow{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
+/* 舞狮: a lion dancing in front of the tea house by day, 初一 to 初五 and on 元宵: walking to and fro, bobbing to the
+   drums, shaking its head, rearing up now and then */
+.wuyi .lion,.wuyi .dragon{display:none}
+:root:is([data-fest-part="chuyi"],[data-fest-part="yuanxiao"])[data-tod="day"] .wuyi .lion{display:inline}
+.wuyi .lion .lbody,.wuyi .lion .lface{fill:#D23A2C}
+.wuyi .lion .lmane,.wuyi .lion .lfringe,.wuyi .lion .lhorn{fill:#F0B83A}
+.wuyi .lion .ltrim{stroke:#F0B83A;stroke-width:1.2;fill:none}
+.wuyi .lion .llegs{stroke:#5B3A22;stroke-width:1.7;stroke-linecap:round;fill:none}
+.wuyi .lion .leye{fill:#FFF8E8}.wuyi .lion .lpupil{fill:#222}
+.wuyi .lion .lmouth{stroke:#FFF8E8;stroke-width:1;fill:none;stroke-linecap:round}
+.wuyi .lion-walk{animation:slionwalk 18s ease-in-out infinite}
+@keyframes slionwalk{0%,100%{transform:translateX(0)}45%,55%{transform:translateX(-78px)}}
+.wuyi .lion-bob{animation:slionbob .38s ease-in-out infinite alternate}
+@keyframes slionbob{from{transform:translateY(0)}to{transform:translateY(-2.6px)}}
+.wuyi .lion-head{transform-box:fill-box;transform-origin:60% 70%;animation:slionhead 1.3s ease-in-out infinite alternate}
+@keyframes slionhead{from{transform:rotate(-14deg)}to{transform:rotate(12deg)}}
+.wuyi .lion-rear{transform-box:fill-box;transform-origin:85% 100%;animation:slionrear 7s ease-in-out infinite}
+@keyframes slionrear{0%,72%,100%{transform:rotate(0)}80%,86%{transform:rotate(18deg) translateY(-3px)}}
+/* 元宵 night: a glowing dragon lantern carried along the path on poles, winding as it goes */
+:root[data-fest-part="yuanxiao"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .dragon{display:inline}
+.wuyi .dragon .dbody,.wuyi .dragon .dhead{fill:#F4C24A;stroke:#C8352B;stroke-width:1;filter:drop-shadow(0 0 3px #F2B140)}
+.wuyi .dragon .dhorn,.wuyi .dragon .dwhisk{stroke:#F4C24A;stroke-width:1.1;fill:none;stroke-linecap:round}
+.wuyi .dragon .deye{fill:#C8352B}
+.wuyi .dragon .dpole{stroke:currentColor;stroke-width:1;opacity:.5}
+.wuyi .dragon-go{animation:sdragongo 70s linear infinite}
+@keyframes sdragongo{0%{transform:translateX(260px);opacity:0}4%{opacity:1}94%{opacity:1}100%{transform:translateX(-420px);opacity:0}}
+.wuyi .dseg{animation:sdragonwave 1.15s ease-in-out infinite alternate}
+@keyframes sdragonwave{from{transform:translateY(3.5px)}to{transform:translateY(-4.5px)}}
 /* 喊山: red flags at the imperial tea garden by the stream */
 .wuyi .flags,.wuyi .climbers,.wuyi .ju,.wuyi .crowd,.wuyi .banner,.wuyi .hedeng{display:none}
 .wuyi .flags{fill:#C8352B;stroke:currentColor;opacity:.7}
@@ -731,6 +759,7 @@ nav.chap{z-index:5}
   .flash.go{animation:none}
   .wuyi .cloudsea{animation:none}
   .wuyi .hedeng circle{animation-duration:260s}
+  .wuyi .lion-bob,.wuyi .lion-head,.wuyi .lion-rear,.wuyi .dseg{animation:none}
   .seasonfx i.gui,.seasonfx i.flake{animation:sfall calc(var(--dur,20s)*1.5) linear var(--dly,0s) infinite;--spin:0deg}
   .seasonfx i.star{animation:none;opacity:var(--op,.6)}
   .seasonfx i.fly{animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite}}
@@ -1809,6 +1838,9 @@ function startSeasonalAudio(season,opts={}){
       for(let i=0;i<8;i++){const c=pt[i], x=at+i*beat*R(0.97,1.03); if(c==="D") drum(x,dest,amp); if(c==="G"){drum(x,dest,amp*0.8); gong(x,dest,amp);}}
       at+=8*beat;}
     gong(at,dest,amp*1.2);};
+  /* a crowd of people at the tea house: a murmur that swells and falls, the odd voice above it */
+  const crowd=(dest,lvl)=>{const w=walk(0.4,1,4,12), m=bed("pink",dest,[F("bandpass",520,1.3)],0); follow(m.gain,()=>0.012*lvl*w());
+    scatter(()=>1.2*lvl,t=>{const f=R(160,320); voice(t,dest,[[0,R(0.12,0.3),f,f*R(0.85,1.2),0.008*lvl,0,0.02]],"triangle",1100);});};
   /* 竹笛: someone playing a bamboo flute on 中秋 night, a slow phrase in the pentatonic scale, from across the valley */
   const flute=(t,dest,amp)=>{const sc=[587.3,659.3,740,880,987.8,1174.7,1318.5], n=5+Math.floor(R(0,5));
     const o=AC.createOscillator(), o2=AC.createOscillator(), g=AC.createGain(), g2=AC.createGain(), vib=AC.createOscillator(), vd=AC.createGain();
@@ -1955,7 +1987,16 @@ function startSeasonalAudio(season,opts={}){
   if(S.fest==="chunjie"){
     const busy=part==="chuxi"?(night||dusk?1.4:0.5):part==="chuyi"?(night||dusk||dawn?0.7:0.4):part==="yuanxiao"?(night||dusk?0.7:0.25):0.12;
     recur(25/busy,90/busy,t=>crackers(t,any(village),0.05),R(3,15));
-    if((part==="chuyi"&&!night)||(part==="yuanxiao"&&(dusk||(night&&!late)))) recur(150,330,t=>luogu(t,any(village),0.05),R(10,40));}
+    if((part==="chuyi"&&!night)||(part==="yuanxiao"&&(dusk||(night&&!late)))) recur(150,330,t=>luogu(t,any(village),0.05),R(10,40));
+    /* the lion dance (舞狮) at the tea house by day in the first days and on 元宵: its troupe close by, playing almost
+       without a break, with the crowd cheering when the lion rears up */
+    if((part==="chuyi"||part==="yuanxiao")&&tod==="day"){const yard=place(-0.1,0.25);
+      recur(25,55,t=>luogu(t,yard,0.075),2); crowd(yard,0.7);
+      recur(30,70,t=>{for(let v=0;v<6;v++){const f=R(230,380); voice(t+R(0,0.25),yard,[[0,R(0.35,0.6),f,f*1.3,0.01,0,0.04]],"triangle",1400);}},12);}
+    /* 元宵 night: the dragon lantern (龙灯) winding along the path, its drums and the crowd following it */
+    if(part==="yuanxiao"&&(dusk||(night&&!late))){const path=place(-0.25,0.4);
+      recur(30,70,t=>luogu(t,path,0.065),6); crowd(path,0.8);
+      recur(40,90,t=>{for(let v=0;v<7;v++){const f=R(220,360); voice(t+R(0,0.3),path,[[0,R(0.4,0.7),f,f*1.25,0.01,0,0.04]],"triangle",1400);}},20);}}
   const pop=e=>{if(!live())return; const d=(e&&e.detail)||{}, dist=d.dist!=null?d.dist:0.6;
     firework(now()+0.05,place(R(-0.9,0.9),0.55+dist*0.35),d.rise||1.2,dist,0.09-dist*0.04);};
   window.addEventListener("cha-firework",pop); me.offs.push(()=>window.removeEventListener("cha-firework",pop));
@@ -1989,9 +2030,6 @@ function startSeasonalAudio(season,opts={}){
       voice(t+j,dest,[[0,0.3,f,f*1.06,amp,0,0.03],[0.4,0.3,f*1.36,f*1.42,amp,0,0.03],[0.8,R(0.7,0.95),f*1.34,f*0.86,amp,0.01,0.04]],v%3?"triangle":"sawtooth",v%3?1200:900);}};
   if(S.fest==="hanshan"&&(dawn||(tod==="day"&&hr<12))){const garden=place(R(-0.7,-0.3),0.55);
     recur(80,170,t=>{luogu(t,garden,0.06); const at=t+16; for(let i=0;i<3;i++) shout(at+i*2.6,garden,0.012); luogu(at+9,garden,0.05);},R(4,12));}
-  /* a crowd of people at the tea house: a murmur that swells and falls, the odd voice above it */
-  const crowd=(dest,lvl)=>{const w=walk(0.4,1,4,12), m=bed("pink",dest,[F("bandpass",520,1.3)],0); follow(m.gain,()=>0.012*lvl*w());
-    scatter(()=>1.2*lvl,t=>{const f=R(160,320); voice(t,dest,[[0,R(0.12,0.3),f,f*R(0.85,1.2),0.008*lvl,0,0.02]],"triangle",1100);});};
   /* 斗茶赛: the judging at the tea house, cups set down and filled, kettles pouring, a cheer and applause for the 茶王 */
   if(S.fest==="doucha"&&tod==="day"&&!noon){const hall=place(0.3,0.15); crowd(hall,1);
     recur(3,9,t=>{for(let i=0,k=1+Math.floor(R(0,3));i<k;i++) bubble(t+i*R(0.15,0.4),hall,R(2600,3600),0.1,0.01,1);},2);
@@ -2693,6 +2731,19 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     <g class="crowd">${[[904,192],[916,194],[927,193],[1012,193],[1024,195],[1036,193],[1049,195],[1061,194]].map(([x,y])=>`<circle cx="${x}" cy="${y-9}" r="2.6"/><path d="M${x-3} ${y}Q${x} ${y-9} ${x+3} ${y}Z"/>`).join("")}</g>
     <rect class="banner" x="950" y="175.5" width="40" height="3.2" rx=".6"/>
     <g class="hedeng">${[0,1,2,3,4,5].map(i=>`<circle cx="0" cy="${241+(i%2)*2}" r="2.4" style="animation-delay:${-i*22}s"/>`).join("")}</g>
+    <g class="lion" transform="translate(888,195) scale(1.35)"><g class="lion-walk"><g class="lion-bob"><g class="lion-rear">
+      <path class="lfringe" d="M19 -10Q25 -9 26 -4L21 -4Z"/>
+      <path class="lbody" d="M1 -9Q9 -16 20 -10L22 -4L3 -4Z"/>
+      <path class="ltrim" d="M3 -4.6H22" />
+      <path class="llegs" d="M6 -4V0M10 -4V0M16 -4V0M20 -4V0"/>
+      <g class="lion-head"><circle class="lmane" cx="0" cy="-10" r="7.2"/><circle class="lface" cx="0" cy="-10" r="5.4"/>
+        <circle class="leye" cx="-2.4" cy="-11.8" r="1.5"/><circle class="leye" cx="1.2" cy="-12.2" r="1.5"/>
+        <circle class="lpupil" cx="-2.7" cy="-11.8" r=".7"/><circle class="lpupil" cx=".9" cy="-12.2" r=".7"/>
+        <path class="lmouth" d="M-4.5 -7.5Q-1.5 -5 1.5 -7.5"/><path class="lhorn" d="M0 -15.5L1.2 -18L2 -15.2Z"/></g>
+    </g></g></g></g>
+    <g class="dragon" transform="translate(700,198) scale(1.2)"><g class="dragon-go">${Array.from({length:12},(_,i)=>`<g class="dseg" style="animation-delay:${(-i*0.16).toFixed(2)}s"><path class="dpole" d="M${i*8} 0V9"/>${i===0
+        ?`<path class="dhead" d="M-7 -1Q-6 -7 0 -6Q5 -5 5 0Q5 4 0 4Q-6 4 -7 -1Z"/><path class="dhorn" d="M-1 -6L-3 -11M2 -5.5L2 -10.5"/><circle class="deye" cx="-3" cy="-2" r="1"/><path class="dwhisk" d="M-7 0Q-11 1 -12 4M-7 1Q-10 4 -9 7"/>`
+        :`<circle class="dbody" cx="${i*8}" cy="0" r="${(i===11?2:3.4-i*0.08).toFixed(2)}"/>`}</g>`).join("")}</g></g>
     <g class="aicao"><path d="M944 173L940 189M944 173L943.5 190M944 173L947 189M996 173L992 189M996 173L996.5 190M996 173L999 189"/>
       <ellipse cx="941" cy="183" rx="2.2" ry="1.4"/><ellipse cx="947" cy="185" rx="2.2" ry="1.4"/><ellipse cx="993" cy="184" rx="2.2" ry="1.4"/><ellipse cx="999" cy="182" rx="2.2" ry="1.4"/>
       <path class="tie" d="M942.5 174H945.5M994.5 174H997.5"/></g>
