@@ -40,7 +40,8 @@ The lunar festivals keep their real dates in both hemispheres, as Chinese commun
 the tea year's own days (喊山, 斗茶赛) follow the visitor's season like the solar-term moments:
 
 - **喊山** (惊蛰 day, mornings): Wuyi's old rite at the imperial tea garden by the fourth bend — red flags, gongs and drums,
-  and the crowd shouting "茶发芽！" three times to wake the tea bushes.
+  and three great strokes of drum and gong to wake the tea bushes. (The crowd's shout of "茶发芽！" is left out until there
+  is a real recording of it; synthesised voices sounded wrong.)
 - **斗茶赛** (a few days after 小满, by day; the real contests have no fixed date): people gathered at the tea house under a
   red banner, cups and kettles, and a cheer and applause for the 茶王.
 - **茶博会** (15–19 November, the usual week of the 海峡两岸茶业博览会 in 武夷山市; the exact dates move a little each year):

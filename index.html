@@ -2043,36 +2043,14 @@ function startSeasonalAudio(season,opts={}){
     if(S.festDay===0&&(dawn||(tod==="day"&&hr<11))){const pot=place(-0.3,0.1), heat=walk(2,7,8,20); bed("pink",pot,[F("bandpass",240,1.2)],0.005);
       scatter(heat,t=>bubble(t,pot,R(120,340),R(0.05,0.12),R(0.012,0.03),R(1.2,1.8)));
       recur(6,18,t=>{const f=R(2600,3400); for(let i=0,k=1+Math.floor(R(0,3));i<k;i++) bubble(t+i*R(0.2,0.5),table,f*R(0.97,1.03),0.12,0.008,1.0);},4);}}
-  /* 喊山: on the morning of 惊蛰, at the old imperial tea garden by the fourth bend, gongs and drums, and then the whole
-     crowd shouting "茶发芽！" three times to wake the tea bushes, echoing round the peaks */
-  /* 喊山 "茶发芽！": a crowd of shouting voices, each a sawtooth through three vowel formants ("a"), with the 'ch' and 'f'
-     consonants as short noise bursts; 茶 rises, 发 holds high, 芽 glides in from "i" and rises, the longest syllable */
-  const shout=(t,dest,amp)=>{const VA=[850,1250,2700], VI=[300,2250,3000];
-    for(let v=0;v<14;v++){const f=R(190,280)*(chance(0.25)?1.55:1), s=t+R(0,0.05);
-      const o=AC.createOscillator(), vib=AC.createOscillator(), vd=AC.createGain(), g=AC.createGain();
-      o.type="sawtooth"; vib.frequency.value=R(4,6.5); vd.gain.value=f*0.015; vib.connect(vd).connect(o.frequency);
-      const fs=VA.map((fr,k)=>F("bandpass",fr,[4,6,8][k])), ws=[1,0.7,0.35].map(G);
-      fs.forEach((b,k)=>{o.connect(b); b.connect(ws[k]).connect(g);}); g.connect(dest);
-      g.gain.setValueAtTime(0,s);
-      /* 茶 chá */
-      o.frequency.setValueAtTime(f,s); o.frequency.linearRampToValueAtTime(f*1.22,s+0.32);
-      g.gain.linearRampToValueAtTime(amp,s+0.05); g.gain.setValueAtTime(amp,s+0.26); g.gain.linearRampToValueAtTime(amp*0.02,s+0.34);
-      /* 发 fā */
-      const s2=s+0.44; o.frequency.setValueAtTime(f*1.3,s2);
-      g.gain.setValueAtTime(amp*0.02,s2); g.gain.linearRampToValueAtTime(amp,s2+0.05); g.gain.setValueAtTime(amp,s2+0.27); g.gain.linearRampToValueAtTime(amp*0.02,s2+0.34);
-      /* 芽 yá */
-      const s3=s2+0.42; o.frequency.setValueAtTime(f*1.05,s3); o.frequency.linearRampToValueAtTime(f*1.42,s3+0.55); o.frequency.linearRampToValueAtTime(f*1.22,s3+0.88);
-      fs.forEach((b,k)=>{b.frequency.setValueAtTime(VA[k],s3-0.02); b.frequency.setValueAtTime(VI[k],s3); b.frequency.exponentialRampToValueAtTime(VA[k],s3+0.13);});
-      g.gain.setValueAtTime(amp*0.02,s3); g.gain.linearRampToValueAtTime(amp*1.15,s3+0.13); g.gain.setValueAtTime(amp*1.15,s3+0.62); g.gain.linearRampToValueAtTime(0,s3+0.92);
-      o.start(s); vib.start(s); o.stop(s3+1); vib.stop(s3+1);
-      burst(s,dest,0.08,"bandpass",R(3200,4200),1.4,amp*1.4,0.005);
-      burst(s2-0.08,dest,0.1,"bandpass",R(3500,5500),0.7,amp*0.8,0.03);}};
-  /* 喊山 call: a drum roll quickening into a gong, then the crowd shouts 茶发芽 three times, each answered by drum and gong */
+  /* 喊山: on the morning of 惊蛰, at the old imperial tea garden by the fourth bend: a drum roll quickening into a gong,
+     three great strokes of drum and gong to wake the tea bushes, then the 锣鼓. (The crowd's shout of 茶发芽 is left out
+     until there is a real recording of it: synthesised voices sounded wrong.) */
   const hanshanCall=(t,dest)=>{let at=t, per=0.42;
     while(per>0.07){drum(at,dest,0.07); at+=per; per*=0.86;}
     for(let i=0;i<10;i++){drum(at,dest,0.06); at+=0.07;}
-    gong(at,dest,0.08); at+=1.1;
-    for(let i=0;i<3;i++){shout(at,dest,0.05); drum(at+1.95,dest,0.08); gong(at+1.95,dest,0.07); at+=2.9;}
+    gong(at,dest,0.08); at+=2.4;
+    for(let i=0;i<3;i++){drum(at,dest,0.08); gong(at,dest,0.07); at+=2.2;}
     luogu(at+0.6,dest,0.055);};
   if(S.fest==="hanshan"&&(dawn||(tod==="day"&&hr<12))){const garden=place(R(-0.5,-0.2),0.4);
     recur(70,150,t=>hanshanCall(t,garden),R(3,8));}
@@ -2853,7 +2831,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     drawMoon();
     if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]} · ${M.zh}`;
       b.title=`Themed to ${season} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}): ${M.zh}, ${M.en}.`+
-        `${({hanshan:" 喊山: on the morning of 惊蛰, gongs and drums at the imperial tea garden and the shout of 茶发芽！",
+        `${({hanshan:" 喊山: on the morning of 惊蛰, red flags, gongs and drums at the imperial tea garden to wake the tea bushes.",
           doucha:" 斗茶赛: the spring tea contest at the tea house.",chabo:" 茶博会 week in 武夷山: visitors from town on the path.",
           chongyang:" 重阳: people climbing the peaks; chrysanthemums by the door.",zhongyuan:" 中元: the temple bell at dusk and lanterns floating down the stream.",
           laba:" 腊八: a pot of 腊八粥 on the stove from first light."})[S.fest]||""}${S.fest==="dongzhi"?(S.festDay<0?" 冬至 eve: rolling 冬至圆 at the table, the lamp lit early on the longest night.":" 冬至: 汤圆 on the stove at first light."):S.fest==="duanwu"?" 端午: mugwort and calamus by the door, 粽子 on the stove, dragon boats racing down the stream.":S.fest==="chunjie"?({chuxi:" 除夕: lanterns up, firecrackers and fireworks tonight.",chuyi:" 春节: lanterns, firecrackers and drum-and-gong troupes.",yuanxiao:" 元宵: lanterns along the path and fireworks.",after:" 春节 lanterns are still up."}[festPart(S)]):S.fest==="zhongqiu"?" 中秋: the clouds part for the full moon.":""}`+
