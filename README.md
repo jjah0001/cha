@@ -53,8 +53,8 @@ the tea year's own days (喊山, 斗茶赛) follow the visitor's season like the
   at night strings lanterns along the path while a glowing dragon lantern (龙灯) winds along it on poles, with its drums
   and crowd, fireworks and a bamboo flute.
 - **端午** (三天, e.g. 2027年6月8–10日): mugwort and calamus (艾草菖蒲) hung by the tea-house door, more smoke from the
-  kitchen, 粽子 boiling on the stove, a few firecrackers on the day, and dragon-boat races carried up the valley from the
-  river in town: the big drum, gong, the crews' shouts and paddles, speeding up in the sprint. It falls in the plum rains,
+  kitchen, 粽子 boiling on the stove, a few firecrackers on the day, and two dragon boats (red and gold) racing down the stream
+  by day, paddles flashing: the big drum, gong, the crews' shouts and paddles, speeding up in the sprint. It falls in the plum rains,
   so it usually rains.
 - **冬至** (the eve and the day): follows the sun, so it falls in the visitor's own winter — 21/22 December north of the
   equator, 21 June south of it. On the eve the family rolls 冬至圆 at the table and the lamp burns bright from dusk on
