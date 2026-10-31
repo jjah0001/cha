@@ -62,6 +62,12 @@ button{font:inherit;color:inherit}
 :root:not([data-theme="light"])[data-season="summer"]{--season-bg:#2E2311;--season-rule:#5A4420;--season-ink:#E8C786}
 :root:not([data-theme="light"])[data-season="autumn"]{--season-bg:#2E1A10;--season-rule:#5A2D1A;--season-ink:#E4A389}
 :root:not([data-theme="light"])[data-season="winter"]{--season-bg:#132231;--season-rule:#294258;--season-ink:#9FBFD8}}
+:root[data-theme="dark"][data-season="spring"]{--season-bg:#1F2E17;--season-rule:#3B5A24;--season-ink:#B3D59A}
+:root[data-theme="dark"][data-season="summer"]{--season-bg:#2E2311;--season-rule:#5A4420;--season-ink:#E8C786}
+:root[data-theme="dark"][data-season="autumn"]{--season-bg:#2E1A10;--season-rule:#5A2D1A;--season-ink:#E4A389}
+:root[data-theme="dark"][data-season="winter"]{--season-bg:#132231;--season-rule:#294258;--season-ink:#9FBFD8}
+/* the page eases into its night colours at dusk's end rather than snapping */
+html,body,nav.chap{transition:background-color 1.5s,color 1.5s}
 
 nav.chap{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-block:1px solid var(--rule);
   display:flex;gap:4px;overflow-x:auto;padding-block:6px;scrollbar-width:none}
@@ -2846,6 +2852,9 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   let lastKey="";
   const applyScene=()=>{const S=sceneNow(), key=sceneKey(S), M=MOMENTS[S.moment], tod={late:"night",noon:"day"}[S.tod]||S.tod;
     root.setAttribute("data-tod",tod); root.setAttribute("data-tod-fine",S.tod);
+    /* After dark the whole page goes to its night colours on every device, like Oelek's kampung, so a computer in light
+       mode and a phone that switched itself to dark mode show the same night. By day it follows the device's setting. */
+    if(tod==="night") root.setAttribute("data-theme","dark"); else root.removeAttribute("data-theme");
     root.setAttribute("data-moment",S.moment); root.setAttribute("data-weather",S.weather);
     if(S.fest) root.setAttribute("data-fest",S.fest); else root.removeAttribute("data-fest");
     if(S.fest) root.setAttribute("data-fest-part",festPart(S)); else root.removeAttribute("data-fest-part");

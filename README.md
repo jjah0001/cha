@@ -35,7 +35,7 @@ real sunrise and sunset in their time zone, and the solar terms (节气). Each s
 | Winter | 瑞雪 | a rare snowfall: only every three or four years (2027, 2030, 2033, 2037…), for two or three days in the cold spell; snow on the summits and falling, the eaves frozen |
 
 The day runs late (after midnight) · dawn · day · noon · dusk · night: roosters before first light, the 午休 hush, dogs
-after dark, the roasting-house lamp left on through the night only when tea is being made. The moon shows its real phase.
+after dark, the roasting-house lamp left on through the night only when tea is being made. The moon shows its real phase. After dark (night and the small hours) the whole page switches to its night colours on every device, like Oelek's kampung, so a computer in light mode and a phone in dark mode show the same night; by day it follows the device's setting.
 The lunar festivals keep their real dates in both hemispheres, as Chinese communities there keep them; 冬至 follows the visitor's own winter;
 the tea year's own days (喊山, 斗茶赛) follow the visitor's season like the solar-term moments:
 
