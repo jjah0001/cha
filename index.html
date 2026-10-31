@@ -1,6 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#E8ECE5">
 <title>Cha 茶</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%238B2E2E'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Noto Serif SC,Songti SC,serif' font-size='22' fill='%23FBEFCF'%3E%E8%8C%B6%3C/text%3E%3C/svg%3E">
@@ -37,7 +38,7 @@ html[data-script="hant"]{
 *{box-sizing:border-box}
 body{background:var(--paper);color:var(--ink);font:15px/1.6 var(--f-body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--page-top,var(--paper))}
 .wrap{max-width:1180px;margin:0 auto}
 .han{font-family:var(--f-han)}
 h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.15}
@@ -607,8 +608,26 @@ nav.chap{z-index:5}
 :root{--sky-top-dusk:rgba(120,90,140,.07);--sky-top-night:rgba(28,42,90,.22)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sky-top-dusk:rgba(220,120,55,.03);--sky-top-night:rgba(6,12,40,.42)}}
 :root[data-theme="dark"]{--sky-top-dusk:rgba(220,120,55,.03);--sky-top-night:rgba(6,12,40,.42)}
-:root[data-tod="dusk"] nav.chap{background:linear-gradient(var(--sky-top-dusk),var(--sky-top-dusk)),var(--paper)}
-:root[data-tod="night"] nav.chap{background:linear-gradient(var(--sky-top-night),var(--sky-top-night)),var(--paper)}
+/* The time of day has to show on a phone too, where the content cards fill nearly the whole screen and the sky only
+   peeks out at the edges. So the sky's top colour (--page-top) also paints the chapter bar, the safe-area strip under
+   the phone's status bar, the page canvas (overscroll) and the browser bar (theme-color, set from script); and at
+   dawn, dusk and night the cards themselves take a little of the light, so the whole page dims together. */
+:root{--page-top:var(--paper)}
+:root[data-tod-fine="dusk"]{--page-top:#E0E2DF;--card:#F4F2EB}
+:root[data-tod-fine="dawn"]{--card:#F6F4EE}
+:root[data-tod-fine="night"]{--page-top:#BBC1C6;--card:#E4E7E6}
+:root[data-tod-fine="late"]{--page-top:#A8AEB5;--card:#DADDDD}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"])[data-tod-fine="dusk"]{--page-top:#171A15;--card:#1C211B}
+  :root:not([data-theme="light"])[data-tod-fine="dawn"]{--card:#1C211D}
+  :root:not([data-theme="light"])[data-tod-fine="night"]{--page-top:#0C121C;--card:#161E1F}
+  :root:not([data-theme="light"])[data-tod-fine="late"]{--page-top:#090E17;--card:#141B1D}}
+:root[data-theme="dark"][data-tod-fine="dusk"]{--page-top:#171A15;--card:#1C211B}
+:root[data-theme="dark"][data-tod-fine="dawn"]{--card:#1C211D}
+:root[data-theme="dark"][data-tod-fine="night"]{--page-top:#0C121C;--card:#161E1F}
+:root[data-theme="dark"][data-tod-fine="late"]{--page-top:#090E17;--card:#141B1D}
+html{background-color:var(--page-top)}
+nav.chap{background:var(--page-top)}
 /* fireflies come out at dusk (half of them) and fill the night; none in daylight */
 :root:not([data-tod="dusk"]):not([data-tod="night"]) .seasonfx i.fly,:root[data-tod="dusk"] .seasonfx i.fly.odd{display:none}
 /* morning mist on the slopes at dawn, every season */
@@ -634,7 +653,6 @@ nav.chap{z-index:5}
 :root[data-theme="dark"]{--danxia:#D27A52;--snow:#E8EEF2;--frost:#DCE6EC;--cloud:var(--paper);--fx-gui:#F2B640;--fx-flake:#E9EFF3;--moon:#F1E7C4;--moon-shade:rgba(220,225,240,.07);
   --sky-late:linear-gradient(rgba(3,6,26,.55),rgba(3,6,26,.25));--sky-wet:linear-gradient(rgba(20,26,30,.25),rgba(20,26,30,.08));--sky-storm:linear-gradient(rgba(14,18,24,.42),rgba(14,18,24,.15) 70%)}
 :root[data-tod-fine="late"] .sky{background:var(--sky-late)}
-:root[data-tod-fine="late"] nav.chap{background:linear-gradient(var(--sky-top-night),var(--sky-top-night)),var(--paper)}
 :root[data-tod="day"][data-weather="rain"] .sky{background:var(--sky-wet)}
 :root[data-weather="storm"]:not([data-tod="night"]) .sky{background:var(--sky-storm)}
 /* lightning: a quick double flicker over the background */
@@ -2820,6 +2838,11 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   document.body.appendChild(fx);
 
   /* ── apply the scene: attributes for CSS, the badge, and the moon. Runs every minute; returns whether anything changed ── */
+  /* the phone's browser bar takes the colour of the sky's top edge */
+  const bar=document.querySelector('meta[name="theme-color"]');
+  const paintBar=()=>{try{const c=getComputedStyle(document.documentElement).getPropertyValue("--page-top").trim();
+    const v=c.startsWith("var(")||!c?getComputedStyle(document.documentElement).getPropertyValue("--paper").trim():c; if(bar&&v) bar.setAttribute("content",v);}catch(e){}};
+  try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",paintBar);}catch(e){}
   let lastKey="";
   const applyScene=()=>{const S=sceneNow(), key=sceneKey(S), M=MOMENTS[S.moment], tod={late:"night",noon:"day"}[S.tod]||S.tod;
     root.setAttribute("data-tod",tod); root.setAttribute("data-tod-fine",S.tod);
@@ -2828,7 +2851,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     if(S.fest) root.setAttribute("data-fest-part",festPart(S)); else root.removeAttribute("data-fest-part");
     /* frost lies on the rows from first light until the sun is well up */
     root.toggleAttribute("data-frost",(S.moment==="frost"||S.moment==="hanchao")&&(S.tod==="dawn"||(S.tod==="day"&&S.hr<10)));
-    drawMoon();
+    drawMoon(); paintBar();
     if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]} · ${M.zh}`;
       b.title=`Themed to ${season} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}): ${M.zh}, ${M.en}.`+
         `${({hanshan:" 喊山: on the morning of 惊蛰, red flags, gongs and drums at the imperial tea garden to wake the tea bushes.",
