@@ -80,8 +80,12 @@ button{font:inherit;color:inherit}
 .about tr:last-child td{border-bottom:0}
 .about th{font-weight:600;color:var(--ink-2);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase}
 .about td:first-child{font-weight:600;white-space:nowrap}
-.about .zh{font-weight:400;color:var(--ink-2)}
+.about .zh{font-weight:400;color:var(--ink-2);white-space:nowrap}
+.about .zh i{font-style:italic;font-size:.92em}
+
 .about td:last-child{white-space:nowrap}
+.about table.sh td:nth-child(3){white-space:normal}
+.about td:first-child{min-width:7.5em}
 @media (max-width:600px){
   .about .tblwrap{overflow:visible}
   .about table{min-width:0}
@@ -976,66 +980,71 @@ nav.chap{background:var(--page-top)}
   </section>
 
   <section id="about" class="about" hidden>
-    <div class="sec-head"><h2>About Cha</h2><span class="han">关于我们</span></div>
-    <p class="intro-lead">Cha is a guide to the teas of mainland China and Taiwan: where they grow, how they taste, how to brew them, what to eat with them, and which one suits you.</p>
+    <div class="sec-head"><h2>About Cha</h2><span class="han" lang="zh">关于我们</span></div>
+    <p class="intro-lead">Cha is a guide to the teas of mainland China and Taiwan: where they grow, how they taste, how to brew them, what to eat with them, and which one suits you. You don’t need to know any Chinese to use it.</p>
 
-    <h3>What Cha is for <span class="han">宗旨</span></h3>
-    <p>The name is a pun: <b>茶</b> chá is tea, and <b>查</b> chá is to look something up. Cha brings together more than two thousand teas, from famous ones like 西湖龙井 and 大红袍 to small local teas few people outside their county have heard of, so you can find one, learn about it, and brew it well.</p>
+    <h3>What Cha is for</h3>
+    <p>The name is a small pun. In Chinese, the word for tea, <span class="zh">茶 <i>chá</i></span>, sounds exactly like the word for “to look something up”, <span class="zh">查 <i>chá</i></span>. Cha brings together more than two thousand teas, from world-famous ones such as Dragon Well green tea <span class="zh">西湖龙井 <i>Xīhú Lóngjǐng</i></span> and Big Red Robe oolong <span class="zh">大红袍 <i>Dà Hóng Páo</i></span> to small local teas that few people outside their home county have heard of, so you can find one, learn about it, and brew it well.</p>
     <ul>
       <li><b>Only real teas.</b> Every tea here is confirmed by published sources, listed under “Sources and notes” at the foot of each page. Nothing is invented to fill a gap.</li>
-      <li><b>For everyone.</b> Written in English with the Chinese names alongside, with a 简/繁 switch, for tea drinkers anywhere in the world.</li>
-      <li><b>Yours to keep.</b> Your shelf of teas stays in your own browser. Star ratings are public and need no sign-up.</li>
-      <li><b>A tea for today.</b> The tea of the day follows your season, and everyone in your hemisphere gets the same one.</li>
+      <li><b>For everyone.</b> Everything is explained in English, with the Chinese names alongside for when you shop or order. Chinese is written in two styles: simplified characters, used in mainland China, and traditional characters, used in Taiwan and Hong Kong. The 简/繁 switch at the top changes between them.</li>
+      <li><b>Yours to keep.</b> Your shelf of teas stays in your own browser. Anyone can give a tea a star rating, without signing up.</li>
+      <li><b>A tea for today.</b> Each day Cha suggests a tea that suits your season, and everyone in your half of the world gets the same one.</li>
     </ul>
 
-    <h3>The mountain behind the page <span class="han">武夷山</span></h3>
-    <p>Behind every page is a Wuyi rock-tea mountain in Fujian: the rust-red 丹霞 cliffs, rows of tea bushes, the family tea house where the leaf is made, and the Nine-Bend Stream (九曲溪) below. It is drawn faintly so it never gets in the way, and it is alive: it follows <b>your</b> season, <b>your</b> sunrise and sunset, and the tea year as it is lived on the mountain.</p>
+    <h3>The mountain behind the page</h3>
+    <p>Behind every page is a tea mountain in the Wuyi Mountains <span class="zh">武夷山 <i>Wǔyí Shān</i></span> of Fujian province, in south-east China, a UNESCO World Heritage Site and the home of “rock tea” <span class="zh">岩茶 <i>yánchá</i></span>, oolongs grown among the cliffs. You can make out rust-red sandstone peaks, rows of tea bushes, the family tea house where the leaves are processed, and the Nine-Bend Stream <span class="zh">九曲溪 <i>Jiǔqū Xī</i></span> winding below, where visitors float down on bamboo rafts.</p>
+    <p>The scene is drawn faintly so it never gets in the way, and it is alive. It follows <b>your</b> season, <b>your</b> sunrise and sunset, and the tea grower’s year as it is lived on the mountain.</p>
 
     <h4>Through the day</h4>
     <div class="tblwrap"><table class="sh">
       <thead><tr><th>Time</th><th>What you see</th><th>What you hear</th></tr></thead>
       <tbody>
-        <tr><td>Dawn</td><td>A peach glow, mist and a sea of cloud between the peaks</td><td>Roosters in the village, the temple bell, the wooden fish (木鱼)</td></tr>
-        <tr><td>Day</td><td>Pickers stooping along the rows, the raftsman poling down the stream</td><td>Birds and, in summer, cicadas, loudest at noon</td></tr>
-        <tr><td>Noon</td><td>The same scene</td><td>The noon rest (午休): the birds go quiet</td></tr>
-        <tr><td>Dusk</td><td>Amber light; the tea-house lamp comes on</td><td>Frogs begin, a dog barks</td></tr>
-        <tr><td>Night</td><td>Stars and the moon in tonight’s real phase; the page turns to its night colours on every device</td><td>Frogs, crickets, and tea being made through the night in season</td></tr>
-        <tr><td>Small hours</td><td>The darkest sky; only a tea house making tea keeps its lamp lit</td><td>The stove banked down, the odd dog far off</td></tr>
+        <tr><td>Dawn</td><td>A peach-coloured glow, mist, and a “sea of cloud” lying between the peaks</td><td>Roosters in the village below, the bell of the Buddhist temple, and the steady knock of a “wooden fish” <span class="zh">木鱼 <i>mùyú</i></span>, a hollow wooden drum that monks strike while chanting</td></tr>
+        <tr><td>Day</td><td>Tea pickers stooping along the rows, a raftsman poling down the stream</td><td>Birds and, in summer, cicadas</td></tr>
+        <tr><td>Midday</td><td>The same scene</td><td>The quiet of the midday rest <span class="zh">午休 <i>wǔxiū</i></span>, when people nap through the heat; cicadas are at their loudest</td></tr>
+        <tr><td>Dusk</td><td>Amber light; the lamp in the tea house comes on</td><td>Frogs begin to call, a dog barks</td></tr>
+        <tr><td>Night</td><td>Stars, and the moon in tonight’s real phase. The whole page turns to night colours, whatever your device is set to</td><td>Frogs and crickets and, in the tea-making seasons, work going on through the night</td></tr>
+        <tr><td>Small hours</td><td>The darkest sky; only a tea house that is still making tea keeps its lamp lit</td><td>The stove banked down, the odd dog far off</td></tr>
       </tbody></table></div>
 
     <h4>Through the year</h4>
+    <p>The traditional Chinese calendar divides the year into twenty-four “solar terms” <span class="zh">节气 <i>jiéqì</i></span> of about fifteen days each, named after the weather and the work on the land: “Insects Awaken” in early March, “Clear and Bright” in early April, “Frost’s Descent” in late October. Tea growers still plan their year by them, so the mountain does too.</p>
     <div class="tblwrap"><table class="sh">
       <thead><tr><th>Season</th><th>What you see</th><th>What you hear</th><th></th></tr></thead>
       <tbody>
-        <tr><td>Spring<br><span class="zh">惊蛰 · 清明</span></td><td>Drizzle and mountain mist</td><td>Rain in the rock gorges, cuckoos, the first thunder of the year</td><td><a class="seeit" href="?season=spring&moment=qingming#about">See it</a></td></tr>
-        <tr><td>Spring<br><span class="zh">开山采茶</span></td><td>The rock-tea harvest: pickers on the slopes, leaves withering in sieves</td><td>Pickers calling across the valley; leaves shaken in sieves (做青) all night</td><td><a class="seeit" href="?season=spring&moment=picking&time=day&weather=clear#about">See it</a></td></tr>
-        <tr><td>Early summer<br><span class="zh">梅雨</span></td><td>The plum rains, cloud between the peaks</td><td>Rain on the eaves, a swollen stream, frogs</td><td><a class="seeit" href="?season=summer&moment=meiyu#about">See it</a></td></tr>
-        <tr><td>Summer<br><span class="zh">三伏</span></td><td>Fireflies at night; a thunderstorm on some afternoons</td><td>The stream lapping the raft, cicadas, thunder after the lightning</td><td><a class="seeit" href="?season=summer&moment=storms&weather=storm#about">See it</a></td></tr>
-        <tr><td>Autumn<br><span class="zh">桂花 · 霜降</span></td><td>Osmanthus drifting down, embers from the roast, frost on the rows</td><td>Charcoal roasting (炭焙), wind in the bamboo, crickets</td><td><a class="seeit" href="?season=autumn&moment=osmanthus&time=day#about">See it</a></td></tr>
-        <tr><td>Winter<br><span class="zh">围炉 · 寒潮</span></td><td>Kettle steam, frost and cold drizzle; snow only every few years</td><td>A wood stove crackling, the kettle simmering, cold wind outside</td><td><a class="seeit" href="?season=winter&moment=hearth#about">See it</a></td></tr>
+        <tr><td>Early spring<br><span class="zh">惊蛰 · 清明 <i>Jīngzhé · Qīngmíng</i></span></td><td>“Insects Awaken” and “Clear and Bright”: drizzle and mountain mist</td><td>Rain in the rocky gorges, cuckoos, and the first thunder of the year, said to wake the insects and the tea bushes</td><td><a class="seeit" href="?season=spring&moment=qingming#about">See it</a></td></tr>
+        <tr><td>Late spring<br><span class="zh">开山采茶 <i>kāishān cǎichá</i></span></td><td>The rock-tea harvest: pickers out on the slopes, fresh leaves wilting in wide bamboo trays</td><td>Pickers calling to each other across the valley by day. All night, the soft rhythm of leaves being tossed in bamboo sieves <span class="zh">做青 <i>zuòqīng</i></span>, the step that bruises their edges and makes oolong</td><td><a class="seeit" href="?season=spring&moment=picking&time=day&weather=clear#about">See it</a></td></tr>
+        <tr><td>Early summer<br><span class="zh">梅雨 <i>méiyǔ</i></span></td><td>The “plum rains”, the rainy season that arrives as the plums ripen; cloud between the peaks</td><td>Rain on the eaves, a swollen stream, frogs</td><td><a class="seeit" href="?season=summer&moment=meiyu#about">See it</a></td></tr>
+        <tr><td>High summer<br><span class="zh">三伏 <i>sānfú</i></span></td><td>The “dog days”, the hottest weeks of the year: fireflies at night, and a thunderstorm on some afternoons</td><td>The stream lapping against the rafts, cicadas, thunder after the lightning</td><td><a class="seeit" href="?season=summer&moment=storms&weather=storm#about">See it</a></td></tr>
+        <tr><td>Autumn<br><span class="zh">桂花 · 霜降 <i>guìhuā · Shuāngjiàng</i></span></td><td>Tiny golden osmanthus flowers drifting down, embers rising from the tea house, and by “Frost’s Descent” frost on the rows</td><td>Charcoal roasting <span class="zh">炭焙 <i>tànbèi</i></span>: rock tea is slowly roasted over banked charcoal in autumn, which gives it its toasty depth. Wind in the bamboo, crickets</td><td><a class="seeit" href="?season=autumn&moment=osmanthus&time=day#about">See it</a></td></tr>
+        <tr><td>Winter<br><span class="zh">围炉 · 寒潮 <i>wéilú · háncháo</i></span></td><td>Steam from the kettle, frost and cold drizzle. Snow is rare on the tea slopes, so it falls only every few years</td><td>Sitting round the stove: a wood fire crackling, the kettle simmering, cold wind outside</td><td><a class="seeit" href="?season=winter&moment=hearth#about">See it</a></td></tr>
       </tbody></table></div>
 
     <h4>Festivals and tea days</h4>
+    <p>Most Chinese festivals follow the old lunar calendar, in which each month begins at a new moon. That is why their dates move around from year to year in the Western calendar.</p>
     <div class="tblwrap"><table>
-      <thead><tr><th>Day</th><th>On the mountain</th><th></th></tr></thead>
+      <thead><tr><th>Festival</th><th>What it is, and what happens on the mountain</th><th></th></tr></thead>
       <tbody>
-        <tr><td>春节 · 元宵</td><td>Red lanterns, firecrackers and fireworks; a lion dance by day; on 元宵 night a dragon lantern winds along the path</td><td><a class="seeit" href="?fest=chunjie&festday=-1&time=night#about">除夕</a> <a class="seeit" href="?fest=chunjie&festday=1&time=day#about">初一</a> <a class="seeit" href="?fest=chunjie&festday=14&time=night#about">元宵</a></td></tr>
-        <tr><td>喊山</td><td>On the morning of 惊蛰, red flags, gongs and drums at the old imperial tea garden to wake the tea bushes</td><td><a class="seeit" href="?fest=hanshan&time=dawn#about">See it</a></td></tr>
-        <tr><td>斗茶赛</td><td>The spring tea contest at the tea house, and a cheer for the 茶王</td><td><a class="seeit" href="?fest=doucha&time=day#about">See it</a></td></tr>
-        <tr><td>端午</td><td>Mugwort and calamus by the door, 粽子 on the stove, dragon boats racing down the stream</td><td><a class="seeit" href="?fest=duanwu&time=day&weather=clear#about">See it</a></td></tr>
-        <tr><td>中元</td><td>A quiet evening: the temple bell and lanterns floating down the stream</td><td><a class="seeit" href="?fest=zhongyuan&time=night#about">See it</a></td></tr>
-        <tr><td>中秋</td><td>The clouds part for a large full moon; a bamboo flute across the valley</td><td><a class="seeit" href="?fest=zhongqiu&time=night#about">See it</a></td></tr>
-        <tr><td>重阳 · 茶博会</td><td>Climbers on the peaks and chrysanthemums; visitors on the path in 茶博会 week</td><td><a class="seeit" href="?fest=chongyang&time=day#about">See it</a></td></tr>
-        <tr><td>腊八 · 冬至</td><td>A pot of 腊八粥 at first light; rolling 冬至圆 on the longest night</td><td><a class="seeit" href="?fest=laba&time=dawn#about">腊八</a> <a class="seeit" href="?fest=dongzhi&festday=-1&time=dusk#about">冬至</a></td></tr>
+        <tr><td>Chinese New Year<br><span class="zh">春节 <i>Chūnjié</i></span></td><td>The biggest festival of the year, also called the Spring Festival, when families gather. Red lanterns go up, and firecrackers and fireworks scare off bad luck, most of all on New Year’s Eve <span class="zh">除夕 <i>chúxī</i></span>. In the first days a lion dance performs by day: two dancers inside a lion costume, leaping and shaking its head to drums and gongs.</td><td><a class="seeit" href="?fest=chunjie&festday=-1&time=night#about">New Year’s Eve</a> <a class="seeit" href="?fest=chunjie&festday=1&time=day#about">Lion dance</a></td></tr>
+        <tr><td>Lantern Festival<br><span class="zh">元宵 <i>Yuánxiāo</i></span></td><td>The fifteenth night of the new year, under the first full moon, which closes the New Year season. Lanterns line the path and a glowing dragon lantern, carried on poles by a team of people, winds along it.</td><td><a class="seeit" href="?fest=chunjie&festday=14&time=night#about">See it</a></td></tr>
+        <tr><td>Calling the Mountain<br><span class="zh">喊山 <i>hǎnshān</i></span></td><td>An old Wuyi custom held on “Insects Awaken” day. Growers gather at the old imperial tea garden with red flags, drums and gongs to wake the tea bushes for the new season. (They also shout “tea, sprout!”, 茶发芽 <i>chá fāyá</i>; that waits for a real recording.)</td><td><a class="seeit" href="?fest=hanshan&time=dawn#about">See it</a></td></tr>
+        <tr><td>Tea contest<br><span class="zh">斗茶赛 <i>dòuchá sài</i></span></td><td>Once the spring tea is made, growers bring their best to be tasted side by side, and the winner is crowned “tea king” <span class="zh">茶王 <i>cháwáng</i></span>. People crowd round the tea house, and there is a cheer for the winner.</td><td><a class="seeit" href="?fest=doucha&time=day#about">See it</a></td></tr>
+        <tr><td>Dragon Boat Festival<br><span class="zh">端午 <i>Duānwǔ</i></span></td><td>An early-summer festival. Bunches of mugwort and calamus are hung by the door to keep illness away, and families eat zongzi <span class="zh">粽子 <i>zòngzi</i></span>, sticky rice wrapped in leaves. Long, narrow boats with dragon heads race to the beat of a drum.</td><td><a class="seeit" href="?fest=duanwu&time=day&weather=clear#about">See it</a></td></tr>
+        <tr><td>Ghost Festival<br><span class="zh">中元 <i>Zhōngyuán</i></span></td><td>A quiet evening for remembering ancestors and the dead. The temple bell sounds at dusk, and small lanterns are floated down the stream.</td><td><a class="seeit" href="?fest=zhongyuan&time=night#about">See it</a></td></tr>
+        <tr><td>Mid-Autumn Festival<br><span class="zh">中秋 <i>Zhōngqiū</i></span></td><td>The harvest full moon, the roundest and brightest of the year and a symbol of family reunion; people eat mooncakes and go out to look at it. The clouds part for a large, glowing moon, and a bamboo flute plays across the valley.</td><td><a class="seeit" href="?fest=zhongqiu&time=night#about">See it</a></td></tr>
+        <tr><td>Double Ninth<br><span class="zh">重阳 <i>Chóngyáng</i></span></td><td>The ninth day of the ninth month, a day for climbing to high places and honouring elders. Climbers appear on the peaks and chrysanthemums by the door.</td><td><a class="seeit" href="?fest=chongyang&time=day#about">See it</a></td></tr>
+        <tr><td>Tea Expo<br><span class="zh">茶博会 <i>chábóhuì</i></span></td><td>A large tea fair held in the town of Wuyishan every November. Visitors walk up the path to the tea house.</td><td><a class="seeit" href="?fest=chabo&time=day#about">See it</a></td></tr>
+        <tr><td>Laba<br><span class="zh">腊八 <i>Làbā</i></span></td><td>The eighth day of the last lunar month. Families cook a porridge of grains, beans and nuts, and temples give it out, so the pot goes on at first light.</td><td><a class="seeit" href="?fest=laba&time=dawn#about">See it</a></td></tr>
+        <tr><td>Winter Solstice<br><span class="zh">冬至 <i>Dōngzhì</i></span></td><td>The longest night of the year, a family festival in its own right. On the eve, the family rolls sweet rice balls <span class="zh">汤圆 <i>tāngyuán</i></span> at the table to eat next morning.</td><td><a class="seeit" href="?fest=dongzhi&festday=-1&time=dusk#about">See it</a></td></tr>
       </tbody></table></div>
     <p class="note">“See it” shows that scene now. <a class="seeit" href="./#about">Back to today’s scene</a></p>
 
-    <h3>Your hemisphere <span class="han">南北</span></h3>
-    <p id="hemiText">The seasons on the mountain follow where you are. The moon festivals (春节, 端午, 中秋 and the rest) keep their real dates everywhere, as Chinese communities keep them, and 冬至 falls on your own shortest day.</p>
+    <h3>North and south</h3>
+    <p id="hemiText">The seasons on the mountain follow where you are. The lunar festivals keep their real dates everywhere, and the Winter Solstice falls on your own shortest day.</p>
 
-    <h3>The sound <span class="han">声音</span></h3>
-    <p>Every sound you hear is made live in your browser, from scratch: rain, water, wind, fire, insects, birds, bells and drums are all shaped from noise and simple tones, with no recordings. That keeps the page light and means the mountain never plays the same minute twice. The ambience starts with the page; the speaker button beside the season badge turns it off, and tapping the season badge stops the animation. If your device asks for less motion, the scene moves more gently.</p>
-    <p class="note">One thing is missing on purpose: on 喊山 the crowd should shout “茶发芽！”. A synthesised crowd didn’t sound right, so it waits for a real recording.</p>
+    <h3>The sound</h3>
+    <p>Every sound you hear is made live in your browser, from scratch. Rain, water, wind, fire, insects, birds, bells and drums are all built from simple tones and noise, with no recordings, so the page stays light and the mountain never plays the same minute twice. The sound starts with the page; the speaker button beside the season label at the top turns it off, and tapping the season label stops the animation. If your device asks for less motion, the scene moves more gently.</p>
   </section>
   <footer><details><summary>Sources and notes</summary>
     <p><strong>Sources checked.</strong> History and brewing details were cross-checked against Chinese-language sources, including China's national intangible heritage register (中国非物质文化遗产网), Xinhua, The Paper (澎湃新闻), People's Daily, Lugu Township Office (Taiwan) and Taiwan's Tea Research and Extension Station reporting. Where legends differ, the page says so. Entries whose specific history no Chinese source confirmed are marked "General entry" on their card and kept to basics. Food pairings are suggestions, not sourced facts.</p>
@@ -1810,13 +1819,13 @@ function paintHemi(){
   const cny=next(CNY,1,14), mid=next(MIDAUTUMN,1,1);
   let dz=null; for(let y=day.getFullYear();y<=day.getFullYear()+1&&!dz;y++){const md=south?"06-21":DONGZHI_N[y]; if(md){const d=at(y,md); if(d>=day) dz=d;}}
   const fest=(name,f)=>!f?"":f.on?`it's <b>${name}</b> now`:`the next <b>${name}</b> is on <b>${fmt(f.d)}</b>, in your <b>${seasonAt(f.d)}</b>`;
-  const parts=[fest("春节",cny),fest("中秋",mid)].filter(Boolean);
+  const parts=[fest("Chinese New Year",cny),fest("Mid-Autumn Festival",mid)].filter(Boolean);
   const html=`You're in the <b>${south?"southern":"northern"}</b> hemisphere, so it's <b>${seasonAt(day)}</b> on the mountain now, as it is where you are.`+
     (SC.forced?` (You're previewing ${SC.season} at the moment.)`:"")+
-    ` The moon festivals (春节, 端午, 中秋 and the rest) keep their real dates everywhere, as Chinese communities keep them`+
+    ` The lunar festivals (Chinese New Year, the Dragon Boat and Mid-Autumn festivals and the rest) fall on the same dates all over the world, and Chinese communities in both halves of the world celebrate them then`+
     (parts.length?`: ${parts.join(", and ")}.`:".")+
-    (dz?` 冬至 follows the sun, so it falls on your own shortest day: <b>${fmt(dz)}</b>.`:"")+
-    ` The hemisphere switch under the tea of the day changes which teas it suggests.`;
+    (dz?` The Winter Solstice festival follows the sun instead, so on Cha it falls on your own shortest day: <b>${fmt(dz)}</b>.`:"")+
+    ` The north/south switch under the tea of the day changes which teas it suggests.`;
   if(el.dataset.k!==html){el.dataset.k=html; el.innerHTML=html;}
 }
 function festOf(d=new Date()){
