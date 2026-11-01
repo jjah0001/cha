@@ -578,7 +578,16 @@ nav.chap{z-index:5}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wuyi{filter:brightness(.7)}}
 :root[data-theme="dark"] .wuyi{filter:brightness(.7)}
 .wuyi .rows path{fill:none;stroke:currentColor;stroke-width:4.5;stroke-linecap:round}
-.wuyi .creek{fill:var(--paper);opacity:.45}
+/* the Nine-Bend Stream: water-coloured, with a bank the tea rows stop at and glints drifting downstream, so it never
+   reads as one more tea row */
+:root{--water:#7FA9B5;--water-glint:#F4FAF9;--bank:#9A8B6E}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--water:#4F8392;--water-glint:#CFE6EA;--bank:#6D6350}}
+:root[data-theme="dark"]{--water:#4F8392;--water-glint:#CFE6EA;--bank:#6D6350}
+.wuyi .creek{fill:var(--water);opacity:.55}
+.wuyi .bank{fill:none;stroke:var(--bank);stroke-width:1.6;opacity:.45;stroke-linecap:round}
+.wuyi .ripples path{fill:none;stroke:var(--water-glint);stroke-width:1.1;stroke-linecap:round;opacity:.75;stroke-dasharray:7 23;animation:sripple 9s linear infinite}
+.wuyi .ripples .r2{stroke-dasharray:4 29;opacity:.55;animation-duration:12s;animation-delay:-4s}
+@keyframes sripple{from{stroke-dashoffset:0}to{stroke-dashoffset:-120}}
 .wuyi .smoke path{fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;opacity:0;transform-box:fill-box;animation:ssmoke 7s ease-out infinite}
 .wuyi .smoke path:nth-child(2){animation-delay:-2.3s}.wuyi .smoke path:nth-child(3){animation-delay:-4.6s}
 @keyframes ssmoke{0%{transform:translate(0,0) scale(.6);opacity:0}20%{opacity:.5}100%{transform:translate(16px,-42px) scale(1.4);opacity:0}}
@@ -834,6 +843,7 @@ nav.chap{background:var(--page-top)}
   .wuyi .lion-bob,.wuyi .lion-head,.wuyi .lion-rear,.wuyi .dseg,.wuyi .lzrock,.wuyi .lzpaddles path{animation:none}
   .wuyi .pkbody,.wuyi .pkarm,.wuyi .pk,.wuyi .sieve,.wuyi .toss,.wuyi .ptbob,.wuyi .ptpole,.wuyi .rman,.wuyi .rpole{animation:none}
   .wuyi .ptwalk{animation-duration:150s}
+  .wuyi .ripples path{animation:none}
   .seasonfx i.gui,.seasonfx i.flake{animation:sfall calc(var(--dur,20s)*1.5) linear var(--dly,0s) infinite;--spin:0deg}
   .seasonfx i.star{animation:none;opacity:var(--op,.6)}
   .seasonfx i.fly{animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite}}
@@ -2783,16 +2793,20 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
       <path class="pkarm" d="M379.6 200.5L372.5 205" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></g><circle cx="386" cy="205" r="4"/></g>`;
   const land=document.createElement("div"); land.className="wuyi"; land.setAttribute("aria-hidden","true");
   land.innerHTML=`<svg viewBox="0 0 1200 260" preserveAspectRatio="xMidYMax slice" fill="currentColor">
-    <defs><clipPath id="wycap"><path d="M0 0H1200V114C1100 120 1000 110 900 117C800 124 700 112 600 118C500 124 400 113 300 119C200 125 100 114 0 118Z"/></clipPath>
+    <defs><clipPath id="wyland"><path d="M0 0H1200V262H838C817 255 792 250 762 247C640 235 560 245 480 237C400 229 350 237 260 241C170 245 90 227 0 235Z"/></clipPath>
+      <clipPath id="wycap"><path d="M0 0H1200V114C1100 120 1000 110 900 117C800 124 700 112 600 118C500 124 400 113 300 119C200 125 100 114 0 118Z"/></clipPath>
       <filter id="wyblur" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="9"/></filter></defs>
     <g class="moon" transform="translate(642,113) scale(${south?-11:11},11)"></g>
     <path class="far" d="${FAR}"/>
     <path class="snowcap" d="${FAR}" clip-path="url(#wycap)"/>
     <g class="cloudsea" filter="url(#wyblur)"><ellipse cx="150" cy="150" rx="230" ry="16"/><ellipse cx="520" cy="146" rx="260" ry="18"/><ellipse cx="880" cy="150" rx="240" ry="15"/><ellipse cx="1180" cy="140" rx="200" ry="17"/></g>
     <path class="near" d="M0 260V200C150 175 300 165 450 180C600 195 700 205 850 190C1000 175 1100 185 1200 200V260Z"/>
-    <g class="rows">${rows}</g>
-    <g class="frostrows" transform="translate(0,-3)">${rows}</g>
-    <path class="creek" d="M0 236C90 228 170 246 260 242C350 238 400 230 480 238C560 246 640 236 760 248V253C640 244 560 252 480 245C400 238 350 247 260 249C170 252 90 236 0 245Z"/>
+    <g clip-path="url(#wyland)"><g class="rows">${rows}</g>
+    <g class="frostrows" transform="translate(0,-3)">${rows}</g></g>
+    <path class="creek" d="M0 236C90 228 170 246 260 242C350 238 400 230 480 238C560 246 640 236 760 248C790 251 815 256 836 262H772L760 259C640 250 560 258 480 251C400 244 350 253 260 255C170 258 90 242 0 251Z"/>
+    <path class="bank" d="M0 235C90 227 170 245 260 241C350 237 400 229 480 237C560 245 640 235 762 247C792 250 817 255 838 262"/>
+    <g class="ripples"><path d="M0 243C90 238 170 251 260 248.5C350 245 400 240 480 244.5C560 251 640 243 760 253C783 256 800 259 806 262"/>
+      <path class="r2" d="M0 246.5C90 241 170 254 260 251.5C350 248 400 243 480 248C560 254 640 246 760 256C778 258 790 260 794 262"/></g>
     <g class="fig picker">${picker}</g>
     <g class="fig picker more p2" transform="translate(150,14)">${picker}</g>
     <g class="fig picker more p3" transform="translate(280,6)">${picker}</g>
