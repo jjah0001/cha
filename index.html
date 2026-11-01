@@ -606,7 +606,9 @@ nav.chap{z-index:5}
 :root{--fx-mist:rgba(255,255,255,.8);--fx-rain:rgba(60,95,85,.5);--fx-fly:#C9A21F;--fx-fly-glow:rgba(222,184,48,.55);--fx-ember:#D2581F;--fx-steam:#7F949C}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fx-mist:rgba(190,212,202,.08);--fx-rain:rgba(180,210,200,.4);--fx-fly:#F4DA6A;--fx-fly-glow:rgba(244,218,106,.6);--fx-ember:#F08A3E;--fx-steam:#E6EEF0}}
 :root[data-theme="dark"]{--fx-mist:rgba(190,212,202,.08);--fx-rain:rgba(180,210,200,.4);--fx-fly:#F4DA6A;--fx-fly-glow:rgba(244,218,106,.6);--fx-ember:#F08A3E;--fx-steam:#E6EEF0}
-.wuyi{position:fixed;left:0;right:0;bottom:0;height:clamp(110px,24vh,260px);pointer-events:none;z-index:0;color:var(--season-accent,var(--t-oolong))}
+/* the band is at least as tall as the drawing's own shape (260/1200 of the width), so the peaks are never cut off
+   on wide or landscape screens; it never takes more than about half the screen */
+.wuyi{position:fixed;left:0;right:0;bottom:0;height:min(max(clamp(110px,24vh,260px),calc(100vw * 260 / 1200)),48vh);pointer-events:none;z-index:0;color:var(--season-accent,var(--t-oolong))}
 .wuyi svg{display:block;width:100%;height:100%}
 .wuyi .far{opacity:.1;color:var(--danxia)}.wuyi .near{opacity:.09}.wuyi .rows{opacity:.12}.wuyi .fig{opacity:.2}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wuyi{filter:brightness(.7)}}
