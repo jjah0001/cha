@@ -1654,7 +1654,7 @@ const MOMENTS={
  qingming: {zh:"清明",en:"drizzle and mountain mist",snd:"清明 drizzle in the rock gorges, cuckoos and bulbuls"},
  picking:  {zh:"开山采茶",en:"the rock-tea harvest",snd:"the rock-tea harvest: pickers calling across the slopes by day, leaves shaken in sieves all night"},
  meiyu:    {zh:"梅雨",en:"the plum rains",snd:"the plum rains on the eaves, a swollen stream and frogs"},
- storms:   {zh:"三伏",en:"cicadas and afternoon storms",snd:"the Nine-Bend Stream lapping a bamboo raft, cicadas, and thunderstorms in the afternoon"},
+ storms:   {zh:"三伏",en:"cicadas and afternoon storms",snd:"the Nine-Bend Stream lapping a bamboo raft, cicadas, and on some afternoons a thunderstorm"},
  osmanthus:{zh:"桂花",en:"osmanthus and the charcoal roast",snd:"charcoal roasting in the tea house, wind in the bamboo & crickets"},
  frost:    {zh:"霜降",en:"frost on the tea rows",snd:"the last of the charcoal roast and a cold wind"},
  hearth:   {zh:"围炉",en:"kettle steam and morning mist",snd:"a crackling wood stove & kettle"},
@@ -1722,15 +1722,23 @@ function festOf(d=new Date()){
 }
 /* weather that goes with the moment: drizzle, steady rain, the summer afternoon storm, snow, or clear.
    On 中秋 night the clouds always part for the moon */
-function weatherOf(moment,hr,fest,tod){
+/* Summer afternoon thunderstorms come on about half the days in the dog days, not every day. Each date gets its own
+   storm or none, the same for every visitor: it starts between about 13:30 and 16:30 and lasts 1 to 2.5 hours */
+function stormToday(d){
+  let h=Math.imul(d.getFullYear()*372+d.getMonth()*31+d.getDate(),2654435761)>>>0; h=(h^(h>>>15))>>>0; h=Math.imul(h,2246822519)>>>0; h=(h^(h>>>13))>>>0;
+  if(h%100>=50) return null;
+  const start=13.5+((h>>>8)%13)*0.25, len=1+((h>>>16)%7)*0.25;
+  return {start,end:start+len};
+}
+function weatherOf(moment,hr,fest,tod,d,hf){
   const f=QS.get("weather"); if(["clear","drizzle","rain","storm","snow"].includes(f)) return f;
   if(fest==="zhongqiu"&&(tod==="dusk"||tod==="night"||tod==="late")) return "clear";
-  return {jingzhe:"drizzle",qingming:"drizzle",hanchao:"drizzle",meiyu:"rain",snow:"snow"}[moment]||(moment==="storms"&&hr>=14&&hr<18?"storm":"clear");
+  return {jingzhe:"drizzle",qingming:"drizzle",hanchao:"drizzle",meiyu:"rain",snow:"snow"}[moment]||(moment==="storms"&&!TOD_FORCE&&(st=>st&&hf>=st.start&&hf<st.end)(stormToday(d||new Date()))?"storm":"clear");
 }
 function sceneNow(){
   const d=new Date(), tod=todFine(d), hr=TOD_FORCE?{late:2,dawn:6,day:10,noon:13,dusk:18,night:21}[TOD_FORCE]:d.getHours();
   const moment=momentOf(SC.season,d), fest=festOf(d);
-  return {season:SC.season,moment,tod,hr,weather:weatherOf(moment,hr,fest&&fest.name,tod),fest:fest&&fest.name,festDay:fest?fest.day:null,sun:sunTimes(d)};
+  return {season:SC.season,moment,tod,hr,weather:weatherOf(moment,hr,fest&&fest.name,tod,d,d.getHours()+d.getMinutes()/60),fest:fest&&fest.name,festDay:fest?fest.day:null,sun:sunTimes(d)};
 }
 /* 春节 has its own days: 除夕 (day −1), 初一 to 初五, the quieter days after, and 元宵 (day 14) */
 const festPart=s=>s.fest!=="chunjie"?(s.fest||""):s.festDay<0?"chuxi":s.festDay<=4?"chuyi":s.festDay>=13?"yuanxiao":"after";

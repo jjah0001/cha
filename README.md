@@ -27,7 +27,7 @@ real sunrise and sunset in their time zone, and the solar terms (节气). Each s
 | Spring | 清明 | drizzle and mountain mist, cuckoos |
 | Spring | 开山采茶 (谷雨–立夏) | pickers on the slopes calling to each other, sieves of leaves withering, 做青 all night |
 | Spring / Summer | 梅雨 | steady rain on the eaves, cloud between the peaks, frogs |
-| Summer | 三伏 | cicadas loudest at noon, a thunderstorm most afternoons (14:00–18:00) with lightning |
+| Summer | 三伏 | cicadas loudest at noon, a thunderstorm with lightning on about half the afternoons (the same days for every visitor, starting between about 13:30 and 16:30 and lasting 1–2.5 hours); the other afternoons stay clear and hot |
 | Autumn | 桂花 (白露–寒露) | osmanthus flowers drifting down, the charcoal roast |
 | Autumn | 霜降 | frost on the tea rows in the morning, fewer crickets |
 | Winter | 围炉 | wood stove and kettle |
