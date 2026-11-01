@@ -1031,7 +1031,7 @@ nav.chap{background:var(--page-top)}
     <p class="note">“See it” shows that scene now. <a class="seeit" href="./#about">Back to today’s scene</a></p>
 
     <h3>Your hemisphere <span class="han">南北</span></h3>
-    <p>The seasons follow where you are, so in Melbourne October is spring on the mountain too. The moon festivals (春节, 端午, 中秋 and the rest) keep their real dates everywhere, as Chinese communities in the south keep them, which is why New Year comes in summer there. 冬至 follows the sun, so it falls on your own shortest day. You can switch hemisphere under the tea of the day.</p>
+    <p id="hemiText">The seasons on the mountain follow where you are. The moon festivals (春节, 端午, 中秋 and the rest) keep their real dates everywhere, as Chinese communities keep them, and 冬至 falls on your own shortest day.</p>
 
     <h3>The sound <span class="han">声音</span></h3>
     <p>Every sound you hear is made live in your browser, from scratch: rain, water, wind, fire, insects, birds, bells and drums are all shaped from noise and simple tones, with no recordings. That keeps the page light and means the mountain never plays the same minute twice. The ambience starts with the page; the speaker button beside the season badge turns it off, and tapping the season badge stops the animation. If your device asks for less motion, the scene moves more gently.</p>
@@ -1795,6 +1795,30 @@ const ZHONGYUAN={2025:"09-06",2026:"08-27",2027:"08-16",2028:"09-03",2029:"08-24
 const LABA={2025:"01-07",2026:"01-26",2027:"01-15",2028:"01-04",2029:"01-22",2030:"01-11",2031:"01-01",2032:"01-20",2033:"01-08",2034:"01-27",2035:"01-16",2036:"01-05"};
 const JINGZHE={2025:"03-05",2026:"03-05",2027:"03-06",2028:"03-05",2029:"03-05",2030:"03-05",2031:"03-06",2032:"03-05",2033:"03-05",2034:"03-05",2035:"03-06",2036:"03-05"};
 const MIDAUTUMN={2025:"10-06",2026:"09-25",2027:"09-15",2028:"10-03",2029:"09-22",2030:"09-12",2031:"10-01",2032:"09-19",2033:"09-08",2034:"09-27",2035:"09-16",2036:"10-04"};
+/* 关于我们 · Your hemisphere: written for the visitor, from their own hemisphere, season and today's date */
+function paintHemi(){
+  const el=document.getElementById("hemiText"); if(!el) return;
+  const now=new Date(), day=new Date(now.getFullYear(),now.getMonth(),now.getDate()), south=SC.south;
+  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
+  const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
+  const seasonAt=d=>south?flip[N[d.getMonth()]]:N[d.getMonth()];
+  const fmt=d=>d.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+  const at=(y,md)=>new Date(y+"-"+md+"T00:00:00");
+  /* the next one on or after today, or the one that is on now if we're inside its days */
+  const next=(T,before,after)=>{for(let y=day.getFullYear();y<=day.getFullYear()+2;y++){if(!T[y]) continue;
+      const d=at(y,T[y]), k=Math.round((day-d)/864e5); if(k>=-before&&k<=after) return {d,on:true}; if(d>day) return {d,on:false};} return null;};
+  const cny=next(CNY,1,14), mid=next(MIDAUTUMN,1,1);
+  let dz=null; for(let y=day.getFullYear();y<=day.getFullYear()+1&&!dz;y++){const md=south?"06-21":DONGZHI_N[y]; if(md){const d=at(y,md); if(d>=day) dz=d;}}
+  const fest=(name,f)=>!f?"":f.on?`it's <b>${name}</b> now`:`the next <b>${name}</b> is on <b>${fmt(f.d)}</b>, in your <b>${seasonAt(f.d)}</b>`;
+  const parts=[fest("春节",cny),fest("中秋",mid)].filter(Boolean);
+  const html=`You're in the <b>${south?"southern":"northern"}</b> hemisphere, so it's <b>${seasonAt(day)}</b> on the mountain now, as it is where you are.`+
+    (SC.forced?` (You're previewing ${SC.season} at the moment.)`:"")+
+    ` The moon festivals (春节, 端午, 中秋 and the rest) keep their real dates everywhere, as Chinese communities keep them`+
+    (parts.length?`: ${parts.join(", and ")}.`:".")+
+    (dz?` 冬至 follows the sun, so it falls on your own shortest day: <b>${fmt(dz)}</b>.`:"")+
+    ` The hemisphere switch under the tea of the day changes which teas it suggests.`;
+  if(el.dataset.k!==html){el.dataset.k=html; el.innerHTML=html;}
+}
 function festOf(d=new Date()){
   const f=QS.get("fest"); if(["chunjie","zhongqiu","duanwu","dongzhi","laba","zhongyuan","chongyang","hanshan","chabo","doucha"].includes(f)) return {name:f,day:+(QS.get("festday")||0)||0};
   const y=d.getFullYear(), at=s=>new Date(y+"-"+s+"T00:00:00"), days=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-a)/864e5);
@@ -3013,7 +3037,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     if(S.fest) root.setAttribute("data-fest-part",festPart(S)); else root.removeAttribute("data-fest-part");
     /* frost lies on the rows from first light until the sun is well up */
     root.toggleAttribute("data-frost",(S.moment==="frost"||S.moment==="hanchao")&&(S.tod==="dawn"||(S.tod==="day"&&S.hr<10)));
-    drawMoon(); paintBar();
+    drawMoon(); paintBar(); paintHemi();
     if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]} · ${M.zh}`;
       b.title=`Themed to ${season} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}): ${M.zh}, ${M.en}.`+
         `${({hanshan:" 喊山: on the morning of 惊蛰, red flags, gongs and drums at the imperial tea garden to wake the tea bushes.",
