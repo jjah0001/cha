@@ -63,8 +63,10 @@ the tea year's own days (喊山, 斗茶赛) follow the visitor's season like the
 - **腊八** (腊月初八): a pot of 腊八粥 on the stove from first light, the temple bell longer that morning.
 - **中元** (七月十五): a quiet evening — the temple bell at dusk, 木鱼 and chanting, river lanterns drifting down the stream.
 - **重阳** (九月初九): climbers on the summit, chrysanthemums by the door, calls from the peaks on a stronger wind.
-- **中秋** (three nights): the clouds part for a bigger, glowing full moon, lanterns on the eaves, and a bamboo flute
-  playing now and then from across the valley. When the time band, weather or moment changes while the page is open, the sound crossfades into the new scene.
+- **中秋** (three nights): a family night. At dusk the tea house is lit up for the reunion dinner (talk, laughter, bowls
+  and chopsticks); at night the family sits out with tea and mooncakes while children run along the path with glowing
+  lanterns, a few firecrackers go off in the villages, and on the night itself the odd firework. The clouds part for a
+  bigger, glowing full moon, lanterns hang on the eaves, and a bamboo flute plays softly across the valley. When the time band, weather or moment changes while the page is open, the sound crossfades into the new scene.
 
 Preview any of it with URL parameters, e.g. `?season=summer&moment=storms&time=day&weather=storm`:
 `season` spring|summer|autumn|winter · `moment` jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|hanchao|snow ·
