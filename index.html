@@ -690,6 +690,35 @@ nav.chap{background:var(--page-top)}
 :root[data-fest]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
 :root[data-fest-part="yuanxiao"] .wuyi .lanternrow{display:inline}
 :root[data-fest-part="yuanxiao"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanternrow{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
+/* 茶园里的人: pickers stooping to pick and straightening, an arm reaching into the bush, edging along the row; a worker
+   tossing leaves in a sieve by the drying trays on harvest days; a porter with two baskets on a carrying pole on autumn
+   days; the raftsman leaning on his pole. All still with reduced motion or the animation off. */
+.wuyi .pkbody{transform-box:fill-box;transform-origin:50% 100%;animation:spkbend 6.5s ease-in-out infinite}
+@keyframes spkbend{0%,18%,100%{transform:rotate(0)}30%,62%{transform:rotate(-24deg)}74%{transform:rotate(-4deg)}}
+.wuyi .pkarm{transform-box:fill-box;transform-origin:100% 0;animation:spkarm 1.1s ease-in-out infinite alternate}
+@keyframes spkarm{from{transform:rotate(-12deg)}to{transform:rotate(16deg)}}
+.wuyi .pk{animation:spkstep 50s ease-in-out infinite alternate}
+@keyframes spkstep{from{transform:translateX(0)}to{transform:translateX(-26px)}}
+.wuyi .picker.p2 .pkbody{animation-delay:-2.2s}.wuyi .picker.p2 .pk{animation-delay:-17s}
+.wuyi .picker.p3 .pkbody{animation-delay:-4.1s;animation-duration:7.3s}.wuyi .picker.p3 .pk{animation-delay:-33s}
+.wuyi .sifter,.wuyi .porter{display:none}
+:root[data-moment="picking"][data-tod="day"]:not([data-weather="rain"]):not([data-weather="storm"]) .wuyi .sifter{display:inline}
+.wuyi .sieve{transform-box:fill-box;transform-origin:50% 80%;animation:ssieve 1.6s ease-in-out infinite}
+@keyframes ssieve{0%,100%{transform:rotate(0) translateY(0)}20%{transform:rotate(-9deg) translateY(-.6px)}45%{transform:rotate(7deg) translateY(.4px)}70%{transform:rotate(-3deg)}}
+.wuyi .toss{animation:stoss 1.6s ease-in-out infinite}
+@keyframes stoss{0%,15%,100%{transform:translateY(0)}35%{transform:translateY(-4px)}55%{transform:translateY(0)}}
+:root:is([data-moment="osmanthus"],[data-moment="frost"]):is([data-tod="day"],[data-tod="dawn"]):not([data-weather="rain"]):not([data-weather="storm"]) .wuyi .porter{display:inline}
+.wuyi .porter{transform:translate(560px,203px)}
+.wuyi .ptwalk{animation:sptwalk 75s linear infinite}
+@keyframes sptwalk{0%{transform:translate(0,0);opacity:0}4%{opacity:1}50%{transform:translate(360px,-12px)}96%{opacity:1}100%{transform:translate(360px,-12px);opacity:0}}
+.wuyi .ptbob{animation:sptbob .55s ease-in-out infinite alternate}
+@keyframes sptbob{from{transform:translateY(0)}to{transform:translateY(-1.2px)}}
+.wuyi .ptpole{transform-box:fill-box;transform-origin:50% 0;animation:sptpole .55s ease-in-out infinite alternate}
+@keyframes sptpole{from{transform:rotate(-3deg)}to{transform:rotate(3deg)}}
+.wuyi .rman{transform-box:fill-box;transform-origin:50% 100%;animation:srman 3.4s ease-in-out infinite}
+@keyframes srman{0%,100%{transform:rotate(0)}45%{transform:rotate(12deg)}}
+.wuyi .rpole{transform-box:fill-box;transform-origin:0 100%;animation:srpole 3.4s ease-in-out infinite}
+@keyframes srpole{0%,100%{transform:rotate(0)}45%{transform:rotate(-16deg) translateX(-3px)}}
 /* 端午 by day: two dragon boats racing down the Nine-Bend Stream, paddles flashing, the drummer at the bow; they
    race past, then come round again a little later */
 .wuyi .longzhou{display:none}
@@ -803,6 +832,8 @@ nav.chap{background:var(--page-top)}
   .wuyi .cloudsea{animation:none}
   .wuyi .hedeng circle{animation-duration:260s}
   .wuyi .lion-bob,.wuyi .lion-head,.wuyi .lion-rear,.wuyi .dseg,.wuyi .lzrock,.wuyi .lzpaddles path{animation:none}
+  .wuyi .pkbody,.wuyi .pkarm,.wuyi .pk,.wuyi .sieve,.wuyi .toss,.wuyi .ptbob,.wuyi .ptpole,.wuyi .rman,.wuyi .rpole{animation:none}
+  .wuyi .ptwalk{animation-duration:150s}
   .seasonfx i.gui,.seasonfx i.flake{animation:sfall calc(var(--dur,20s)*1.5) linear var(--dly,0s) infinite;--spin:0deg}
   .seasonfx i.star{animation:none;opacity:var(--op,.6)}
   .seasonfx i.fly{animation:sblink var(--blink,3s) ease-in-out var(--dly,0s) infinite}}
@@ -2748,7 +2779,8 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     d+=(x?"":`M0 ${y0.toFixed(1)}`)+`Q${x+12} ${((y0+y1)/2-9).toFixed(1)} ${x+24} ${y1.toFixed(1)}`;} return `<path d="${d}"/>`;};
   const rows=[204,217,230,243].map(rowPath).join("");
   const FAR="M0 260V170C30 160 50 150 70 150C95 150 100 120 110 95C118 70 150 65 160 90C170 115 172 140 190 150C220 160 250 150 270 140C285 132 290 80 300 60C312 35 345 32 355 60C365 88 362 130 380 140C410 155 450 150 480 145C500 140 505 110 515 100C528 88 550 90 558 105C566 120 570 140 600 145C640 150 680 130 700 120C712 110 715 60 728 45C742 30 770 32 778 55C788 80 785 118 805 130C840 148 880 140 910 135C930 130 935 95 948 85C962 75 985 80 990 100C996 120 1000 140 1030 145C1070 150 1100 140 1130 130C1150 125 1160 100 1172 95C1185 92 1195 105 1200 115V260Z";
-  const picker=`<path d="M371 197L380 189L389 197Z"/><path d="M380 197L379 211" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="386" cy="205" r="4"/>`;
+  const picker=`<g class="pk"><g class="pkbody"><path d="M371 197L380 189L389 197Z"/><path d="M380 197L379 211" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <path class="pkarm" d="M379.6 200.5L372.5 205" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></g><circle cx="386" cy="205" r="4"/></g>`;
   const land=document.createElement("div"); land.className="wuyi"; land.setAttribute("aria-hidden","true");
   land.innerHTML=`<svg viewBox="0 0 1200 260" preserveAspectRatio="xMidYMax slice" fill="currentColor">
     <defs><clipPath id="wycap"><path d="M0 0H1200V114C1100 120 1000 110 900 117C800 124 700 112 600 118C500 124 400 113 300 119C200 125 100 114 0 118Z"/></clipPath>
@@ -2762,14 +2794,20 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     <g class="frostrows" transform="translate(0,-3)">${rows}</g>
     <path class="creek" d="M0 236C90 228 170 246 260 242C350 238 400 230 480 238C560 246 640 236 760 248V253C640 244 560 252 480 245C400 238 350 247 260 249C170 252 90 236 0 245Z"/>
     <g class="fig picker">${picker}</g>
-    <g class="fig picker more" transform="translate(150,14)">${picker}</g>
-    <g class="fig picker more" transform="translate(280,6)">${picker}</g>
+    <g class="fig picker more p2" transform="translate(150,14)">${picker}</g>
+    <g class="fig picker more p3" transform="translate(280,6)">${picker}</g>
+    <g class="fig sifter"><circle cx="927" cy="179" r="2.6"/><path d="M927 182V193M927 185L921 184M927 185L933 184" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <g class="sieve"><ellipse cx="927" cy="183.5" rx="8.5" ry="1.9"/><g class="toss"><circle cx="923" cy="181.5" r=".9"/><circle cx="927" cy="180.8" r=".9"/><circle cx="930.5" cy="181.6" r=".9"/></g></g></g>
+    <g class="fig porter"><g class="ptwalk"><g class="ptbob"><circle cx="0" cy="-17" r="2.4"/><path d="M0 -14.5V-4M0 -4L-2.5 1M0 -4L2.5 1" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" fill="none"/>
+      <g class="ptpole"><path d="M-12 -14Q0 -16.5 12 -14" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M-11 -14V-9M11 -14V-9" stroke="currentColor" stroke-width=".7"/>
+        <path d="M-14.5 -9H-7.5L-8.5 -4H-13.5Z"/><path d="M7.5 -9H14.5L13.5 -4H8.5Z"/></g></g></g></g>
     <g class="fig trays"><ellipse cx="912" cy="191" rx="12" ry="2.6"/><ellipse cx="1018" cy="190" rx="12" ry="2.6"/><ellipse cx="1045" cy="192" rx="10" ry="2.3"/></g>
     <g class="fig">
       <path d="M938 170Q952 169 970 154Q988 169 1002 170L996 174H944Z"/><rect x="946" y="174" width="48" height="16"/><rect x="984" y="150" width="6" height="14"/>
       <rect class="raft" x="0" y="238" width="36" height="4" rx="2"/>
     </g>
-    <g class="fig raft"><circle cx="16" cy="224" r="3"/><path d="M16 227V238M28 240L42 210" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+    <g class="fig raft"><g class="rman"><circle cx="16" cy="224" r="3"/><path d="M16 227V238M16 230L24 228" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
+      <path class="rpole" d="M28 240L42 210" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
     <rect class="lamp" x="956" y="178" width="9" height="7" rx="1"/>
     <g class="lanterns"><path d="M950 174V177M990 174V177" stroke-width="1"/><ellipse cx="950" cy="181" rx="3.6" ry="4.6"/><ellipse cx="990" cy="181" rx="3.6" ry="4.6"/></g>
     <g class="lanternrow"><path d="M560 186Q640 176 720 184T880 172" fill="none" stroke-width=".8"/>${[[580,186],[620,182],[660,180],[700,183],[740,185],[780,182],[820,177],[860,174]].map(([x,y])=>`<ellipse cx="${x}" cy="${y+6}" rx="3" ry="3.8"/>`).join("")}</g>
