@@ -2,7 +2,7 @@
 
 Cha: 茶 (chá, tea) and 查 (chá, to look up). Live at https://jjah0001.github.io/cha/
 
-Builds `dist/cha.html`, a single self-contained page (map, profiles, timer, pairing, personality test, shelf).
+Builds `dist/cha.html`, a single self-contained page (map, profiles, timer, pairing, personality test, shelf, and an About 关于我们 tab explaining the site's aims, the Wuyi background and its sounds, with "See it" links that preview each scene).
 
 ## Build
 ```
