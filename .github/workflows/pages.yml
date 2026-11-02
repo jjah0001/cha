@@ -23,7 +23,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
           PAIR_PROXY_URL: ${{ vars.PAIR_PROXY_URL }}
       - run: npm run check:profiles
-      - run: mkdir -p site && cp dist/cha.html site/index.html && cp s2t.json site/s2t.json && cp -r icons site/icons && touch site/.nojekyll
+      - run: mkdir -p site && cp dist/cha.html site/index.html && cp s2t.json site/s2t.json && cp -r icons site/icons && cp -r img site/img && touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with: { path: site }
   deploy:

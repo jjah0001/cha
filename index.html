@@ -66,6 +66,40 @@ button{font:inherit;color:inherit}
 :root[data-theme="dark"][data-season="summer"]{--season-bg:#2E2311;--season-rule:#5A4420;--season-ink:#E8C786}
 :root[data-theme="dark"][data-season="autumn"]{--season-bg:#2E1A10;--season-rule:#5A2D1A;--season-ink:#E4A389}
 :root[data-theme="dark"][data-season="winter"]{--season-bg:#132231;--season-rule:#294258;--season-ink:#9FBFD8}
+/* 茶馆 · Tea house: the room, the tea master behind his counter, and the chat beside (below, on phones) */
+.th-wrap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;align-items:stretch}
+@media (max-width:880px){.th-wrap{grid-template-columns:minmax(0,1fr)}}
+.th-scene{position:relative;margin:0;align-self:start;width:100%;aspect-ratio:3/2;border-radius:12px;overflow:hidden;border:1px solid var(--rule);background:#DCE3D9}
+.th-room{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.th-man{position:absolute;left:50%;bottom:14.5%;width:45%;aspect-ratio:1;transform:translateX(-50%);animation:sbreathe 5s ease-in-out infinite}
+@keyframes sbreathe{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-0.6%)}}
+.th-man img{position:absolute;inset:0;width:100%;height:100%;transition:opacity .12s}
+.th-man .th-talk{opacity:0}
+.th-man.talking .th-idle{opacity:0}.th-man.talking .th-talk{opacity:1}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .th-scene img{filter:brightness(.8) saturate(.92)}}
+:root[data-theme="dark"] .th-scene img{filter:brightness(.8) saturate(.92)}
+.th-chat{display:flex;flex-direction:column;gap:10px;min-width:0;border:1px solid var(--rule);border-radius:12px;background:var(--card);padding:14px}
+.th-log{flex:1;min-height:240px;max-height:min(58vh,520px);overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:2px}
+@media (max-width:880px){.th-log{max-height:none;min-height:0}}
+.th-msg{display:flex;gap:10px;align-items:flex-start;max-width:100%}
+.th-msg .who{flex:none;width:34px;height:34px;border-radius:50%;overflow:hidden;border:1px solid var(--rule);background:#DCE3D9}
+.th-msg .who img{width:100%;height:auto;margin-top:-1px;transform:scale(2.3);transform-origin:50% 22%}
+.th-msg .say{background:var(--paper);border:1px solid var(--rule);border-radius:4px 14px 14px 14px;padding:9px 13px;line-height:1.55;font-size:15px;min-width:0;overflow-wrap:anywhere}
+.th-msg .say p{margin:0}.th-msg .say p+p{margin-top:8px}
+.th-msg.me{justify-content:flex-end}
+.th-msg.me .say{background:var(--ink);color:var(--paper);border-color:var(--ink);border-radius:14px 4px 14px 14px;max-width:85%}
+.th-msg.err .say{border-style:dashed;color:var(--ink-2)}
+.th-dots span{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:var(--ink-2);animation:sdot 1.2s ease-in-out infinite}
+.th-dots span:nth-child(2){animation-delay:.2s}.th-dots span:nth-child(3){animation-delay:.4s}
+@keyframes sdot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.th-chips{display:flex;flex-wrap:wrap;gap:6px}
+.th-chips button{border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer;text-align:left}
+.th-chips button:hover{border-color:var(--season-accent,var(--seal))}
+.th-form{display:flex;gap:8px}
+.th-form input{flex:1;min-width:0;border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:999px;padding:10px 16px;font:15px var(--f-body)}
+.th-form button:disabled,.th-form input:disabled{opacity:.55;cursor:default}
+.th-note{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.45}
+@media (prefers-reduced-motion:reduce){.th-man{animation:none}.th-dots span{animation:none;opacity:.6}}
 /* 关于我们 */
 .about{max-width:860px}
 .about h3{font:600 clamp(19px,2.4vw,23px)/1.3 var(--f-display);margin:34px 0 10px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -913,6 +947,7 @@ nav.chap{background:var(--page-top)}
   <a href="#shelf" data-view="shelf"><span class="han">柜</span>My shelf <span class="navcount" id="navcount"></span></a>
   <a href="#pairing" data-view="pairing"><span class="han">配</span>Pairing</a>
   <a href="#test" data-view="test"><span class="han">性</span>Tea personality</a>
+  <a href="#teahouse" data-view="teahouse"><span class="han">馆</span>Tea house</a>
   <a href="#about" data-view="about"><span class="han">关</span>About</a>
 </div></nav>
 
@@ -994,6 +1029,28 @@ nav.chap{background:var(--page-top)}
     <div class="quiz" id="quiz"></div>
   </section>
 
+  <section id="teahouse" class="teahouse" hidden>
+    <div class="sec-head"><h2>Tea house</h2><span class="han">茶馆</span>
+      <p>Step into a family tea house in the Wuyi Mountains, take a seat at the tea table, and ask the tea master anything about tea: what to try, how to brew it, where it comes from.</p></div>
+    <div class="th-wrap">
+      <figure class="th-scene" id="thScene">
+        <img class="th-room" src="img/teahouse.webp" alt="" width="1280" height="853" decoding="async">
+        <div class="th-man" id="thMan">
+          <img class="th-idle" src="img/tea-master.webp" alt="The tea master, an older man in a grey-green jacket, at a tea tray with a clay teapot and two celadon cups" width="760" height="760" decoding="async">
+          <img class="th-talk" src="img/tea-master-talk.webp" alt="" width="760" height="760" decoding="async" aria-hidden="true">
+        </div>
+      </figure>
+      <div class="th-chat">
+        <div class="th-log" id="thLog" role="log" aria-live="polite" aria-label="Conversation with the tea master"></div>
+        <div class="th-chips" id="thChips"></div>
+        <form class="th-form" id="thForm" autocomplete="off">
+          <input id="thIn" maxlength="500" placeholder="Ask the tea master…" aria-label="Your question for the tea master">
+          <button class="btn" id="thSend" type="submit">Ask</button>
+        </form>
+        <p class="th-note">The tea master is an AI character. He knows a lot about tea but can still be wrong, so check anything important. He answers in the language you write in. Your conversation isn’t saved.</p>
+      </div>
+    </div>
+  </section>
   <section id="about" class="about" hidden>
     <div class="sec-head"><h2>About Cha</h2><span class="han" lang="zh">关于我们</span></div>
     <p class="intro-lead">Cha is a guide to the teas of mainland China and Taiwan: where they grow, how they taste, how to brew them, what to eat with them, and which one suits you. You don’t need to know any Chinese to use it.</p>
@@ -1004,6 +1061,7 @@ nav.chap{background:var(--page-top)}
       <li><b>Only real teas.</b> Every tea here is confirmed by published sources, listed under “Sources and notes” at the foot of each page. Nothing is invented to fill a gap.</li>
       <li><b>For everyone.</b> Everything is explained in English, with the Chinese names alongside for when you shop or order. Chinese is written in two styles: simplified characters, used in mainland China, and traditional characters, used in Taiwan and Hong Kong. The 简/繁 switch at the top changes between them.</li>
       <li><b>Yours to keep.</b> Your shelf of teas stays in your own browser. Anyone can give a tea a star rating, without signing up.</li>
+      <li><b>A tea master to ask.</b> In the Tea house, an AI tea master from the Wuyi Mountains answers your questions about tea, in your own language.</li>
       <li><b>A tea for today.</b> Each day Cha suggests a tea that suits your season, and everyone in your half of the world gets the same one.</li>
     </ul>
 
@@ -2793,7 +2851,7 @@ function paintTOTD(){
 }
 
 /* ── views ── */
-const VIEWS=["colours","atlas","pairing","test","shelf","about"];
+const VIEWS=["colours","atlas","pairing","test","shelf","teahouse","about"];
 let view="colours";
 function go(v,push=true){
   if(!VIEWS.includes(v)) v="colours";
@@ -3239,4 +3297,84 @@ initReviews();
   pun.addEventListener("click",e=>{e.stopPropagation();pun.classList.toggle("open")});
   document.addEventListener("click",()=>pun.classList.remove("open"));
   pun.addEventListener("keydown",e=>{if(e.key==="Escape"){pun.classList.remove("open");pun.blur()}});}}
+
+/* ── 茶馆 · the tea master: an AI character, through the same Worker as the pairing (/chat). The persona prompt lives
+   in the Worker; the page sends the conversation, the visitor's country and the scene on the mountain right now. ── */
+(function(){
+  const log=$("thLog"), form=$("thForm"), inp=$("thIn"), send=$("thSend"), chips=$("thChips"), man=$("thMan");
+  if(!log||!form) return;
+  const chatUrl=PAIR_CFG.proxyUrl?String(PAIR_CFG.proxyUrl).replace(/\/pair\/?$/,"")+"/chat":null;
+  const still=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
+  /* where the visitor is: their time zone's country, else the region in their browser language, named in Chinese */
+  const TZC={"Australia/":"AU","Pacific/Auckland":"NZ","Pacific/Chatham":"NZ","Asia/Shanghai":"CN","Asia/Urumqi":"CN","Asia/Hong_Kong":"HK","Asia/Macau":"MO","Asia/Taipei":"TW",
+    "Asia/Singapore":"SG","Asia/Kuala_Lumpur":"MY","Asia/Kuching":"MY","Asia/Jakarta":"ID","Asia/Makassar":"ID","Asia/Jayapura":"ID","Asia/Pontianak":"ID","Asia/Bangkok":"TH",
+    "Asia/Ho_Chi_Minh":"VN","Asia/Manila":"PH","Asia/Tokyo":"JP","Asia/Seoul":"KR","Asia/Kolkata":"IN","Asia/Calcutta":"IN","Asia/Dubai":"AE","Asia/Karachi":"PK",
+    "Asia/Dhaka":"BD","Asia/Kathmandu":"NP","Asia/Colombo":"LK","Asia/Yangon":"MM","Asia/Phnom_Penh":"KH","Asia/Vientiane":"LA","Asia/Riyadh":"SA","Asia/Jerusalem":"IL",
+    "Asia/Tehran":"IR","Europe/London":"GB","Europe/Dublin":"IE","Europe/Paris":"FR","Europe/Berlin":"DE","Europe/Madrid":"ES","Europe/Rome":"IT","Europe/Amsterdam":"NL",
+    "Europe/Brussels":"BE","Europe/Zurich":"CH","Europe/Vienna":"AT","Europe/Stockholm":"SE","Europe/Oslo":"NO","Europe/Copenhagen":"DK","Europe/Helsinki":"FI",
+    "Europe/Warsaw":"PL","Europe/Prague":"CZ","Europe/Budapest":"HU","Europe/Lisbon":"PT","Europe/Athens":"GR","Europe/Istanbul":"TR","Europe/Moscow":"RU","Europe/Kiev":"UA","Europe/Kyiv":"UA",
+    "America/New_York":"US","America/Chicago":"US","America/Denver":"US","America/Phoenix":"US","America/Los_Angeles":"US","America/Anchorage":"US","Pacific/Honolulu":"US",
+    "America/Toronto":"CA","America/Vancouver":"CA","America/Edmonton":"CA","America/Winnipeg":"CA","America/Halifax":"CA","America/Mexico_City":"MX","America/Sao_Paulo":"BR",
+    "America/Argentina/Buenos_Aires":"AR","America/Buenos_Aires":"AR","America/Santiago":"CL","America/Lima":"PE","America/Bogota":"CO","Africa/Johannesburg":"ZA",
+    "Africa/Cairo":"EG","Africa/Lagos":"NG","Africa/Nairobi":"KE"};
+  const country=(()=>{let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
+    let cc=TZC[tz]||(tz.startsWith("Australia/")?"AU":"");
+    if(!cc){for(const l of (navigator.languages||[navigator.language||""])){const m=/-([A-Z]{2})\b/.exec(l||""); if(m){cc=m[1];break}}}
+    if(!cc) return "";
+    try{return new Intl.DisplayNames(["zh-Hans"],{type:"region"}).of(cc)||""}catch(e){return ""}})();
+  const scene=()=>{try{const S=sceneNow(), part=festPart(S);
+      return {season:S.season,moment:S.moment,tod:S.tod,fest:S.fest==="chunjie"?(part==="yuanxiao"?"yuanxiao":"chunjie"):(S.fest||"")}}catch(e){return {}}};
+  const msgs=[]; let busy=false;
+  const para=t=>esc(t).split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,"<br>")}</p>`).join("");
+  /* keep the newest words in view: inside the log on wide screens, on the page itself on phones where the log grows */
+  const follow=el=>{log.scrollTop=log.scrollHeight; if(log.scrollHeight<=log.clientHeight+2&&el){const r=el.getBoundingClientRect();
+      if(r.bottom>innerHeight-8) window.scrollBy({top:r.bottom-innerHeight+16,behavior:still()?"auto":"smooth"});}};
+  const add=(who,html,cls="")=>{const d=document.createElement("div"); d.className="th-msg "+(who==="me"?"me":"him")+(cls?" "+cls:"");
+    d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/tea-master.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
+    log.appendChild(d); follow(d); return d.querySelector(".say");};
+  /* the master speaks: the words appear over a few seconds while his mouth and hand move, then he settles */
+  let mouth=null;
+  const talk=on=>{clearInterval(mouth); man.classList.toggle("talking",false); if(!on||still()) return;
+    mouth=setInterval(()=>man.classList.toggle("talking",Math.random()<0.62),170+Math.random()*160);};
+  const speak=(el,text)=>new Promise(res=>{
+    if(still()){el.innerHTML=para(text); res(); return}
+    const dur=Math.min(7000,Math.max(1200,text.length*28)), t0=performance.now(); talk(true);
+    const step=now=>{const k=Math.min(1,(now-t0)/dur), n=Math.ceil(text.length*k); el.innerHTML=para(text.slice(0,n)); log.scrollTop=log.scrollHeight;
+      if(n%40===0) follow(el.parentElement);
+      if(k<1) requestAnimationFrame(step); else {talk(false); follow(el.parentElement); res();}};
+    requestAnimationFrame(step);});
+  /* his greeting, for this moment on the mountain */
+  const greet=()=>{const S=scene(), m=S.moment, f=S.fest;
+    const line={jingzhe:"Come in out of the drizzle, and mind the step.",qingming:"Come in out of the drizzle, and mind the step.",
+      picking:"Forgive the smell of fresh leaves everywhere: it's harvest time, and we work through the night.",meiyu:"Come in out of the rain, it hasn't stopped for days.",
+      storms:"It's hot out there, so let's start with something light.",osmanthus:"We're roasting tea this season. Can you smell the charcoal?",
+      frost:"There was frost on the tea rows this morning. Come in and warm up.",hearth:"Come and warm your hands by the stove.",
+      hanchao:"Come and warm your hands by the stove, it's bitter out.",snow:"Snow on the peaks! It hardly ever happens. Come in and get warm."}[m]||"";
+    const fl={chunjie:"Happy New Year! ",yuanxiao:"Happy Lantern Festival! ",zhongqiu:"Happy Mid-Autumn Festival! ",duanwu:"Happy Dragon Boat Festival! "}[f]||"";
+    return `欢迎光临! Welcome, welcome. ${fl}${line} Sit down, the kettle has just boiled. Ask me anything you like about tea: what to try, how to brew it, where it comes from.`;};
+  const CHIPS=["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","How do I brew tea gongfu style at home?","Which teas have the least caffeine?","What are you pouring for me now?"];
+  const showChips=()=>{chips.innerHTML=CHIPS.map(q=>`<button type="button">${esc(q)}</button>`).join("");
+    chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
+  const setBusy=b=>{busy=b; inp.disabled=b; send.disabled=b; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
+  async function ask(q){q=String(q||"").trim().slice(0,500); if(!q||busy) return;
+    chips.innerHTML=""; add("me",para(q)); msgs.push({role:"user",content:q}); inp.value="";
+    if(!chatUrl){add("him","The tea master isn’t available on this copy of the site.","err"); return}
+    setBusy(true); const say=add("him",`<span class="th-dots" aria-label="The tea master is thinking"><span></span><span></span><span></span></span>`);
+    try{const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),45000);
+      const r=await fetch(chatUrl,{method:"POST",headers:{"content-type":"application/json"},signal:ctl.signal,
+        body:JSON.stringify({messages:msgs.slice(-16),country,...scene()})}); clearTimeout(to);
+      if(r.status===429) throw {code:"rate"};
+      if(!r.ok) throw {code:"up"};
+      const d=await r.json(); const reply=String(d.reply||"").trim(); if(!reply) throw {code:"up"};
+      msgs.push({role:"assistant",content:reply}); await speak(say,reply);
+    }catch(e){msgs.pop(); say.parentElement.classList.add("err");
+      say.innerHTML=para(e&&e.code==="rate"?"The tea master is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, the tea master couldn’t be reached just now. Please try again in a moment.");}
+    setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
+  form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
+  /* greet the first time the tea house is opened */
+  let greeted=false;
+  const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; const el=add("him",""); speak(el,greet()).then(showChips);};
+  new MutationObserver(open).observe($("teahouse"),{attributes:true,attributeFilter:["hidden"]}); open();
+  if(!chatUrl){inp.placeholder="The tea master isn’t available on this copy of the site"; inp.disabled=true; send.disabled=true;}
+})();
 </script>

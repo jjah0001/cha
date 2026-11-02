@@ -2,7 +2,7 @@ name = "tea-pair"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 
-# Comma-separated origins that may call /pair. Leave empty to allow all.
+# Comma-separated origins that may call /pair and /chat. Leave empty to allow all.
 # Set this to the GitHub Pages URL once Pages is deployed.
 [vars]
 ALLOWED_ORIGINS = "https://jjah0001.github.io"
