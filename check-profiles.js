@@ -35,4 +35,4 @@ const {assess}=require('./caffeine');
 assert.match(assess({harvest:'March, buds only'}).note,/more caffeine/);
 assert.match(assess({harvest:'mature leaves'}).note,/less caffeine/);
 for(const type of ['green','white','yellow','oolong','red','dark'])assert.equal(assess({type}).level,null);
-console.log('All 2176 caffeine records audited: no unsupported category ranks or sleep-time recommendations.');
+console.log('All caffeine records audited: no unsupported category ranks or sleep-time recommendations.');

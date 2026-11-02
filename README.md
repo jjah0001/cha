@@ -170,6 +170,6 @@ The visible four-leaf display retains the original editorial style estimates at
 the user’s request; an expandable note distinguishes these from measurements. Explicit harvest descriptions can support qualitative leaf-maturity notes.
 This is a catalogue audit, not an exhaustive literature search for every tea.
 
-After `npm run build`, run `npm run check:profiles` to validate all 2,176 cards,
+After `npm run build`, run `npm run check:profiles` to validate all 2,179 cards,
 stable IDs, required fields and shared-template rendering. Existing catalogue
 and research checks remain available with `npm run check`.
