@@ -1031,7 +1031,7 @@ nav.chap{background:var(--page-top)}
 
   <section id="teahouse" class="teahouse" hidden>
     <div class="sec-head"><h2>Tea house</h2><span class="han">茶馆</span>
-      <p>Step into a family tea house in the Wuyi Mountains, take a seat at the tea table, and ask the tea master anything about tea: what to try, how to brew it, where it comes from.</p></div>
+      <p>Step into a family tea house in the Wuyi Mountains and take a seat at the tea table. Ask the tea master anything about tea, or simply chat with him over a cup: he is curious about where you come from.</p></div>
     <div class="th-wrap">
       <figure class="th-scene" id="thScene">
         <img class="th-room" src="img/teahouse.webp" alt="" width="1280" height="853" decoding="async">
@@ -1061,7 +1061,7 @@ nav.chap{background:var(--page-top)}
       <li><b>Only real teas.</b> Every tea here is confirmed by published sources, listed under “Sources and notes” at the foot of each page. Nothing is invented to fill a gap.</li>
       <li><b>For everyone.</b> Everything is explained in English, with the Chinese names alongside for when you shop or order. Chinese is written in two styles: simplified characters, used in mainland China, and traditional characters, used in Taiwan and Hong Kong. The 简/繁 switch at the top changes between them.</li>
       <li><b>Yours to keep.</b> Your shelf of teas stays in your own browser. Anyone can give a tea a star rating, without signing up.</li>
-      <li><b>A tea master to ask.</b> In the Tea house, an AI tea master from the Wuyi Mountains answers your questions about tea, in your own language.</li>
+      <li><b>A tea master to talk to.</b> In the Tea house, an AI tea master from the Wuyi Mountains answers your questions about tea in your own language, or simply keeps you company over a cup and asks about where you come from.</li>
       <li><b>A tea for today.</b> Each day Cha suggests a tea that suits your season, and everyone in your half of the world gets the same one.</li>
     </ul>
 
@@ -3320,8 +3320,9 @@ initReviews();
   const country=(()=>{let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
     let cc=TZC[tz]||(tz.startsWith("Australia/")?"AU":"");
     if(!cc){for(const l of (navigator.languages||[navigator.language||""])){const m=/-([A-Z]{2})\b/.exec(l||""); if(m){cc=m[1];break}}}
-    if(!cc) return "";
-    try{return new Intl.DisplayNames(["zh-Hans"],{type:"region"}).of(cc)||""}catch(e){return ""}})();
+    if(!cc) return {zh:"",en:""};
+    const nm=l=>{try{return new Intl.DisplayNames([l],{type:"region"}).of(cc)||""}catch(e){return ""}};
+    return {zh:nm("zh-Hans"),en:nm("en")};})();
   const scene=()=>{try{const S=sceneNow(), part=festPart(S);
       return {season:S.season,moment:S.moment,tod:S.tod,fest:S.fest==="chunjie"?(part==="yuanxiao"?"yuanxiao":"chunjie"):(S.fest||"")}}catch(e){return {}}};
   const msgs=[]; let busy=false;
@@ -3351,8 +3352,11 @@ initReviews();
       frost:"There was frost on the tea rows this morning. Come in and warm up.",hearth:"Come and warm your hands by the stove.",
       hanchao:"Come and warm your hands by the stove, it's bitter out.",snow:"Snow on the peaks! It hardly ever happens. Come in and get warm."}[m]||"";
     const fl={chunjie:"Happy New Year! ",yuanxiao:"Happy Lantern Festival! ",zhongqiu:"Happy Mid-Autumn Festival! ",duanwu:"Happy Dragon Boat Festival! "}[f]||"";
-    return `欢迎光临! Welcome, welcome. ${fl}${line} Sit down, the kettle has just boiled. Ask me anything you like about tea: what to try, how to brew it, where it comes from.`;};
-  const CHIPS=["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","How do I brew tea gongfu style at home?","Which teas have the least caffeine?","What are you pouring for me now?"];
+    /* "the United States", "the United Kingdom", "the Netherlands"… read better with "the" */
+    const the=/^(United|Netherlands|Philippines|Czech)/.test(country.en)?"the ":"";
+    const from=country.en&&country.en!=="China"?`All the way from ${the}${country.en}? `:"";
+    return `欢迎光临! Welcome, welcome. ${from}${fl}${line} Sit down, the kettle has just boiled. Ask me anything you like about tea, or just tell me about yourself. I don’t get many visitors from far away.`;};
+  const CHIPS=["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","How do I brew tea gongfu style at home?","What are you pouring for me now?","What's life like up here on the mountain?"];
   const showChips=()=>{chips.innerHTML=CHIPS.map(q=>`<button type="button">${esc(q)}</button>`).join("");
     chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
   const setBusy=b=>{busy=b; inp.disabled=b; send.disabled=b; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
@@ -3362,7 +3366,7 @@ initReviews();
     setBusy(true); const say=add("him",`<span class="th-dots" aria-label="The tea master is thinking"><span></span><span></span><span></span></span>`);
     try{const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),45000);
       const r=await fetch(chatUrl,{method:"POST",headers:{"content-type":"application/json"},signal:ctl.signal,
-        body:JSON.stringify({messages:msgs.slice(-16),country,...scene()})}); clearTimeout(to);
+        body:JSON.stringify({messages:msgs.slice(-16),country:country.zh,...scene()})}); clearTimeout(to);
       if(r.status===429) throw {code:"rate"};
       if(!r.ok) throw {code:"up"};
       const d=await r.json(); const reply=String(d.reply||"").trim(); if(!reply) throw {code:"up"};
