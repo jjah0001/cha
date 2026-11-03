@@ -3346,6 +3346,15 @@ initReviews();
     return {zh:nm("zh-Hans"),en:nm("en")};})();
   const scene=()=>{try{const S=sceneNow(), part=festPart(S);
       return {season:S.season,moment:S.moment,tod:S.tod,fest:S.fest==="chunjie"?(part==="yuanxiao"?"yuanxiao":"chunjie"):(S.fest||"")}}catch(e){return {}}};
+  /* the guest's own season and local time (from the real date, even when a season is being previewed) */
+  const guest=()=>{const d=new Date(), N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"],
+      F={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"}, n=N[d.getMonth()];
+    return {guestHemi:SC.south?"south":"north",guestSeason:SC.south?F[n]:n,guestTime:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};};
+  /* stage directions like *nods* or (smiles) are taken out of what he says; if one is about pouring, he pours instead */
+  const tidy=t=>{let acts="";
+    const out=String(t).replace(/\*([^*\n]{1,120})\*|（([^）\n]{1,40})）/g,(m,a,b)=>{acts+=" "+(a||b); return "";})
+      .replace(/\*+/g,"").replace(/[ \t]{2,}/g," ").replace(/ +([,.!?;:，。！？])/g,"$1").replace(/\n[ \t]+/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+    return {text:out||String(t).replace(/\*+/g,"").trim(),pours:/pour|refill|top[s]? up|倒|斟|续/i.test(acts)};};
   const msgs=[]; let busy=false;
   const para=t=>esc(t).split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,"<br>")}</p>`).join("");
   /* keep the newest words in view: inside the log on wide screens, on the page itself on phones where the log grows */
@@ -3391,13 +3400,14 @@ initReviews();
     setBusy(true); const say=add("him",`<span class="th-dots" aria-label="Master Lin is thinking"><span></span><span></span><span></span></span>`);
     try{const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),45000);
       const r=await fetch(chatUrl,{method:"POST",headers:{"content-type":"application/json"},signal:ctl.signal,
-        body:JSON.stringify({messages:msgs.slice(-16),country:country.zh,...scene()})}); clearTimeout(to);
+        body:JSON.stringify({messages:msgs.slice(-16),country:country.zh,...scene(),...guest()})}); clearTimeout(to);
       if(r.status===429) throw {code:"rate"};
       if(!r.ok) throw {code:"up"};
-      const d=await r.json(); const reply=String(d.reply||"").trim(); if(!reply) throw {code:"up"};
+      const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
+      const T=tidy(raw), reply=T.text;
       msgs.push({role:"assistant",content:reply});
       /* if he offers a cup or says he's pouring, he pours before he speaks */
-      if(/\b(pour|pouring|refill|top (you )?up|another cup|have a (cup|sip)|try this|taste this)\b|倒|斟|续|喝一杯|尝尝|来一杯|請喝|请喝/i.test(reply)&&Date.now()-lastPour>8000){say.innerHTML="";await pour(2400);}
+      if((T.pours||/\b(pour|pouring|refill|top (you )?up|another cup|have a (cup|sip)|try this|taste this)\b|倒|斟|续|喝一杯|尝尝|来一杯|請喝|请喝/i.test(reply))&&Date.now()-lastPour>8000){say.innerHTML="";await pour(2400);}
       await speak(say,reply);
     }catch(e){msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
