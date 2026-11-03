@@ -3355,8 +3355,9 @@ initReviews();
     /* "the United States", "the United Kingdom", "the Netherlands"… read better with "the" */
     const the=/^(United|Netherlands|Philippines|Czech)/.test(country.en)?"the ":"";
     const from=country.en&&country.en!=="China"?`All the way from ${the}${country.en}? `:"";
-    return `欢迎光临! Welcome, welcome. ${from}${fl}${line} I’m Lin Qingquan, but everyone here calls me Master Lin (林师傅). Sit down, the kettle has just boiled. Ask me anything you like about tea, or just tell me about yourself. I don’t get many visitors from far away.`;};
-  const CHIPS=["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","How do I brew tea gongfu style at home?","What are you pouring for me now?","What's life like up here on the mountain?"];
+    const far=from?" I don’t often get guests from so far away.":"";
+    return `欢迎光临！Welcome, welcome. ${from}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled. Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
+  const CHIPS=["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
   const showChips=()=>{chips.innerHTML=CHIPS.map(q=>`<button type="button">${esc(q)}</button>`).join("");
     chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
   const setBusy=b=>{busy=b; inp.disabled=b; send.disabled=b; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
