@@ -76,8 +76,16 @@ button{font:inherit;color:inherit}
 .th-man img{position:absolute;inset:0;width:100%;height:100%;transition:opacity .12s}
 .th-man .th-talk{opacity:0}
 .th-man.talking .th-idle{opacity:0}.th-man.talking .th-talk{opacity:1}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .th-scene img{filter:brightness(.8) saturate(.92)}}
-:root[data-theme="dark"] .th-scene img{filter:brightness(.8) saturate(.92)}
+/* pouring a cup takes over from any other pose */
+.th-man .th-pour{opacity:0;transition:opacity .35s}
+.th-man.pouring .th-idle,.th-man.pouring .th-talk{opacity:0}.th-man.pouring .th-pour{opacity:1}
+/* after dark the lantern-lit room fades in, and Master Lin takes on its warm light */
+.th-room.th-night{opacity:0;transition:opacity 2.5s}
+:root[data-tod="night"] .th-room.th-night{opacity:1}
+.th-man img{transition:opacity .12s,filter 2.5s}
+:root[data-tod="night"] .th-man img{filter:brightness(.9) sepia(.22) saturate(1.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-tod="night"]) .th-scene img{filter:brightness(.8) saturate(.92)}}
+:root[data-theme="dark"]:not([data-tod="night"]) .th-scene img{filter:brightness(.8) saturate(.92)}
 .th-chat{display:flex;flex-direction:column;gap:10px;min-width:0;border:1px solid var(--rule);border-radius:12px;background:var(--card);padding:14px}
 .th-log{flex:1;min-height:240px;max-height:min(58vh,520px);overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:2px}
 @media (max-width:880px){.th-log{max-height:none;min-height:0}}
@@ -1036,9 +1044,11 @@ nav.chap{background:var(--page-top)}
     <div class="th-wrap">
       <figure class="th-scene" id="thScene">
         <img class="th-room" src="img/teahouse.webp" alt="" width="1280" height="853" decoding="async">
+        <img class="th-room th-night" src="img/teahouse-night.webp" alt="" width="1280" height="853" decoding="async" loading="lazy">
         <div class="th-man" id="thMan">
           <img class="th-idle" src="img/tea-master.webp" alt="Master Lin, the tea master, an older man in a grey-green jacket, at a tea tray with a clay teapot and two celadon cups" width="760" height="760" decoding="async">
           <img class="th-talk" src="img/tea-master-talk.webp" alt="" width="760" height="760" decoding="async" aria-hidden="true">
+          <img class="th-pour" src="img/tea-master-pour.webp" alt="" width="760" height="760" decoding="async" aria-hidden="true">
         </div>
       </figure>
       <div class="th-chat">
@@ -3346,7 +3356,10 @@ initReviews();
     log.appendChild(d); follow(d); return d.querySelector(".say");};
   /* the master speaks: the words appear over a few seconds while his mouth and hand move, then he settles */
   let mouth=null;
-  const talk=on=>{clearInterval(mouth); man.classList.toggle("talking",false); if(!on||still()) return;
+  /* he pours a cup: a couple of seconds holding the pouring pose (just a moment's still frame with reduced motion) */
+  let speaking=false, lastPour=0;
+  const pour=ms=>new Promise(res=>{lastPour=Date.now(); man.classList.add("pouring"); setTimeout(()=>{man.classList.remove("pouring"); setTimeout(res,still()?0:250);},still()?900:ms);});
+  const talk=on=>{clearInterval(mouth); man.classList.toggle("talking",false); speaking=!!on; if(!on||still()) return;
     mouth=setInterval(()=>man.classList.toggle("talking",Math.random()<0.62),170+Math.random()*160);};
   const speak=(el,text)=>new Promise(res=>{
     if(still()){el.innerHTML=para(text); res(); return}
@@ -3382,14 +3395,22 @@ initReviews();
       if(r.status===429) throw {code:"rate"};
       if(!r.ok) throw {code:"up"};
       const d=await r.json(); const reply=String(d.reply||"").trim(); if(!reply) throw {code:"up"};
-      msgs.push({role:"assistant",content:reply}); await speak(say,reply);
+      msgs.push({role:"assistant",content:reply});
+      /* if he offers a cup or says he's pouring, he pours before he speaks */
+      if(/\b(pour|pouring|refill|top (you )?up|another cup|have a (cup|sip)|try this|taste this)\b|倒|斟|续|喝一杯|尝尝|来一杯|請喝|请喝/i.test(reply)&&Date.now()-lastPour>8000){say.innerHTML="";await pour(2400);}
+      await speak(say,reply);
     }catch(e){msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
     setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
   /* greet the first time the tea house is opened */
   let greeted=false;
-  const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; const el=add("him",""); speak(el,greet()).then(showChips);};
+  /* the first time you come in, he pours you a cup and then greets you */
+  const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; const el=add("him",`<span class="th-dots" aria-hidden="true"><span></span><span></span><span></span></span>`);
+    pour(2600).then(()=>speak(el,greet())).then(showChips);};
+  /* when it's quiet he tops up the cups now and then */
+  setInterval(()=>{if(!greeted||busy||speaking||$("teahouse").hidden||document.hidden) return;
+    if(Date.now()-lastPour>(70+Math.random()*60)*1000) pour(2800);},10000);
   new MutationObserver(open).observe($("teahouse"),{attributes:true,attributeFilter:["hidden"]}); open();
   if(!chatUrl){inp.placeholder="Master Lin isn’t available on this copy of the site"; inp.disabled=true; send.disabled=true;}
 })();

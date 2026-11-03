@@ -134,8 +134,9 @@ For a local build with ratings, create `config.json` (git-ignored) with `{"supab
 
 ## Tea house (茶馆)
 
-The Tea house tab seats the visitor at the counter of Master Lin (林清泉, 林师傅), a Wuyi tea master (`img/teahouse.webp`, `img/tea-master.webp`,
-`img/tea-master-talk.webp`) to chat with him. He is an AI character served by the same Worker as the pairing search,
+The Tea house tab seats the visitor at the counter of Master Lin (林清泉, 林师傅), a Wuyi tea master (`img/teahouse.webp`, by night `img/teahouse-night.webp`;
+poses `img/tea-master.webp`, `img/tea-master-talk.webp`, `img/tea-master-pour.webp`). He pours a cup when you come in,
+when his reply offers one, and now and then when it's quiet to chat with him. He is an AI character served by the same Worker as the pairing search,
 on a second route, `POST /chat`; the Chinese persona prompt (你是武夷山最优秀的茶师之一…) lives in `worker/worker.js`,
 so the page can't use the key for anything else. The page sends the last 16 turns, the visitor's country (from their
 time zone, named in Chinese) and the scene on the mountain (season, solar-term moment, time of day, festival). Without
