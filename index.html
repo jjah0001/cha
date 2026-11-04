@@ -3465,12 +3465,12 @@ initReviews();
       const r=await fetch(chatUrl,{method:"POST",headers:{"content-type":"application/json"},signal:ctl.signal,
         body:JSON.stringify({messages:msgs.slice(-16),country:country.zh,...scene(),...guest()})}); clearTimeout(to);
       if(r.status===429) throw {code:"rate"};
-      if(!r.ok) throw {code:"up"};
+      if(!r.ok){let why="";try{why=(await r.json()).error||""}catch(e){} console.warn("Master Lin: chat failed",r.status,why); throw {code:"up"};}
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
       const T=tidy(raw), reply=T.text;
       msgs.push({role:"assistant",content:reply});
       await speak(say,reply,d.movements);
-    }catch(e){msgs.pop(); say.parentElement.classList.add("err");
+    }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
     setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});

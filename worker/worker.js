@@ -64,7 +64,8 @@ If the input is not a food or drink, reply {"picks":[],"tip":"Name a dish or ing
 
     if (!upstream.ok) {
       const detail = (await upstream.text()).slice(0, 500);
-      return json({ error: "upstream", status: upstream.status, detail }, 502, okOrigin);
+      console.log("pair upstream error", upstream.status, detail);
+      return json({ error: "upstream", status: upstream.status }, 502, okOrigin);
     }
     const data = await upstream.json();
     const text = data?.content?.[0]?.text || "";
@@ -116,6 +117,36 @@ function teaMasterPrompt(b) {
 - 你是网站 Cha 里一位虚构的茶师，由 AI 扮演。如果旅客真诚地问你是不是真人或 AI，要如实说你是 AI。`;
 }
 
+const MOVEMENT_RULES = `\n\nYou answer as a JSON object: "reply" is what you say out loud (the persona rules above apply to it; no stage directions), and "movements" are the gestures you make while saying it. Choose movements yourself in response to the guest and what you say. Gestures: talking (explaining or chatting), pouring (brewing or refilling), offering (inviting the guest to taste), idle (listening or a quiet pause). Give 1–4 cues in time order; the first has at 0. Each "at" is a fraction of the answer's playback, from 0 up to but not including 1. Space cues apart so each gesture has time to read; to serve tea, pour and then offer.`;
+const CHAT_SCHEMA = {
+  type: "object",
+  properties: {
+    reply: { type: "string" },
+    movements: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { gesture: { type: "string", enum: ["talking", "pouring", "offering", "idle"] }, at: { type: "number" } },
+        required: ["gesture", "at"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["reply", "movements"],
+  additionalProperties: false,
+};
+
+/* Read {reply, movements}; if the model ever answers in plain text anyway, keep the words and let him just talk. */
+function parseChat(text) {
+  if (!text) return null;
+  const tries = [text, text.replace(/^```(?:json)?\s*|\s*```$/g, ""), (text.match(/\{[\s\S]*\}/) || [""])[0]];
+  for (const t of tries) {
+    try { const r = JSON.parse(t); if (r && typeof r.reply === "string" && r.reply.trim()) return r; } catch {}
+  }
+  if (/^\s*[{\[]/.test(text)) return null;
+  return { reply: text, movements: [{ gesture: "talking", at: 0 }] };
+}
+
 async function chat(req, env, body, okOrigin) {
   const raw = Array.isArray(body?.messages) ? body.messages.slice(-16) : [];
   const messages = raw
@@ -131,20 +162,31 @@ async function chat(req, env, body, okOrigin) {
     if (!success) return json({ error: "rate_limited" }, 429, okOrigin);
   }
 
+  /* Structured outputs make Claude return exactly {reply, movements}. Without them the model saw its earlier turns as
+     plain text in the history, copied that style on the second turn, the JSON parse failed and every later message
+     came back as "couldn't be reached". */
   const upstream = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 600, system: teaMasterPrompt(body) + `\n\nReturn only a JSON object with this shape: {"reply":"your spoken answer","movements":[{"gesture":"talking","at":0}]}. The persona rules above apply to reply. Choose movements yourself in response to the guest and what you say. Allowed gestures: talking (explaining or chatting), pouring (brewing or refilling), offering (inviting the guest to taste), idle (listening or a quiet pause). Supply 1–4 cues in chronological order, starting at 0. Each at is a fraction from 0 inclusive to 1 exclusive of the answer playback. Space cues apart so gestures have time to read. For serving tea, you can pour and then offer during the answer. Do not include stage directions in reply.`, messages }),
+    body: JSON.stringify({
+      model: env.ANTHROPIC_MODEL || "claude-haiku-4-5",
+      max_tokens: 1024,
+      system: teaMasterPrompt(body) + MOVEMENT_RULES,
+      messages,
+      output_config: { format: { type: "json_schema", schema: CHAT_SCHEMA } },
+    }),
   });
   if (!upstream.ok) {
     const detail = (await upstream.text()).slice(0, 500);
-    return json({ error: "upstream", status: upstream.status, detail }, 502, okOrigin);
+    console.log("chat upstream error", upstream.status, detail);
+    return json({ error: "upstream", status: upstream.status }, 502, okOrigin);
   }
   const data = await upstream.json();
+  if (data?.stop_reason === "refusal") return json({ error: "refusal" }, 502, okOrigin);
   const text = (data?.content || []).filter(c => c.type === "text").map(c => c.text).join("").trim();
-  let result;
-  try { result = JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch {}
-  if (!result || typeof result.reply !== "string" || !result.reply.trim()) {
+  const result = parseChat(text);
+  if (!result) {
+    console.log("chat invalid_response", data?.stop_reason, text.slice(0, 300));
     return json({ error: "invalid_response" }, 502, okOrigin);
   }
   const allowed = new Set(["talking", "pouring", "offering", "idle"]);
