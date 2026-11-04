@@ -74,14 +74,11 @@ button{font:inherit;color:inherit}
 .th-room{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease,filter 2s ease}
 .th-room.is-visible{opacity:1}
 .th-man{position:absolute;left:50%;bottom:12%;width:49%;aspect-ratio:1;transform:translateX(-50%)}
-/* Every frame (idle included) shares the idle frame's still pixels, so only the moving part changes. The new frame
-   fades in on top of the one he is leaving, which stays fully drawn underneath until the new one is in, and is
-   then taken away in one step. Only one frame is left showing, so nothing shows through where an arm has moved
-   away (a pose is transparent there). Blinks cut, mouth shapes swap fast. */
+/* One frame is drawn at a time and poses change with a cut, like held drawings in limited animation. No crossfade:
+   while two frames overlap, the one being left shows through wherever the other is transparent (an arm that has
+   moved away), which reads as a third hand. */
 .th-man img{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:filter 2s ease}
-.th-man img.on{opacity:1;transition:opacity .22s ease,filter 2s ease}
-.th-man .th-blink.on{transition:filter 2s ease}
-.th-man .th-talk-a.on,.th-man .th-talk-b.on{transition:opacity .1s linear,filter 2s ease}
+.th-man img.on{opacity:1}
 :root:is([data-tod="dusk"],[data-tod="night"]) .th-man img{filter:brightness(.84) sepia(.2) saturate(1.08)}
 :root[data-tod="dawn"] .th-room{filter:brightness(.9) sepia(.08)}
 .th-steam{position:absolute;left:35%;bottom:30%;width:5%;height:14%;pointer-events:none;opacity:.4}
@@ -3382,13 +3379,15 @@ initReviews();
   const quiet=()=>still()||document.hidden||$("teahouse").hidden;
   /* His frames: the idle drawing is always there; show() puts at most one pose over it ("" shows plain idle). */
   const frames={}; man.querySelectorAll("img[data-pose]").forEach(i=>{frames[i.dataset.pose]=i;});
-  let shown="", resting="", acting=0, layer=1, settle=0;
-  /* the new frame goes on top and fades in (cutting back from a blink); once it is fully in,
-     every other frame is switched off. A frame that hasn't loaded yet is skipped and idle stays. */
-  const show=name=>{if(quiet()||!frames[name]||!frames[name].complete) name=""; if(name===shown) return;
-    const f=frames[name], cut=shown==="blink"; shown=name; f.style.zIndex=++layer;
-    f.style.transition=cut?"filter 2s ease":""; f.classList.add("on"); clearTimeout(settle);
-    settle=setTimeout(()=>{for(const k in frames) if(frames[k]!==f) frames[k].classList.remove("on");},280);};
+  let shown="", resting="", acting=0;
+  /* a cut: the old frame off and the new one on in the same paint. A frame that hasn't loaded and decoded yet is
+     skipped and he stays as he is, so a cut never shows an empty stage. */
+  const ready=new Set([""]);
+  for(const k in frames){const i=frames[k]; if(!k) continue;
+    const go=()=>i.decode().then(()=>ready.add(k),()=>{if(i.naturalWidth) ready.add(k);});
+    if(i.complete&&i.naturalWidth) go(); else i.addEventListener("load",go,{once:true});}
+  const show=name=>{if(quiet()||!frames[name]||!ready.has(name)) name=""; if(name===shown) return;
+    frames[shown].classList.remove("on"); frames[name].classList.add("on"); shown=name;};
   /* between replies he either rests or, while the guest is typing or he is thinking, listens */
   const rest=()=>{if(!acting) show(resting);};
   const listen=on=>{resting=on?"listen":""; rest();};
