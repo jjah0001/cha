@@ -104,7 +104,7 @@ function teaMasterPrompt(b) {
 - 只写你说出口的话。不要写动作或神态描写，不要用星号、括号写动作（例如 *点点头*、*pours tea*、（笑））。想表达动作就直接说出来，例如“来，我再给你倒一杯”。
 - 旅客可能完全不懂中文，也不了解中国文化。提到中文名词时，先用他听得懂的话说明，再附上中文名称和拼音，例如 “rock tea (岩茶, yánchá)”。
 - 可以聊茶的种类、产地、历史、做法、冲泡、品饮、茶具、茶俗，聊武夷山的风土，聊你茶店和茶山的日常。
-- 推荐茶的时候，按旅客的口味和问题挑最合适的，可以是中国任何地方、任何茶类的茶，不要只推荐福建茶或岩茶。你店里也备着各地的好茶，可以泡给他喝。适合的时候，可以一边说一边为他倒一杯茶，或请他闻闻香。
+- 推荐茶的时候，按旅客的口味和问题挑最合适的，可以是中国任何地方、任何茶类的茶，不要只推荐福建茶或岩茶。你店里也备着各地的好茶，可以泡给他喝。你一直在给他泡茶：大约每两三轮，就顺口说一句给他添茶、换一泡新茶，或请他尝一口、闻闻香（例如 “Let me pour you another cup.”、“Here, taste this.”、“来，我再给你倒一杯。”、“你尝尝。”）。
 - 你不只是讲解茶的人，也是一位好客、好奇的主人。旅客想闲聊就陪他闲聊：家常、旅途、吃的、天气、他的工作和生活，都可以聊。认真听他说，记住他说过的话，像老朋友一样陪着他。
 - 你对远方的国家很好奇。偶尔（不是每次）自然地反问他一两个问题：他的国家那边喝不喝茶、怎么喝，吃什么，现在是什么季节，他家乡是什么样子；听完可以和武夷山的生活比一比，或者顺着他的喜好推荐一杯茶。不要连珠炮似的发问，一次最多问一个问题。
 - 只说你有把握的事实。不确定的就老实说不确定，绝不编造茶名、年份、人物、数字或传说的出处。
@@ -132,11 +132,11 @@ async function chat(req, env, body, okOrigin) {
     if (!success) return json({ error: "rate_limited" }, 429, okOrigin);
   }
 
-  /* Claude only speaks: a plain-text reply, no JSON to parse. The page chooses his gestures from what he says. */
+  /* Plain text only: Claude writes what Master Lin says, and the page picks his gestures from those words. */
   const upstream = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 1024, system: teaMasterPrompt(body), messages }),
+    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 600, system: teaMasterPrompt(body), messages }),
   });
   if (!upstream.ok) {
     const detail = (await upstream.text()).slice(0, 500);
@@ -144,16 +144,12 @@ async function chat(req, env, body, okOrigin) {
     return json({ error: "upstream", status: upstream.status }, 502, okOrigin);
   }
   const data = await upstream.json();
-  const last = messages[messages.length - 1].content;
+  const zh = /[\u4e00-\u9fff]/.test(messages[messages.length - 1].content);
   /* If Claude declines (e.g. a threat or abuse), he stays in character and steers back to tea instead of an error. */
   if (data?.stop_reason === "refusal") {
-    const zh = /[\u4e00-\u9fff]/.test(last);
     return json({ reply: zh ? "哎，这话我就不接了。来，先喝口茶，消消气，我们聊点别的吧。" : "Ah, I'll leave that one alone. Here, have some tea and let's talk about something else." }, 200, okOrigin);
   }
-  const reply = (data?.content || []).filter(c => c.type === "text").map(c => c.text).join("").trim();
-  if (!reply) {
-    console.log("chat empty reply", data?.stop_reason);
-    return json({ error: "empty_reply" }, 502, okOrigin);
-  }
-  return json({ reply }, 200, okOrigin);
+  const reply = (data?.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
+  if (!reply) console.log("chat empty reply", data?.stop_reason);
+  return json({ reply: reply || (zh ? "嗯……来，先喝口茶。" : "Hmm… here, have some tea first.") }, 200, okOrigin);
 }

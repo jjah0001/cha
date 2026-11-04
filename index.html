@@ -3425,19 +3425,20 @@ initReviews();
   const add=(who,html,cls="")=>{const d=document.createElement("div"); d.className="th-msg "+(who==="me"?"me":"him")+(cls?" "+cls:"");
     d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/tea-master-v2.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
     log.appendChild(d); follow(d); return d.querySelector(".say");};
-  /* His gestures follow what he says: talk of brewing or pouring → he pours; inviting the guest to taste or smell →
-     he offers the cup; otherwise he talks. One playback clock keeps them in time with the words. */
-  const gestures=new Set(["talking","pouring","offering","idle"]);
-  const POUR=/\b(pour|pouring|brew|brewing|refill|top (?:you |it )?up|steep|another (?:cup|round|infusion))\b|泡茶|泡一|泡上|泡给|倒茶|倒一|倒杯|倒上|斟|续杯|续水|续一|沏/i;
-  const OFFER=/\b((?:have a )?taste (?:it|this)|have a taste|try (?:this|it|some|a sip)|(?:have|take) a sip|smell (?:it|this|the)|here you (?:go|are))\b|尝尝|尝一|闻闻|闻一|请喝|请用|喝喝看|喝一口|您请/i;
-  const movesFor=(text,poured)=>{const pour=poured||POUR.test(text), offer=OFFER.test(text);
-    if(pour&&offer) return [{gesture:"pouring",at:0},{gesture:"offering",at:.55}];
-    if(pour) return [{gesture:"talking",at:0},{gesture:"pouring",at:.35}];
-    if(offer) return [{gesture:"talking",at:0},{gesture:"offering",at:.6}];
-    return [{gesture:"talking",at:0}];};
+  /* His gestures follow his words, not the AI: when he says he's pouring or brewing he pours, when he invites the
+     guest to taste he offers the cup, otherwise he talks. Cues sit where those words fall in the answer. */
+  const POUR=/\b(pour(s|ed|ing)?|brew(s|ed|ing)?|refill(s|ed|ing)?|steep(s|ed|ing)?|top (you )?up|another cup|fresh cup|a cup for you)\b|倒(一|杯|茶|上|满|点|给)|泡(茶|一|上|杯|壶|了|好)|冲(泡|一|了)|斟|续(杯|茶|上|一)|添(茶|一|点|上)|再来一杯/gi;
+  const OFFER=/\b(taste|try (this|it|some|one)|(take|have) a sip|sip|smell|here you (go|are)|for you|have some|enjoy|this cup)\b|尝|喝一口|喝口|请(喝|用|品)|闻(闻|一闻|一下)|你试试|品一品|这杯/gi;
+  const cuesFor=text=>{const L=Math.max(1,text.length), hits=[];
+    for(const [re,g] of [[POUR,"pouring"],[OFFER,"offering"]]){re.lastIndex=0; let m; while((m=re.exec(text))) hits.push({gesture:g,at:m.index/L});}
+    hits.sort((a,b)=>a.at-b.at);
+    /* a moment of talking first, then at most three gestures, spaced so each one reads */
+    const seq=[{gesture:"talking",at:0}];
+    for(const h of hits){const last=seq[seq.length-1]; if(h.gesture===last.gesture) continue;
+      const at=Math.min(0.9,Math.max(h.at-0.08,last.at+0.18)); if(seq.length<4&&at<1) seq.push({gesture:h.gesture,at});}
+    return seq;};
   const speak=(el,text,cues)=>new Promise(res=>{
-    const sequence=Array.isArray(cues)?cues.filter(c=>c&&gestures.has(c.gesture)&&Number.isFinite(c.at)&&c.at>=0&&c.at<1).slice(0,4).sort((a,b)=>a.at-b.at):[];
-    if(!sequence.length) sequence.push({gesture:"talking",at:0});
+    const sequence=cues||cuesFor(text);
     if(still()){pose("");el.innerHTML=para(text);res();return;}
     const dur=Math.min(12000,Math.max(2400,text.length*35)), t0=performance.now();
     const step=now=>{const k=Math.min(1,(now-t0)/dur), n=Math.ceil(text.length*k);
@@ -3477,7 +3478,7 @@ initReviews();
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
       const T=tidy(raw), reply=T.text;
       msgs.push({role:"assistant",content:reply});
-      await speak(say,reply,movesFor(reply,T.pours));
+      await speak(say,reply);
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
     setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}

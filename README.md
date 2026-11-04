@@ -141,9 +141,8 @@ on a second route, `POST /chat`; the Chinese persona prompt (你是武夷山最�
 so the page can't use the key for anything else. The page sends the last 16 turns, the visitor's country (from their
 time zone, named in Chinese) and the scene on the mountain (season, solar-term moment, time of day, festival). Without
 `PAIR_PROXY_URL` the tab shows the room and his greeting but says the tea master isn't available.
-Claude only writes what he says; `/chat` returns plain text `{reply}`, so there is no JSON to break. The page picks
-his gestures from the words: talk of brewing or pouring makes him pour, inviting the guest to taste or smell makes him
-offer the cup, otherwise he talks. If Claude declines a message he stays in character and changes the subject.
+His gestures come from his words, not from the AI: `/chat` returns plain text, and the page has him pour when he
+says he is pouring or brewing, offer the cup when he invites the guest to taste or smell, and talk otherwise.
 Failures are logged in the Worker (`npx wrangler tail`) and in the browser console.
 After changing the Worker, redeploy it: `cd worker && npx wrangler deploy`. Pushing to `main` only rebuilds the page;
 the Worker is not deployed by the Pages workflow.
