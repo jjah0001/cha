@@ -138,8 +138,8 @@ The Tea house tab seats the visitor at the counter of Master Lin (林清泉, 林
 His frames are in `img/master-lin/` (900×900 WebP): `idle`, `blink`, `listen`, two mouth shapes for talking (`talk-a`,
 `talk-b`), `pour` (pot into the fairness pitcher), `serve` (pitcher into the cups), `brew` (kettle over the pot),
 `offer` (a cup in both hands), `smell`, `laugh` and `welcome`. Every frame shares the idle frame's still pixels (tray,
-lower jacket, the hand he isn't using), so the page keeps idle underneath and fades one pose in on top without the
-tray "swimming". The artist's raw frames were composited onto idle this way before export; to add a frame, do the same.
+lower jacket, the hand he isn't using), so the tray never "swims". Exactly one frame is drawn at a time and poses
+change with a cut: a crossfade would let the frame being left show through where an arm has moved away. The artist's raw frames were composited onto idle this way before export; to add a frame, do the same.
 He welcomes you with open hands, blinks every few seconds, listens while you type and while he thinks, alternates
 mouth shapes while his words appear, and acts out what he says (see "His gestures" below).
 `img/tea-master*.webp`, `img/teahouse.webp` and `img/teahouse-night.webp` are earlier artwork and are no longer
