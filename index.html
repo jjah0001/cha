@@ -74,10 +74,12 @@ button{font:inherit;color:inherit}
 .th-room{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease,filter 2s ease}
 .th-room.is-visible{opacity:1}
 .th-man{position:absolute;left:50%;bottom:12%;width:49%;aspect-ratio:1;transform:translateX(-50%)}
-.th-man img{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .4s ease,filter 2s ease}
-.th-man .th-idle{opacity:1}
-.th-man.talking .th-idle,.th-man.pouring .th-idle,.th-man.offering .th-idle{opacity:0}
-.th-man.talking .th-talk,.th-man.pouring .th-pour,.th-man.offering .th-offer{opacity:1}
+/* Every pose shares the idle frame's still pixels (tray, jacket, background), so only the moving part changes:
+   the idle frame stays underneath and one pose at a time fades in on top. Blinks cut, mouth shapes swap fast. */
+.th-man img{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .22s ease,filter 2s ease}
+.th-man .th-idle,.th-man img.on{opacity:1}
+.th-man .th-blink{transition:filter 2s ease}
+.th-man .th-talk-a,.th-man .th-talk-b{transition:opacity .1s linear,filter 2s ease}
 :root:is([data-tod="dusk"],[data-tod="night"]) .th-man img{filter:brightness(.84) sepia(.2) saturate(1.08)}
 :root[data-tod="dawn"] .th-room{filter:brightness(.9) sepia(.08)}
 .th-steam{position:absolute;left:35%;bottom:30%;width:5%;height:14%;pointer-events:none;opacity:.4}
@@ -1072,10 +1074,18 @@ nav.chap{background:var(--page-top)}
         <img class="th-room is-visible" src="img/teahouse-spring.webp" alt="" width="1536" height="1024" decoding="async">
         <img class="th-room" alt="" width="1536" height="1024" decoding="async">
         <div class="th-man" id="thMan">
-          <img class="th-idle" src="img/tea-master-v2.webp" alt="Master Lin at a complete gongfu tea tray: Yixing teapot, fairness pitcher and strainer, three celadon cups, kettle, tea tools and cloth" width="1254" height="1254" decoding="async">
-          <img class="th-talk" src="img/tea-master-talk-v2.webp" alt="" width="1254" height="1254" decoding="async" aria-hidden="true">
-          <img class="th-pour" src="img/tea-master-pour-v2.webp" alt="" width="1254" height="1254" decoding="async" aria-hidden="true">
-          <img class="th-offer" src="img/tea-master-offer.webp" alt="" width="1254" height="1254" decoding="async" aria-hidden="true">
+          <img class="th-idle" src="img/master-lin/idle.webp" alt="Master Lin at a complete gongfu tea tray: Yixing teapot, fairness pitcher and strainer, three celadon cups, kettle, tea tools and cloth" width="900" height="900" decoding="async">
+          <img class="th-blink" data-pose="blink" src="img/master-lin/blink.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-listen" data-pose="listen" src="img/master-lin/listen.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-talk-a" data-pose="talk-a" src="img/master-lin/talk-a.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-talk-b" data-pose="talk-b" src="img/master-lin/talk-b.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-pour" data-pose="pour" src="img/master-lin/pour.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-serve" data-pose="serve" src="img/master-lin/serve.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-brew" data-pose="brew" src="img/master-lin/brew.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-offer" data-pose="offer" src="img/master-lin/offer.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-smell" data-pose="smell" src="img/master-lin/smell.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-laugh" data-pose="laugh" src="img/master-lin/laugh.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-welcome" data-pose="welcome" src="img/master-lin/welcome.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
         </div>
         <div class="th-steam" aria-hidden="true"><i></i><i></i></div>
       </figure>
@@ -3368,10 +3378,25 @@ initReviews();
   const still=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
   const stage=$("thScene");
   const quiet=()=>still()||document.hidden||$("teahouse").hidden;
-  const pose=name=>{man.classList.remove("talking","pouring","offering"); if(name&&!quiet()) man.classList.add(name);};
+  /* His frames: the idle drawing is always there; show() puts at most one pose over it ("" shows plain idle). */
+  const frames={}; man.querySelectorAll("img[data-pose]").forEach(i=>{frames[i.dataset.pose]=i;});
+  let shown="", resting="", acting=0;
+  const show=name=>{if(quiet()||!frames[name]) name=""; if(name===shown) return;
+    if(shown) frames[shown].classList.remove("on"); shown=name; if(name) frames[name].classList.add("on");};
+  /* between replies he either rests or, while the guest is typing or he is thinking, listens */
+  const rest=()=>{if(!acting) show(resting);};
+  const listen=on=>{resting=on?"listen":""; rest();};
+  const stop=()=>{acting=0; rest();};
+  /* he blinks every few seconds while resting, now and then twice; the blink frame only fits the idle head */
+  const blink=()=>{setTimeout(()=>{
+      if(!acting&&shown===""&&!quiet()){show("blink");
+        setTimeout(()=>{if(shown==="blink") show("");
+          if(Math.random()<.2) setTimeout(()=>{if(!acting&&shown===""){show("blink"); setTimeout(()=>{if(shown==="blink") show("")},110);}},150);},120);}
+      blink();},2600+Math.random()*3800);};
+  blink();
   const motionPreference=matchMedia("(prefers-reduced-motion: reduce)");
-  motionPreference.addEventListener("change",()=>{if(still()) pose("");});
-  document.addEventListener("visibilitychange",()=>{if(document.hidden) pose("");});
+  motionPreference.addEventListener("change",()=>{if(still()) stop();});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden) show(""); else rest();});
   /* Load only the current season/time; decode first and ignore stale loads. */
   const rooms=[...stage.querySelectorAll(".th-room")]; let roomKey="", roomRequest=0, roomFront=0;
   async function updateRoom(){
@@ -3423,29 +3448,47 @@ initReviews();
   const follow=el=>{log.scrollTop=log.scrollHeight; if(log.scrollHeight<=log.clientHeight+2&&el){const r=el.getBoundingClientRect();
       if(r.bottom>innerHeight-8) window.scrollBy({top:r.bottom-innerHeight+16,behavior:still()?"auto":"smooth"});}};
   const add=(who,html,cls="")=>{const d=document.createElement("div"); d.className="th-msg "+(who==="me"?"me":"him")+(cls?" "+cls:"");
-    d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/tea-master-v2.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
+    d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/master-lin/idle.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
     log.appendChild(d); follow(d); return d.querySelector(".say");};
-  /* His gestures follow his words, not the AI: when he says he's pouring or brewing he pours, when he invites the
-     guest to taste he offers the cup, otherwise he talks. Cues sit where those words fall in the answer. */
-  const POUR=/\b(pour(s|ed|ing)?|brew(s|ed|ing)?|refill(s|ed|ing)?|steep(s|ed|ing)?|top (you )?up|another cup|fresh cup|a cup for you)\b|倒(一|杯|茶|上|满|点|给)|泡(茶|一|上|杯|壶|了|好)|冲(泡|一|了)|斟|续(杯|茶|上|一)|添(茶|一|点|上)|再来一杯/gi;
-  const OFFER=/\b(taste|try (this|it|some|one)|(take|have) a sip|sip|smell|here you (go|are)|for you|have some|enjoy|this cup)\b|尝|喝一口|喝口|请(喝|用|品)|闻(闻|一闻|一下)|你试试|品一品|这杯/gi;
+  /* His gestures follow his words, not the AI: each one starts just before he says the words it belongs to.
+     serve: pitcher into the guest's cup · pour: pot into the fairness pitcher · brew: kettle over the pot
+     offer: a cup held out in both hands · smell: the cup under his nose · laugh · welcome: open palms */
+  const GESTURES=[
+    ["serve",/\b(pour (you|yours?|us|a|another|some|more)|refill(s|ed|ing)?|top (you |it |that )?up|another cup|fresh cup|a cup for you|fill (your|the|our) cups?)\b|倒(一|杯|茶|上|满|点|给)|斟|续(杯|茶|上|一)|添(茶|一|点|上)|再来一杯|分茶/gi],
+    ["pour",/\b(decant(s|ed|ing)?|pour(s|ed|ing)? (it |the tea )?off|fairness pitcher|into the pitcher)\b|出汤|公道杯/gi],
+    ["brew",/\b(brew(s|ed|ing)?|steep(s|ed|ing)?|infusions?|fresh pot|new pot|hot water|kettle|boil(s|ed|ing)?|rinse|warm (up )?the (pot|cups))\b|泡(茶|一|上|杯|壶|了|好)|冲(泡|一|了)|烧水|开水|温杯|洗茶|醒茶|换一泡|新的一泡/gi],
+    ["offer",/\b(taste (this|it|that|some)|have a taste|try (this|it|some|one)|(take|have) a sip|here you (go|are)|have some|enjoy|this cup|drink up)\b|尝|喝一口|喝口|请(喝|用|品)|你试试|品一品|这杯/gi],
+    ["smell",/\b(smell(s|ed|ing)?|aromas?|fragran(t|ce)|scents?|sniff)\b|闻|香气|香味|茶香/gi],
+    ["laugh",/\b(ha(ha)+|he(he)+|lol|laugh(s|ed|ing)?|funny|joking)\b|\bha!|哈哈|呵呵|嘿嘿|[😄😂😆]/giu],
+    ["welcome",/\b(welcome|come in|take a seat|sit,? sit|nice to meet you|goodbye|see you|come back (any ?time|soon)|safe travels)\b|欢迎|请坐|坐坐|慢走|再见|下次再来/gi]];
+  const HOLD={serve:2100,pour:2100,brew:2000,offer:1900,smell:1800,laugh:1300,welcome:1700};
   const cuesFor=text=>{const L=Math.max(1,text.length), hits=[];
-    for(const [re,g] of [[POUR,"pouring"],[OFFER,"offering"]]){re.lastIndex=0; let m; while((m=re.exec(text))) hits.push({gesture:g,at:m.index/L});}
-    hits.sort((a,b)=>a.at-b.at);
-    /* a moment of talking first, then at most three gestures, spaced so each one reads */
-    const seq=[{gesture:"talking",at:0}];
-    for(const h of hits){const last=seq[seq.length-1]; if(h.gesture===last.gesture) continue;
-      const at=Math.min(0.9,Math.max(h.at-0.08,last.at+0.18)); if(seq.length<4&&at<1) seq.push({gesture:h.gesture,at});}
-    return seq;};
+    for(const [g,re] of GESTURES){re.lastIndex=0; let m; while((m=re.exec(text))) hits.push({gesture:g,at:Math.max(0,m.index/L-0.04)});}
+    return hits.sort((a,b)=>a.at-b.at);};
+  /* fractions of the typing time become a timeline: at most three gestures, each once and held long enough to
+     read, with a beat of talking between them so he never jumps straight from one action to the next; the last
+     one may land just after his final words ("Here, taste this." ends with the cup held out) */
+  const plan=(cues,dur)=>{const out=[];
+    for(const c of cues){const last=out[out.length-1]; if(out.some(o=>o.g===c.gesture)) continue;
+      const start=Math.max(c.at*dur,last?last.end+450:0); if(start>dur+400||out.length>=3) break;
+      out.push({g:c.gesture,start,end:start+HOLD[c.gesture]});}
+    return out;};
+  /* He talks while the words appear, his mouth swapping between two shapes, and acts out each cue in turn;
+     a gesture that starts near the end is finished after the last word. */
   const speak=(el,text,cues)=>new Promise(res=>{
     const sequence=cues||cuesFor(text);
-    if(still()){pose("");el.innerHTML=para(text);res();return;}
-    const dur=Math.min(12000,Math.max(2400,text.length*35)), t0=performance.now();
-    const step=now=>{const k=Math.min(1,(now-t0)/dur), n=Math.ceil(text.length*k);
-      const cue=sequence.filter(c=>c.at<=k).pop();
-      pose(cue&&cue.gesture!=="idle"?cue.gesture:"");
-      el.innerHTML=para(text.slice(0,n)); log.scrollTop=log.scrollHeight;
-      if(k<1) requestAnimationFrame(step); else {pose("");follow(el.parentElement);res();}};
+    if(still()){stop();el.innerHTML=para(text);res();return;}
+    const dur=Math.min(12000,Math.max(2400,text.length*35)), t0=performance.now(), tl=plan(sequence,dur),
+      end=Math.max(dur,tl.length?tl[tl.length-1].end:0), run=++acting;
+    let mouth=0, flip=0, done=false;
+    const step=now=>{if(run!==acting){if(!done){done=true; el.innerHTML=para(text); follow(el.parentElement); res();} return;}
+      const t=now-t0, k=Math.min(1,t/dur), g=tl.find(c=>t>=c.start&&t<c.end);
+      if(g) show(g.g);
+      else if(t<dur){if(now>=flip){mouth^=1; flip=now+(mouth?260+Math.random()*420:380+Math.random()*640);} show(mouth?"talk-a":"talk-b");}
+      else show("");
+      if(!done){el.innerHTML=para(text.slice(0,Math.ceil(text.length*k))); log.scrollTop=log.scrollHeight;
+        if(k>=1){done=true; follow(el.parentElement); res();}}
+      if(t<end) requestAnimationFrame(step); else stop();};
     requestAnimationFrame(step);
   });
   /* his greeting, for this moment on the mountain */
@@ -3466,7 +3509,7 @@ initReviews();
     chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
   const setBusy=b=>{busy=b; inp.disabled=b||!chatUrl; send.disabled=b||!chatUrl; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
   async function ask(q){q=String(q||"").trim().slice(0,500); if(!q||busy) return;
-    pose("");
+    stop(); listen(true);
     chips.innerHTML=""; add("me",para(q)); msgs.push({role:"user",content:q}); inp.value="";
     if(!chatUrl){add("him","Master Lin isn’t available on this copy of the site.","err"); return}
     setBusy(true); const say=add("him",`<span class="th-dots" aria-label="Master Lin is thinking"><span></span><span></span><span></span></span>`);
@@ -3480,17 +3523,21 @@ initReviews();
       msgs.push({role:"assistant",content:reply});
       /* if two replies in a row had no pouring or tasting in them, he tops up the guest's cup while he talks */
       const cues=cuesFor(reply);
-      if(cues.length>1) plainRun=0; else if(++plainRun>=2){cues.push({gesture:"pouring",at:.45},{gesture:"talking",at:.75}); plainRun=0;}
-      await speak(say,reply,cues);
+      if(cues.some(c=>c.gesture==="serve"||c.gesture==="pour"||c.gesture==="brew"||c.gesture==="offer")) plainRun=0;
+      else if(++plainRun>=2){cues.push({gesture:"serve",at:.45}); cues.sort((a,b)=>a.at-b.at); plainRun=0;}
+      resting=""; await speak(say,reply,cues);
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
-    setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
+    listen(false); setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
+  /* he looks up and listens while the guest is typing */
+  inp.addEventListener("input",()=>{if(!busy) listen(inp.value.trim()!=="");});
+  inp.addEventListener("blur",()=>{if(!busy) listen(false);});
   /* greet the first time the tea house is opened */
   let greeted=false;
-  /* Welcome the guest while offering a cup. */
+  /* He welcomes the guest with open hands, then acts out whatever his greeting mentions (the kettle, a cup). */
   const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; setBusy(true); const el=add("him",`<span class="th-dots" aria-hidden="true"><span></span><span></span><span></span></span>`);
-    speak(el,greet(),[{gesture:"offering",at:0},{gesture:"talking",at:0.4}]).then(()=>{setBusy(false); showChips();});};
+    (t=>speak(el,t,[{gesture:"welcome",at:0},...cuesFor(t)]))(greet()).then(()=>{setBusy(false); showChips();});};
   new MutationObserver(open).observe($("teahouse"),{attributes:true,attributeFilter:["hidden"]}); open();
   if(!chatUrl){inp.placeholder="Master Lin isn’t available on this copy of the site"; inp.disabled=true; send.disabled=true;}
 })();
