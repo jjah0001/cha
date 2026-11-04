@@ -3417,7 +3417,7 @@ initReviews();
     const out=String(t).replace(/\*([^*\n]{1,120})\*|（([^）\n]{1,40})）/g,(m,a,b)=>{acts+=" "+(a||b); return "";})
       .replace(/\*+/g,"").replace(/[ \t]{2,}/g," ").replace(/ +([,.!?;:，。！？])/g,"$1").replace(/\n[ \t]+/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
     return {text:out||String(t).replace(/\*+/g,"").trim(),pours:/pour|refill|top[s]? up|倒|斟|续/i.test(acts)};};
-  const msgs=[]; let busy=false;
+  const msgs=[]; let busy=false, plainRun=0;
   const para=t=>esc(t).split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,"<br>")}</p>`).join("");
   /* keep the newest words in view: inside the log on wide screens, on the page itself on phones where the log grows */
   const follow=el=>{log.scrollTop=log.scrollHeight; if(log.scrollHeight<=log.clientHeight+2&&el){const r=el.getBoundingClientRect();
@@ -3478,7 +3478,10 @@ initReviews();
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
       const T=tidy(raw), reply=T.text;
       msgs.push({role:"assistant",content:reply});
-      await speak(say,reply);
+      /* if two replies in a row had no pouring or tasting in them, he tops up the guest's cup while he talks */
+      const cues=cuesFor(reply);
+      if(cues.length>1) plainRun=0; else if(++plainRun>=2){cues.push({gesture:"pouring",at:.45},{gesture:"talking",at:.75}); plainRun=0;}
+      await speak(say,reply,cues);
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
     setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
