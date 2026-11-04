@@ -74,10 +74,13 @@ button{font:inherit;color:inherit}
 .th-room{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease,filter 2s ease}
 .th-room.is-visible{opacity:1}
 .th-man{position:absolute;left:50%;bottom:12%;width:49%;aspect-ratio:1;transform:translateX(-50%)}
-/* Every pose shares the idle frame's still pixels (tray, jacket, background), so only the moving part changes:
-   the idle frame stays underneath and one pose at a time fades in on top. Blinks cut, mouth shapes swap fast. */
+/* Every pose shares the idle frame's still pixels (tray, jacket), so only the moving part changes. The idle frame
+   stays underneath while a pose fades in on top, then drops out once the pose is fully in: where an arm has moved
+   away, the pose is transparent, and idle's resting hand must not show through it. Blinks cut, mouths swap fast. */
 .th-man img{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .22s ease,filter 2s ease}
-.th-man .th-idle,.th-man img.on{opacity:1}
+.th-man img.on{opacity:1}
+.th-man .th-idle{opacity:1;transition:filter 2s ease}
+.th-man.posed .th-idle{opacity:0;transition:opacity 0s linear .24s,filter 2s ease}
 .th-man .th-blink{transition:filter 2s ease}
 .th-man .th-talk-a,.th-man .th-talk-b{transition:opacity .1s linear,filter 2s ease}
 :root:is([data-tod="dusk"],[data-tod="night"]) .th-man img{filter:brightness(.84) sepia(.2) saturate(1.08)}
@@ -3382,7 +3385,9 @@ initReviews();
   const frames={}; man.querySelectorAll("img[data-pose]").forEach(i=>{frames[i.dataset.pose]=i;});
   let shown="", resting="", acting=0;
   const show=name=>{if(quiet()||!frames[name]) name=""; if(name===shown) return;
-    if(shown) frames[shown].classList.remove("on"); shown=name; if(name) frames[name].classList.add("on");};
+    if(shown) frames[shown].classList.remove("on"); man.classList.remove("posed"); shown=name;
+    /* idle comes back at once under the change, and leaves again after the new pose has faded in (not for a blink) */
+    if(name){frames[name].classList.add("on"); if(name!=="blink"){void man.offsetWidth; man.classList.add("posed");}}};
   /* between replies he either rests or, while the guest is typing or he is thinking, listens */
   const rest=()=>{if(!acting) show(resting);};
   const listen=on=>{resting=on?"listen":""; rest();};
