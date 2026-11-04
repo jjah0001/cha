@@ -3427,8 +3427,8 @@ initReviews();
     log.appendChild(d); follow(d); return d.querySelector(".say");};
   /* His gestures follow his words, not the AI: when he says he's pouring or brewing he pours, when he invites the
      guest to taste he offers the cup, otherwise he talks. Cues sit where those words fall in the answer. */
-  const POUR=/\b(pour(s|ing)?|brew(s|ing)?|refill(ing)?|steep(s|ing)?|top (you )?up|another cup|fresh cup|a cup for you)\b|倒(一|杯|茶|上|满|点)|泡(茶|一|上|杯|壶)|冲(泡|一)|斟|续(杯|茶|上|一)|再来一杯/gi;
-  const OFFER=/\b(taste|try (this|it|some|one)|(take|have) a sip|sip|smell|here you (go|are)|for you|have some|enjoy)\b|尝|喝一口|喝口|请(喝|用|品)|闻(闻|一闻|一下)|你试试|品一品/gi;
+  const POUR=/\b(pour(s|ed|ing)?|brew(s|ed|ing)?|refill(s|ed|ing)?|steep(s|ed|ing)?|top (you )?up|another cup|fresh cup|a cup for you)\b|倒(一|杯|茶|上|满|点|给)|泡(茶|一|上|杯|壶|了|好)|冲(泡|一|了)|斟|续(杯|茶|上|一)|添(茶|一|点|上)|再来一杯/gi;
+  const OFFER=/\b(taste|try (this|it|some|one)|(take|have) a sip|sip|smell|here you (go|are)|for you|have some|enjoy|this cup)\b|尝|喝一口|喝口|请(喝|用|品)|闻(闻|一闻|一下)|你试试|品一品|这杯/gi;
   const cuesFor=text=>{const L=Math.max(1,text.length), hits=[];
     for(const [re,g] of [[POUR,"pouring"],[OFFER,"offering"]]){re.lastIndex=0; let m; while((m=re.exec(text))) hits.push({gesture:g,at:m.index/L});}
     hits.sort((a,b)=>a.at-b.at);
