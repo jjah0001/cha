@@ -134,14 +134,22 @@ For a local build with ratings, create `config.json` (git-ignored) with `{"supab
 
 ## Tea house (茶馆)
 
-The Tea house tab seats the visitor at the counter of Master Lin (林清泉, 林师傅), a Wuyi tea master (`img/teahouse.webp`, by night `img/teahouse-night.webp`;
-poses `img/tea-master.webp`, `img/tea-master-talk.webp`, `img/tea-master-pour.webp`). He pours a cup when you come in,
-when his reply offers one, and now and then when it's quiet to chat with him. He is an AI character served by the same Worker as the pairing search,
+The Tea house tab seats the visitor at the counter of Master Lin (林清泉, 林师傅), a Wuyi tea master, in a room that follows the visitor's season and time of day (`img/teahouse-<season>[-night].webp`).
+He has four poses: listening (`img/tea-master-v2.webp`), explaining (`img/tea-master-talk-v2.webp`), pouring into the
+fairness pitcher (`img/tea-master-pour-v2.webp`) and offering a cup (`img/tea-master-offer.webp`). He offers a cup when
+you come in, pours or offers when his reply says so, and tops up your cup if two replies in a row had neither.
+`img/tea-master.webp`, `img/tea-master-talk.webp`, `img/tea-master-pour.webp`, `img/teahouse.webp` and
+`img/teahouse-night.webp` are the original artwork the current set was made from (see `img/ART-DIRECTION.md`); their
+tea tray differs, so they are not mixed in. He is an AI character served by the same Worker as the pairing search,
 on a second route, `POST /chat`; the Chinese persona prompt (你是武夷山最优秀的茶师之一…) lives in `worker/worker.js`,
 so the page can't use the key for anything else. The page sends the last 16 turns, the visitor's country (from their
 time zone, named in Chinese) and the scene on the mountain (season, solar-term moment, time of day, festival). Without
 `PAIR_PROXY_URL` the tab shows the room and his greeting but says the tea master isn't available.
-After changing the Worker, redeploy it: `cd worker && npx wrangler deploy`.
+His gestures come from his words, not from the AI: `/chat` returns plain text, and the page has him pour when he
+says he is pouring or brewing, offer the cup when he invites the guest to taste or smell, and talk otherwise.
+Failures are logged in the Worker (`npx wrangler tail`) and in the browser console.
+After changing the Worker, redeploy it: `cd worker && npx wrangler deploy`. Pushing to `main` only rebuilds the page;
+the Worker is not deployed by the Pages workflow.
 
 ## Pairing search on the public site
 
