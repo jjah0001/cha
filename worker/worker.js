@@ -1,6 +1,6 @@
 // Tea pairing proxy for the GitHub Pages build.
 // POST /pair { food, catalogue } -> { picks:[{id,why}], tip } | { error }
-// POST /chat { messages:[{role,content}], country, season, moment, tod, fest } -> { reply, movements } | { error }
+// POST /chat { messages:[{role,content}], country, season, moment, tod, fest } -> { reply } | { error }
 //   The tea master (茶师) in the Tea house tab. The persona prompt lives here, not in the page, so the key can't be
 //   used for anything else; the page only sends the conversation and a few short scene words.
 // Per-IP rate limited via env.PAIR_RL (Cloudflare rate-limit binding).
@@ -117,36 +117,6 @@ function teaMasterPrompt(b) {
 - 你是网站 Cha 里一位虚构的茶师，由 AI 扮演。如果旅客真诚地问你是不是真人或 AI，要如实说你是 AI。`;
 }
 
-const MOVEMENT_RULES = `\n\nYou answer as a JSON object: "reply" is what you say out loud (the persona rules above apply to it; no stage directions), and "movements" are the gestures you make while saying it. Choose movements yourself in response to the guest and what you say. Gestures: talking (explaining or chatting), pouring (brewing or refilling), offering (inviting the guest to taste), idle (listening or a quiet pause). Give 1–4 cues in time order; the first has at 0. Each "at" is a fraction of the answer's playback, from 0 up to but not including 1. Space cues apart so each gesture has time to read; to serve tea, pour and then offer.`;
-const CHAT_SCHEMA = {
-  type: "object",
-  properties: {
-    reply: { type: "string" },
-    movements: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: { gesture: { type: "string", enum: ["talking", "pouring", "offering", "idle"] }, at: { type: "number" } },
-        required: ["gesture", "at"],
-        additionalProperties: false,
-      },
-    },
-  },
-  required: ["reply", "movements"],
-  additionalProperties: false,
-};
-
-/* Read {reply, movements}; if the model ever answers in plain text anyway, keep the words and let him just talk. */
-function parseChat(text) {
-  if (!text) return null;
-  const tries = [text, text.replace(/^```(?:json)?\s*|\s*```$/g, ""), (text.match(/\{[\s\S]*\}/) || [""])[0]];
-  for (const t of tries) {
-    try { const r = JSON.parse(t); if (r && typeof r.reply === "string" && r.reply.trim()) return r; } catch {}
-  }
-  if (/^\s*[{\[]/.test(text)) return null;
-  return { reply: text, movements: [{ gesture: "talking", at: 0 }] };
-}
-
 async function chat(req, env, body, okOrigin) {
   const raw = Array.isArray(body?.messages) ? body.messages.slice(-16) : [];
   const messages = raw
@@ -162,19 +132,11 @@ async function chat(req, env, body, okOrigin) {
     if (!success) return json({ error: "rate_limited" }, 429, okOrigin);
   }
 
-  /* Structured outputs make Claude return exactly {reply, movements}. Without them the model saw its earlier turns as
-     plain text in the history, copied that style on the second turn, the JSON parse failed and every later message
-     came back as "couldn't be reached". */
+  /* Plain text only: Claude writes what Master Lin says, and the page picks his gestures from those words. */
   const upstream = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({
-      model: env.ANTHROPIC_MODEL || "claude-haiku-4-5",
-      max_tokens: 1024,
-      system: teaMasterPrompt(body) + MOVEMENT_RULES,
-      messages,
-      output_config: { format: { type: "json_schema", schema: CHAT_SCHEMA } },
-    }),
+    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 600, system: teaMasterPrompt(body), messages }),
   });
   if (!upstream.ok) {
     const detail = (await upstream.text()).slice(0, 500);
@@ -182,22 +144,12 @@ async function chat(req, env, body, okOrigin) {
     return json({ error: "upstream", status: upstream.status }, 502, okOrigin);
   }
   const data = await upstream.json();
+  const zh = /[\u4e00-\u9fff]/.test(messages[messages.length - 1].content);
   /* If Claude declines (e.g. a threat or abuse), he stays in character and steers back to tea instead of an error. */
   if (data?.stop_reason === "refusal") {
-    const zh = /[\u4e00-\u9fff]/.test(messages[messages.length - 1].content);
-    const reply = zh ? "哎，这话我就不接了。来，先喝口茶，消消气，我们聊点别的吧。" : "Ah, I'll leave that one alone. Here, have some tea and let's talk about something else.";
-    return json({ reply, movements: [{ gesture: "pouring", at: 0 }, { gesture: "offering", at: 0.5 }] }, 200, okOrigin);
+    return json({ reply: zh ? "哎，这话我就不接了。来，先喝口茶，消消气，我们聊点别的吧。" : "Ah, I'll leave that one alone. Here, have some tea and let's talk about something else." }, 200, okOrigin);
   }
-  const text = (data?.content || []).filter(c => c.type === "text").map(c => c.text).join("").trim();
-  const result = parseChat(text);
-  if (!result) {
-    console.log("chat invalid_response", data?.stop_reason, text.slice(0, 300));
-    return json({ error: "invalid_response" }, 502, okOrigin);
-  }
-  const allowed = new Set(["talking", "pouring", "offering", "idle"]);
-  const movements = (Array.isArray(result.movements) ? result.movements : [])
-    .filter(c => c && allowed.has(c.gesture) && Number.isFinite(c.at) && c.at >= 0 && c.at < 1)
-    .slice(0, 4).map(c => ({ gesture: c.gesture, at: c.at })).sort((a, b) => a.at - b.at);
-  if (!movements.length) movements.push({ gesture: "talking", at: 0 });
-  return json({ reply: result.reply.trim(), movements }, 200, okOrigin);
+  const reply = (data?.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
+  if (!reply) console.log("chat empty reply", data?.stop_reason);
+  return json({ reply: reply || (zh ? "嗯……来，先喝口茶。" : "Hmm… here, have some tea first.") }, 200, okOrigin);
 }
