@@ -3425,8 +3425,16 @@ initReviews();
   const add=(who,html,cls="")=>{const d=document.createElement("div"); d.className="th-msg "+(who==="me"?"me":"him")+(cls?" "+cls:"");
     d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/tea-master-v2.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
     log.appendChild(d); follow(d); return d.querySelector(".say");};
-  /* Claude selects gestures; one playback clock keeps them aligned with the answer. */
+  /* His gestures follow what he says: talk of brewing or pouring → he pours; inviting the guest to taste or smell →
+     he offers the cup; otherwise he talks. One playback clock keeps them in time with the words. */
   const gestures=new Set(["talking","pouring","offering","idle"]);
+  const POUR=/\b(pour|pouring|brew|brewing|refill|top (?:you |it )?up|steep|another (?:cup|round|infusion))\b|泡茶|泡一|泡上|泡给|倒茶|倒一|倒杯|倒上|斟|续杯|续水|续一|沏/i;
+  const OFFER=/\b((?:have a )?taste (?:it|this)|have a taste|try (?:this|it|some|a sip)|(?:have|take) a sip|smell (?:it|this|the)|here you (?:go|are))\b|尝尝|尝一|闻闻|闻一|请喝|请用|喝喝看|喝一口|您请/i;
+  const movesFor=(text,poured)=>{const pour=poured||POUR.test(text), offer=OFFER.test(text);
+    if(pour&&offer) return [{gesture:"pouring",at:0},{gesture:"offering",at:.55}];
+    if(pour) return [{gesture:"talking",at:0},{gesture:"pouring",at:.35}];
+    if(offer) return [{gesture:"talking",at:0},{gesture:"offering",at:.6}];
+    return [{gesture:"talking",at:0}];};
   const speak=(el,text,cues)=>new Promise(res=>{
     const sequence=Array.isArray(cues)?cues.filter(c=>c&&gestures.has(c.gesture)&&Number.isFinite(c.at)&&c.at>=0&&c.at<1).slice(0,4).sort((a,b)=>a.at-b.at):[];
     if(!sequence.length) sequence.push({gesture:"talking",at:0});
@@ -3469,7 +3477,7 @@ initReviews();
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
       const T=tidy(raw), reply=T.text;
       msgs.push({role:"assistant",content:reply});
-      await speak(say,reply,d.movements);
+      await speak(say,reply,movesFor(reply,T.pours));
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
     setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
