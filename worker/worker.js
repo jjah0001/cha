@@ -1,6 +1,6 @@
 // Tea pairing proxy for the GitHub Pages build.
 // POST /pair { food, catalogue } -> { picks:[{id,why}], tip } | { error }
-// POST /chat { messages:[{role,content}], country, season, moment, tod, fest } -> { reply } | { error }
+// POST /chat { messages:[{role,content}], country, season, moment, tod, fest } -> { reply, movements } | { error }
 //   The tea master (茶师) in the Tea house tab. The persona prompt lives here, not in the page, so the key can't be
 //   used for anything else; the page only sends the conversation and a few short scene words.
 // Per-IP rate limited via env.PAIR_RL (Cloudflare rate-limit binding).
@@ -134,14 +134,23 @@ async function chat(req, env, body, okOrigin) {
   const upstream = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 600, system: teaMasterPrompt(body), messages }),
+    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 600, system: teaMasterPrompt(body) + `\n\nReturn only a JSON object with this shape: {"reply":"your spoken answer","movements":[{"gesture":"talking","at":0}]}. The persona rules above apply to reply. Choose movements yourself in response to the guest and what you say. Allowed gestures: talking (explaining or chatting), pouring (brewing or refilling), offering (inviting the guest to taste), idle (listening or a quiet pause). Supply 1–4 cues in chronological order, starting at 0. Each at is a fraction from 0 inclusive to 1 exclusive of the answer playback. Space cues apart so gestures have time to read. For serving tea, you can pour and then offer during the answer. Do not include stage directions in reply.`, messages }),
   });
   if (!upstream.ok) {
     const detail = (await upstream.text()).slice(0, 500);
     return json({ error: "upstream", status: upstream.status, detail }, 502, okOrigin);
   }
   const data = await upstream.json();
-  const reply = (data?.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
-  return json({ reply: reply || "…" }, 200, okOrigin);
+  const text = (data?.content || []).filter(c => c.type === "text").map(c => c.text).join("").trim();
+  let result;
+  try { result = JSON.parse(text.replace(/^```(?:json)?\s*|\s*```$/g, "")); } catch {}
+  if (!result || typeof result.reply !== "string" || !result.reply.trim()) {
+    return json({ error: "invalid_response" }, 502, okOrigin);
+  }
+  const allowed = new Set(["talking", "pouring", "offering", "idle"]);
+  const movements = (Array.isArray(result.movements) ? result.movements : [])
+    .filter(c => c && allowed.has(c.gesture) && Number.isFinite(c.at) && c.at >= 0 && c.at < 1)
+    .slice(0, 4).map(c => ({ gesture: c.gesture, at: c.at })).sort((a, b) => a.at - b.at);
+  if (!movements.length) movements.push({ gesture: "talking", at: 0 });
+  return json({ reply: result.reply.trim(), movements }, 200, okOrigin);
 }
-

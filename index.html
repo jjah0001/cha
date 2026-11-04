@@ -70,22 +70,21 @@ button{font:inherit;color:inherit}
 .th-wrap{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px;align-items:stretch}
 @media (max-width:880px){.th-wrap{grid-template-columns:minmax(0,1fr)}}
 .th-scene{position:relative;margin:0;align-self:start;width:100%;aspect-ratio:3/2;border-radius:12px;overflow:hidden;border:1px solid var(--rule);background:#DCE3D9}
-.th-room{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.th-man{position:absolute;left:50%;bottom:14.5%;width:45%;aspect-ratio:1;transform:translateX(-50%);animation:sbreathe 5s ease-in-out infinite}
-@keyframes sbreathe{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-0.6%)}}
-.th-man img{position:absolute;inset:0;width:100%;height:100%;transition:opacity .12s}
-.th-man .th-talk{opacity:0}
-.th-man.talking .th-idle{opacity:0}.th-man.talking .th-talk{opacity:1}
-/* pouring a cup takes over from any other pose */
-.th-man .th-pour{opacity:0;transition:opacity .35s}
-.th-man.pouring .th-idle,.th-man.pouring .th-talk{opacity:0}.th-man.pouring .th-pour{opacity:1}
-/* after dark the lantern-lit room fades in, and Master Lin takes on its warm light */
-.th-room.th-night{opacity:0;transition:opacity 2.5s}
-:root[data-tod="night"] .th-room.th-night{opacity:1}
-.th-man img{transition:opacity .12s,filter 2.5s}
-:root[data-tod="night"] .th-man img{filter:brightness(.9) sepia(.22) saturate(1.08)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-tod="night"]) .th-scene img{filter:brightness(.8) saturate(.92)}}
-:root[data-theme="dark"]:not([data-tod="night"]) .th-scene img{filter:brightness(.8) saturate(.92)}
+/* Two decoded room layers crossfade without flashing an unloaded season. */
+.th-room{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease,filter 2s ease}
+.th-room.is-visible{opacity:1}
+.th-man{position:absolute;left:50%;bottom:12%;width:49%;aspect-ratio:1;transform:translateX(-50%)}
+.th-man img{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .4s ease,filter 2s ease}
+.th-man .th-idle{opacity:1}
+.th-man.talking .th-idle,.th-man.pouring .th-idle,.th-man.offering .th-idle{opacity:0}
+.th-man.talking .th-talk,.th-man.pouring .th-pour,.th-man.offering .th-offer{opacity:1}
+:root:is([data-tod="dusk"],[data-tod="night"]) .th-man img{filter:brightness(.84) sepia(.2) saturate(1.08)}
+:root[data-tod="dawn"] .th-room{filter:brightness(.9) sepia(.08)}
+.th-steam{position:absolute;left:35%;bottom:30%;width:5%;height:14%;pointer-events:none;opacity:.4}
+.th-steam i{position:absolute;inset:0;border-left:2px solid #f6eee0;border-radius:50%;filter:blur(2px);animation:th-steam 5s ease-out infinite;opacity:0}
+.th-steam i:nth-child(2){animation-delay:2.5s;left:30%}
+@keyframes th-steam{0%{transform:translateY(10%) scaleX(.6);opacity:0}30%{opacity:.65}100%{transform:translate(25%,-70%) scaleX(1.3);opacity:0}}
+@media (prefers-reduced-motion:reduce){.th-man img,.th-room{transition:none}.th-steam{display:none}}
 .th-chat{display:flex;flex-direction:column;gap:10px;min-width:0;border:1px solid var(--rule);border-radius:12px;background:var(--card);padding:14px}
 .th-log{flex:1;min-height:240px;max-height:min(58vh,520px);overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:2px}
 @media (max-width:880px){.th-log{max-height:none;min-height:0}}
@@ -1070,13 +1069,15 @@ nav.chap{background:var(--page-top)}
       <p>Step into a family tea house in the Wuyi Mountains and take a seat at the tea table. Ask the tea master, Master Lin (林师傅), anything about tea, or simply chat with him over a cup: he is curious about where you come from.</p></div>
     <div class="th-wrap">
       <figure class="th-scene" id="thScene">
-        <img class="th-room" src="img/teahouse.webp" alt="" width="1280" height="853" decoding="async">
-        <img class="th-room th-night" src="img/teahouse-night.webp" alt="" width="1280" height="853" decoding="async" loading="lazy">
+        <img class="th-room is-visible" src="img/teahouse-spring.webp" alt="" width="1536" height="1024" decoding="async">
+        <img class="th-room" alt="" width="1536" height="1024" decoding="async">
         <div class="th-man" id="thMan">
-          <img class="th-idle" src="img/tea-master.webp" alt="Master Lin, the tea master, an older man in a grey-green jacket, at a tea tray with a clay teapot and two celadon cups" width="760" height="760" decoding="async">
-          <img class="th-talk" src="img/tea-master-talk.webp" alt="" width="760" height="760" decoding="async" aria-hidden="true">
-          <img class="th-pour" src="img/tea-master-pour.webp" alt="" width="760" height="760" decoding="async" aria-hidden="true">
+          <img class="th-idle" src="img/tea-master-v2.webp" alt="Master Lin at a complete gongfu tea tray: Yixing teapot, fairness pitcher and strainer, three celadon cups, kettle, tea tools and cloth" width="1254" height="1254" decoding="async">
+          <img class="th-talk" src="img/tea-master-talk-v2.webp" alt="" width="1254" height="1254" decoding="async" aria-hidden="true">
+          <img class="th-pour" src="img/tea-master-pour-v2.webp" alt="" width="1254" height="1254" decoding="async" aria-hidden="true">
+          <img class="th-offer" src="img/tea-master-offer.webp" alt="" width="1254" height="1254" decoding="async" aria-hidden="true">
         </div>
+        <div class="th-steam" aria-hidden="true"><i></i><i></i></div>
       </figure>
       <div class="th-chat">
         <div class="th-log" id="thLog" role="log" aria-live="polite" aria-label="Conversation with Master Lin"></div>
@@ -3365,6 +3366,28 @@ initReviews();
   if(!log||!form) return;
   const chatUrl=PAIR_CFG.proxyUrl?String(PAIR_CFG.proxyUrl).replace(/\/pair\/?$/,"")+"/chat":null;
   const still=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
+  const stage=$("thScene");
+  const quiet=()=>still()||document.hidden||$("teahouse").hidden;
+  const pose=name=>{man.classList.remove("talking","pouring","offering"); if(name&&!quiet()) man.classList.add(name);};
+  const motionPreference=matchMedia("(prefers-reduced-motion: reduce)");
+  motionPreference.addEventListener("change",()=>{if(still()) pose("");});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden) pose("");});
+  /* Load only the current season/time; decode first and ignore stale loads. */
+  const rooms=[...stage.querySelectorAll(".th-room")]; let roomKey="", roomRequest=0, roomFront=0;
+  async function updateRoom(){
+    const root=document.documentElement, season=["spring","summer","autumn","winter"].includes(root.dataset.season)?root.dataset.season:"spring";
+    const tod=root.dataset.tod||"day", night=tod==="night"||tod==="dusk";
+    const key=season+(night?"-night":""); if(key===roomKey) return;
+    roomKey=key; const request=++roomRequest, src="img/teahouse-"+key+".webp", preload=new Image(); preload.src=src;
+    try{await preload.decode();}catch(e){if(request===roomRequest) roomKey=""; return;}
+    if(request!==roomRequest) return;
+    const next=1-roomFront; rooms[next].src=src;
+    try{await rooms[next].decode();}catch(e){return;}
+    if(request!==roomRequest) return;
+    rooms[next].classList.add("is-visible"); rooms[roomFront].classList.remove("is-visible"); roomFront=next;
+  }
+  new MutationObserver(updateRoom).observe(document.documentElement,{attributes:true,attributeFilter:["data-season","data-tod"]});
+  updateRoom();
   /* where the visitor is: their time zone's country, else the region in their browser language, named in Chinese */
   const TZC={"Australia/":"AU","Pacific/Auckland":"NZ","Pacific/Chatham":"NZ","Asia/Shanghai":"CN","Asia/Urumqi":"CN","Asia/Hong_Kong":"HK","Asia/Macau":"MO","Asia/Taipei":"TW",
     "Asia/Singapore":"SG","Asia/Kuala_Lumpur":"MY","Asia/Kuching":"MY","Asia/Jakarta":"ID","Asia/Makassar":"ID","Asia/Jayapura":"ID","Asia/Pontianak":"ID","Asia/Bangkok":"TH",
@@ -3400,22 +3423,22 @@ initReviews();
   const follow=el=>{log.scrollTop=log.scrollHeight; if(log.scrollHeight<=log.clientHeight+2&&el){const r=el.getBoundingClientRect();
       if(r.bottom>innerHeight-8) window.scrollBy({top:r.bottom-innerHeight+16,behavior:still()?"auto":"smooth"});}};
   const add=(who,html,cls="")=>{const d=document.createElement("div"); d.className="th-msg "+(who==="me"?"me":"him")+(cls?" "+cls:"");
-    d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/tea-master.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
+    d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/tea-master-v2.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
     log.appendChild(d); follow(d); return d.querySelector(".say");};
-  /* the master speaks: the words appear over a few seconds while his mouth and hand move, then he settles */
-  let mouth=null;
-  /* he pours a cup: a couple of seconds holding the pouring pose (just a moment's still frame with reduced motion) */
-  let speaking=false, lastPour=0;
-  const pour=ms=>new Promise(res=>{lastPour=Date.now(); man.classList.add("pouring"); setTimeout(()=>{man.classList.remove("pouring"); setTimeout(res,still()?0:250);},still()?900:ms);});
-  const talk=on=>{clearInterval(mouth); man.classList.toggle("talking",false); speaking=!!on; if(!on||still()) return;
-    mouth=setInterval(()=>man.classList.toggle("talking",Math.random()<0.62),170+Math.random()*160);};
-  const speak=(el,text)=>new Promise(res=>{
-    if(still()){el.innerHTML=para(text); res(); return}
-    const dur=Math.min(7000,Math.max(1200,text.length*28)), t0=performance.now(); talk(true);
-    const step=now=>{const k=Math.min(1,(now-t0)/dur), n=Math.ceil(text.length*k); el.innerHTML=para(text.slice(0,n)); log.scrollTop=log.scrollHeight;
-      if(n%40===0) follow(el.parentElement);
-      if(k<1) requestAnimationFrame(step); else {talk(false); follow(el.parentElement); res();}};
-    requestAnimationFrame(step);});
+  /* Claude selects gestures; one playback clock keeps them aligned with the answer. */
+  const gestures=new Set(["talking","pouring","offering","idle"]);
+  const speak=(el,text,cues)=>new Promise(res=>{
+    const sequence=Array.isArray(cues)?cues.filter(c=>c&&gestures.has(c.gesture)&&Number.isFinite(c.at)&&c.at>=0&&c.at<1).slice(0,4).sort((a,b)=>a.at-b.at):[];
+    if(!sequence.length) sequence.push({gesture:"talking",at:0});
+    if(still()){pose("");el.innerHTML=para(text);res();return;}
+    const dur=Math.min(12000,Math.max(2400,text.length*35)), t0=performance.now();
+    const step=now=>{const k=Math.min(1,(now-t0)/dur), n=Math.ceil(text.length*k);
+      const cue=sequence.filter(c=>c.at<=k).pop();
+      pose(cue&&cue.gesture!=="idle"?cue.gesture:"");
+      el.innerHTML=para(text.slice(0,n)); log.scrollTop=log.scrollHeight;
+      if(k<1) requestAnimationFrame(step); else {pose("");follow(el.parentElement);res();}};
+    requestAnimationFrame(step);
+  });
   /* his greeting, for this moment on the mountain */
   const greet=()=>{const S=scene(), m=S.moment, f=S.fest;
     const line={jingzhe:"Come in out of the drizzle, and mind the step.",qingming:"Come in out of the drizzle, and mind the step.",
@@ -3432,8 +3455,9 @@ initReviews();
   const CHIPS=["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
   const showChips=()=>{chips.innerHTML=CHIPS.map(q=>`<button type="button">${esc(q)}</button>`).join("");
     chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
-  const setBusy=b=>{busy=b; inp.disabled=b; send.disabled=b; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
+  const setBusy=b=>{busy=b; inp.disabled=b||!chatUrl; send.disabled=b||!chatUrl; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
   async function ask(q){q=String(q||"").trim().slice(0,500); if(!q||busy) return;
+    pose("");
     chips.innerHTML=""; add("me",para(q)); msgs.push({role:"user",content:q}); inp.value="";
     if(!chatUrl){add("him","Master Lin isn’t available on this copy of the site.","err"); return}
     setBusy(true); const say=add("him",`<span class="th-dots" aria-label="Master Lin is thinking"><span></span><span></span><span></span></span>`);
@@ -3445,21 +3469,16 @@ initReviews();
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
       const T=tidy(raw), reply=T.text;
       msgs.push({role:"assistant",content:reply});
-      /* if he offers a cup or says he's pouring, he pours before he speaks */
-      if((T.pours||/\b(pour|pouring|refill|top (you )?up|another cup|have a (cup|sip)|try this|taste this)\b|倒|斟|续|喝一杯|尝尝|来一杯|請喝|请喝/i.test(reply))&&Date.now()-lastPour>8000){say.innerHTML="";await pour(2400);}
-      await speak(say,reply);
+      await speak(say,reply,d.movements);
     }catch(e){msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
     setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
   /* greet the first time the tea house is opened */
   let greeted=false;
-  /* the first time you come in, he pours you a cup and then greets you */
-  const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; const el=add("him",`<span class="th-dots" aria-hidden="true"><span></span><span></span><span></span></span>`);
-    pour(2600).then(()=>speak(el,greet())).then(showChips);};
-  /* when it's quiet he tops up the cups now and then */
-  setInterval(()=>{if(!greeted||busy||speaking||$("teahouse").hidden||document.hidden) return;
-    if(Date.now()-lastPour>(70+Math.random()*60)*1000) pour(2800);},10000);
+  /* Welcome the guest while offering a cup. */
+  const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; setBusy(true); const el=add("him",`<span class="th-dots" aria-hidden="true"><span></span><span></span><span></span></span>`);
+    speak(el,greet(),[{gesture:"offering",at:0},{gesture:"talking",at:0.4}]).then(()=>{setBusy(false); showChips();});};
   new MutationObserver(open).observe($("teahouse"),{attributes:true,attributeFilter:["hidden"]}); open();
   if(!chatUrl){inp.placeholder="Master Lin isn’t available on this copy of the site"; inp.disabled=true; send.disabled=true;}
 })();
