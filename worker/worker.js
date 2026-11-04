@@ -182,7 +182,12 @@ async function chat(req, env, body, okOrigin) {
     return json({ error: "upstream", status: upstream.status }, 502, okOrigin);
   }
   const data = await upstream.json();
-  if (data?.stop_reason === "refusal") return json({ error: "refusal" }, 502, okOrigin);
+  /* If Claude declines (e.g. a threat or abuse), he stays in character and steers back to tea instead of an error. */
+  if (data?.stop_reason === "refusal") {
+    const zh = /[\u4e00-\u9fff]/.test(messages[messages.length - 1].content);
+    const reply = zh ? "哎，这话我就不接了。来，先喝口茶，消消气，我们聊点别的吧。" : "Ah, I'll leave that one alone. Here, have some tea and let's talk about something else.";
+    return json({ reply, movements: [{ gesture: "pouring", at: 0 }, { gesture: "offering", at: 0.5 }] }, 200, okOrigin);
+  }
   const text = (data?.content || []).filter(c => c.type === "text").map(c => c.text).join("").trim();
   const result = parseChat(text);
   if (!result) {
