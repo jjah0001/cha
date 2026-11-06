@@ -780,6 +780,11 @@ nav.chap{background:var(--page-top)}
 :root[data-tod-fine="late"]:not([data-moment="picking"]):not([data-moment="osmanthus"]):not([data-moment="frost"]) .wuyi .lamp{opacity:0;filter:none}
 /* 春节 (and 中秋 night): two red lanterns on the eaves, glowing after dark; on 元宵 a string of lanterns along the path */
 .wuyi .lanterns,.wuyi .lanternrow{display:none;fill:#C8352B;stroke:#C8352B;opacity:.6}
+/* 春联: red couplets either side of the door and a 横批 over it, up from 除夕 until the New Year is over */
+.wuyi .chunlian{display:none}
+.wuyi .chunlian .door{fill:currentColor;opacity:.35}
+.wuyi .chunlian .red{fill:#C8352B;opacity:.85}
+:root[data-fest="chunjie"] .wuyi .chunlian{display:inline}
 :root[data-fest="chunjie"] .wuyi .lanterns,:root[data-fest="zhongqiu"]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{display:inline}
 :root[data-fest]:is([data-tod="dusk"],[data-tod="night"]) .wuyi .lanterns{opacity:.95;filter:drop-shadow(0 0 3px #E8513F)}
 :root[data-fest-part="yuanxiao"] .wuyi .lanternrow{display:inline}
@@ -1163,7 +1168,7 @@ nav.chap{background:var(--page-top)}
     <div class="tblwrap"><table>
       <thead><tr><th>Festival</th><th>What it is, and what happens on the mountain</th><th></th></tr></thead>
       <tbody>
-        <tr><td>Chinese New Year<br><span class="zh">春节 <i>Chūnjié</i></span></td><td>The biggest festival of the year, also called the Spring Festival, when families gather. Red lanterns go up, and firecrackers and fireworks scare off bad luck, most of all on New Year’s Eve <span class="zh">除夕 <i>chúxī</i></span>. In the first days a lion dance performs by day while a crowd gathers round: two dancers inside one lion costume, the front one working the big head with its mirror and horn, blinking, snapping its jaw and shaking its head to drums and gongs, and now and then rearing up as the front dancer is lifted high.</td><td><a class="seeit" href="?fest=chunjie&festday=-1&time=night#about">New Year’s Eve</a> <a class="seeit" href="?fest=chunjie&festday=1&time=day#about">Lion dance</a></td></tr>
+        <tr><td>Chinese New Year<br><span class="zh">春节 <i>Chūnjié</i></span></td><td>The biggest festival of the year, also called the Spring Festival, when families gather. Red lanterns go up and red couplets <span class="zh">春联 <i>chūnlián</i></span> are pasted round the door. Firecrackers and fireworks scare off bad luck, most of all on New Year’s Eve <span class="zh">除夕 <i>chúxī</i></span>, when the whole family sits down together to the reunion dinner <span class="zh">年夜饭 <i>niányèfàn</i></span>; you can hear the talk, the laughter and the toasts from the tea house. In the first days a lion dance performs by day while a crowd gathers round: two dancers inside one lion costume, the front one working the big head with its mirror and horn, blinking, snapping its jaw and shaking its head to drums and gongs, and now and then rearing up as the front dancer is lifted high.</td><td><a class="seeit" href="?fest=chunjie&festday=-1&time=night#about">New Year’s Eve</a> <a class="seeit" href="?fest=chunjie&festday=1&time=day#about">Lion dance</a></td></tr>
         <tr><td>Lantern Festival<br><span class="zh">元宵 <i>Yuánxiāo</i></span></td><td>The fifteenth night of the new year, under the first full moon, which closes the New Year season. Lanterns line the path and a glowing dragon lantern, carried on poles by a team of people, winds along it, chasing a shining pearl held up on a pole in front.</td><td><a class="seeit" href="?fest=chunjie&festday=14&time=night#about">See it</a></td></tr>
         <tr><td>Calling the Mountain<br><span class="zh">喊山 <i>hǎnshān</i></span></td><td>An old Wuyi custom held on “Insects Awaken” day. Growers gather at the old imperial tea garden with red flags, drums and gongs to wake the tea bushes for the new season. Then everyone shouts together, “tea, sprout!”, <span class="zh">茶发芽 <i>chá fāyá</i></span>.</td><td><a class="seeit" href="?fest=hanshan&time=dawn#about">See it</a></td></tr>
         <tr><td>Tea contest<br><span class="zh">斗茶赛 <i>dòuchá sài</i></span></td><td>Once the spring tea is made, growers bring their best to be tasted side by side, and the winner is crowned “tea king” <span class="zh">茶王 <i>cháwáng</i></span>. People crowd round the tea house, and there is a cheer for the winner.</td><td><a class="seeit" href="?fest=doucha&time=day#about">See it</a></td></tr>
@@ -2402,6 +2407,13 @@ function startSeasonalAudio(season,opts={}){
   if(S.fest==="chunjie"){
     const busy=part==="chuxi"?(night||dusk?1.4:0.5):part==="chuyi"?(night||dusk||dawn?0.7:0.4):part==="yuanxiao"?(night||dusk?0.7:0.25):0.12;
     recur(25/busy,90/busy,t=>crackers(t,any(village),0.05),R(3,15));
+    /* 年夜饭: on 除夕 evening the whole family round the table in the tea house, talk and laughter, bowls and chopsticks,
+       toasts with the cups clinked together; it goes on until late */
+    if(part==="chuxi"&&(dusk||night)){const home=place(0.3,0.12); crowd(home,1);
+      recur(5,12,t=>{const k=3+Math.floor(R(0,4)), f0=R(200,330); let at=t; for(let i=0;i<k;i++){const f=f0*(1-i*0.04)*R(0.97,1.03);
+          voice(at,home,[[0,R(0.09,0.13),f*1.08,f*0.92,0.012*(1-i*0.12),0,0.012]],"triangle",1500); at+=R(0.15,0.2);}},3);
+      recur(2,5,t=>{for(let i=0,k=1+Math.floor(R(0,3));i<k;i++) bubble(t+i*R(0.12,0.35),home,R(2400,3600),0.09,0.009,1);},1);
+      recur(40,100,t=>{for(let i=0,k=4+Math.floor(R(0,5));i<k;i++) bubble(t+R(0,0.35),home,R(3000,4200),0.15,0.007,1);},15);}
     if((part==="chuyi"&&!night)||(part==="yuanxiao"&&(dusk||(night&&!late)))) recur(150,330,t=>luogu(t,any(village),0.05),R(10,40));
     /* the lion dance (舞狮) at the tea house by day in the first days and on 元宵: its troupe close by, playing almost
        without a break, with the crowd cheering when the lion rears up */
@@ -3202,6 +3214,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     <g class="fig raft"><g class="rman"><circle cx="16" cy="224" r="3"/><path d="M16 227V238M16 230L24 228" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
       <path class="rpole" d="M28 240L42 210" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>
     <rect class="lamp" x="956" y="178" width="9" height="7" rx="1"/>
+    <g class="chunlian"><rect class="door" x="972" y="179" width="9" height="11"/><rect class="red" x="969" y="179" width="2" height="10"/><rect class="red" x="982" y="179" width="2" height="10"/><rect class="red" x="971" y="176.4" width="11" height="2"/></g>
     <g class="lanterns"><path d="M950 174V177M990 174V177" stroke-width="1"/><ellipse cx="950" cy="181" rx="3.6" ry="4.6"/><ellipse cx="990" cy="181" rx="3.6" ry="4.6"/></g>
     <g class="lanternrow"><path d="M560 186Q640 176 720 184T880 172" fill="none" stroke-width=".8"/>${[[580,186],[620,182],[660,180],[700,183],[740,185],[780,182],[820,177],[860,174]].map(([x,y])=>`<ellipse cx="${x}" cy="${y+6}" rx="3" ry="3.8"/>`).join("")}</g>
     <g class="flags"><path d="M150 214V190M178 210V186M206 213V189" stroke-width="1.4" fill="none"/><path d="M150 190L161 193.5L150 197ZM178 186L189 189.5L178 193ZM206 189L217 192.5L206 196Z"/></g>
@@ -3278,11 +3291,13 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   extra("star",30,()=>({x:(rng()*100).toFixed(1)+"vw",y:(rng()*55).toFixed(1)+"vh",sz:(1+rng()*1.6).toFixed(1)+"px",tw:(2.5+rng()*4).toFixed(1)+"s",dly:(-rng()*6).toFixed(1)+"s",op:(.35+rng()*.5).toFixed(2)}));
   /* the moon, in its real phase tonight, low over the valley, between the peaks (mirrored south of the equator, where it is seen the other way up) */
   const moon=land.querySelector(".moon");
-  const drawMoon=()=>{const big=root.getAttribute("data-fest")==="zhongqiu", k=big?16:11;
-    moon.setAttribute("transform",`translate(642,${big?110:113}) scale(${south?-k:k},${k})`);
+  const drawMoon=()=>{const big=root.getAttribute("data-fest")==="zhongqiu", k=big?22:11;
+    moon.setAttribute("transform",`translate(642,${big?96:113}) scale(${south?-k:k},${k})`);
     /* 中秋 and 元宵 fall on the 15th of the lunar month, so the moon is always full for them (also in previews) */
     const fullNight=big||root.getAttribute("data-fest-part")==="yuanxiao";
-    const p=fullNight?0.5:moonPhase(), r=1, rx=Math.abs(Math.cos(2*Math.PI*p))*r, wax=p<0.5, fat=(p>0.25&&p<0.75);
+    /* 除夕 and 初一 close and open a lunar month, so there is no moon at all (also in previews) */
+    const dark=root.getAttribute("data-fest-part")==="chuxi"||(root.getAttribute("data-fest-part")==="chuyi"&&sceneNow().festDay===0);
+    const p=fullNight?0.5:dark?0:moonPhase(), r=1, rx=Math.abs(Math.cos(2*Math.PI*p))*r, wax=p<0.5, fat=(p>0.25&&p<0.75);
     const outer=wax?`M0 ${-r}A${r} ${r} 0 0 1 0 ${r}`:`M0 ${-r}A${r} ${r} 0 0 0 0 ${r}`;
     const term=`A${rx.toFixed(3)} ${r} 0 0 ${wax?(fat?1:0):(fat?0:1)} 0 ${-r}Z`;
     const lit=(1-Math.cos(2*Math.PI*p))/2;
