@@ -1137,10 +1137,10 @@ nav.chap{background:var(--page-top)}
     <div class="tblwrap"><table class="sh">
       <thead><tr><th>Time</th><th>What you see</th><th>What you hear</th></tr></thead>
       <tbody>
-        <tr><td>Dawn</td><td>A peach-coloured glow, mist, and a “sea of cloud” lying between the peaks</td><td>Roosters in the village below, the bell of the Buddhist temple, and the steady knock of a “wooden fish” <span class="zh">木鱼 <i>mùyú</i></span>, a hollow wooden drum that monks strike while chanting</td></tr>
+        <tr><td>Dawn</td><td>A peach-coloured glow, mist, and a “sea of cloud” lying between the peaks</td><td>Roosters in the village below, the bell of the Buddhist temple, and the steady knock of a “wooden fish” <span class="zh">木鱼 <i>mùyú</i></span>, a hollow wooden drum that monks strike while chanting; someone sweeping the yard with a bamboo broom; in summer, doves and the dawn chorus before the cicadas start</td></tr>
         <tr><td>Day</td><td>Tea pickers stooping and stepping along the rows, a raftsman poling his bamboo raft down the stream</td><td>Birds and, in summer, cicadas. All day, and into the evening, someone at the tea table making a round of gongfu tea: the kettle poured, the lid set back on the bowl, the cups filled and set down</td></tr>
         <tr><td>Midday</td><td>The same scene</td><td>The quiet of the midday rest <span class="zh">午休 <i>wǔxiū</i></span>, when people nap through the heat; cicadas are at their loudest</td></tr>
-        <tr><td>Dusk</td><td>Amber light; the lamp in the tea house comes on</td><td>Frogs begin to call, a dog barks</td></tr>
+        <tr><td>Dusk</td><td>Amber light; the lamp in the tea house comes on</td><td>Supper cooking in the kitchen, the wok sizzling as the greens go in; frogs begin to call, a dog barks</td></tr>
         <tr><td>Night</td><td>Stars, and the moon in tonight’s real phase. The whole page turns to night colours, whatever your device is set to</td><td>Frogs and crickets and, in the tea-making seasons, work going on through the night</td></tr>
         <tr><td>Small hours</td><td>The darkest sky; only a tea house that is still making tea keeps its lamp lit</td><td>The stove banked down, the odd dog far off</td></tr>
       </tbody></table></div>
@@ -1802,6 +1802,9 @@ async function wake(on){
               wind through bamboo and tea bushes outside, crickets
    winter 冬 = 围炉煮茶 by the wood stove: crackling fire, kettle simmering, cold wind and drips outside
    mornings  = 天心寺's bell and bouts of 木鱼 drift up from the temple below 大红袍
+   dawn      = the yard swept with a bamboo broom; in summer doves and 画眉 first, cicadas only as the day warms
+   dusk      = supper in the wok in the kitchen
+   winter    = bulbuls and sparrows by day, so the cold months are not silent outside
    always    = a round of gongfu tea at the table now and then (kettle into the 盖碗, lid, pitcher, cups on the tray),
                and the gorge stream somewhere below, louder in spring and summer, thin in autumn and winter
    The scene clock below adds the solar-term moment and the hour: 惊蛰 thunder; the harvest (pickers calling, 做青 all night);
@@ -2092,6 +2095,10 @@ function startSeasonalAudio(season,opts={}){
         for(let r=0;r<reps;r++){mo.forEach(([d,f0,f1,a,tr])=>{n.push([at,d,f0,f1,a,tr]);at+=d+R(0.015,0.05);}); at+=R(0.05,0.14);}
         at+=R(0.2,0.45);}}
     voice(t,dest,n);};
+  /* 麻雀: a little flock chattering, short bright "叽" chirps from several birds overlapping */
+  const sparrows=(t,dest,amp)=>{for(let b=0,k=2+Math.floor(R(0,4));b<k;b++){const n=[], base=R(2800,3900); let at=R(0,1.2);
+      for(let i=0,m=3+Math.floor(R(0,7));i<m;i++){const d=R(0.035,0.08); n.push([at,d,base*R(0.9,1.15),base*R(0.75,1.05),amp*R(0.5,1)]); at+=d+R(0.05,0.25);}
+      voice(t,dest,n);}};
   /* 大杜鹃 "布谷—布谷", or 四声杜鹃's four falling notes: soft hooting tones, always from far off */
   const cuckoo=(t,dest,amp)=>{const n=[], four=chance(0.35), b=four?R(780,860):R(640,720), reps=3+Math.floor(R(0,5));
     for(let r=0;r<reps;r++){const s=r*(four?R(2.2,2.6):R(1.0,1.15));
@@ -2286,13 +2293,15 @@ function startSeasonalAudio(season,opts={}){
     if(night||dusk){frogs(late?3:night?(mo==="meiyu"?9:7):3,0.035); spots(late?2:3,[-0.8,0.8],[0.3,0.7]).forEach(sp=>cricket(sp,0.01));}
     if(!night&&!wetDay){
       /* the hills full of cicadas: a shimmering distant mass, with nearer individuals swelling in and out; loudest in the noon heat */
-      const heat=noon?1.35:dusk?0.4:1;
+      const heat=noon?1.35:dusk?0.4:dawn?(hr<7?0.08:0.3):1;
       const mass=walk(0.4,1,6,18), hill=bed("white",place(0,0.75),[F("bandpass",5200,1.1)],0);
       follow(hill.gain,()=>0.025*mass()*heat);
       const trees=spots(5,[-1,1],[0.15,0.55]);
-      recur(dusk?6:noon?1.5:2,dusk?14:noon?5:6,t=>cicada(t,any(trees),R(0.05,0.11)),0.5);
+      recur(dawn?14:dusk?6:noon?1.5:2,dawn?30:dusk?14:noon?5:6,t=>cicada(t,any(trees),R(0.05,0.11)*(dawn?0.6:1)),dawn?8:0.5);
       const far=spots(2,[-0.7,0.7],[0.5,0.7]);
-      recur(noon?12:20,noon?28:45,t=>dove(t,any(far),0.05),6);
+      recur(noon?12:dawn?10:20,noon?28:dawn?22:45,t=>dove(t,any(far),0.05),dawn?3:6);
+      /* the summer dawn chorus, before the heat: 画眉 singing from the bamboo */
+      if(dawn) recur(10,24,t=>bird(t,any(trees),"hwamei",0.03),4);
       recur(15*birdPace,30*birdPace,t=>bird(t,any(trees),"bulbul",0.025),10);}
     else if(!night&&mo==="meiyu"){const far=spots(2,[-0.7,0.7],[0.5,0.7]); recur(40,90,t=>dove(t,any(far),0.04),15);}
   } else if(season==="autumn"){
@@ -2334,9 +2343,30 @@ function startSeasonalAudio(season,opts={}){
     stream(snow?0.08:0.13,-0.8);
     if(!snow){const eave=place(-0.6,0.35), f=R(700,1000);
       recur(1.5,4,t=>{bubble(t,eave,f*R(0.92,1.08),0.06,0.04,1.3); burst(t,eave,0.012,"bandpass",2200,2,0.02);},2);}
+    /* winter is not silent outside: bulbuls in the tea bushes and flocks of sparrows chattering under the eaves by day,
+       quieter in the cold rain, almost none in the snow */
+    if(!night&&!late){const trees=spots(3,[-0.9,0.9],[0.3,0.6]), eaves=spots(2,[-0.7,0.7],[0.2,0.4]), cold=(snow?3:wx==="drizzle"?1.6:1)*birdPace;
+      recur(18*cold,40*cold,t=>bird(t,any(trees),"bulbul",0.022),dawn?3:8);
+      recur(14*cold,35*cold,t=>sparrows(t,any(eaves),0.014),5);}
     /* snow sliding off a bamboo branch now and then */
     else recur(25,70,t=>burst(t,place(R(-0.8,0.8),R(0.3,0.6)),R(0.4,0.8),"lowpass",R(900,1600),0.7,0.02,0.05),10);
   }
+  /* 扫院子: first thing in the morning someone sweeps the yard with a bamboo broom, long scratchy strokes in a steady rhythm */
+  const broom=dest=>recur(40,110,t=>{const n=8+Math.floor(R(0,14)), per=R(0.8,1.1);
+      for(let i=0;i<n;i++){const s=t+i*per*R(0.93,1.07);
+        burst(s,dest,R(0.3,0.45),"bandpass",R(2200,3800),0.7,R(0.012,0.02),R(0.06,0.12));
+        for(let j=0;j<4;j++) burst(s+R(0.05,0.35),dest,0.008,"highpass",R(4500,7500),0.8,R(0.003,0.007));}},R(2,10));
+  if(dawn&&hr>=5&&wx!=="rain"&&wx!=="storm"&&!(S.fest==="chunjie"&&festPart(S)==="chuyi")) broom(place(-0.25,0.18));
+  /* 炒菜: at dusk supper is cooking in the kitchen: the oil sizzling up when the greens go in, the wok shovel scraping and
+     clinking, then quieter frying */
+  const wok=dest=>recur(45,110,t=>{const s=AC.createBufferSource(), hp=F("highpass",2200), bp=F("bandpass",R(4000,6000),0.6), g=AC.createGain(), dur=R(5,9);
+      s.buffer=noiseBuf("white"); s.loop=true; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.035,t+0.05);
+      g.gain.exponentialRampToValueAtTime(0.012,t+1.2);
+      for(let x=t+1.4;x<t+dur;x+=R(0.3,0.8)) g.gain.linearRampToValueAtTime(R(0.006,0.014),x);
+      g.gain.linearRampToValueAtTime(0,t+dur+0.4); s.connect(hp).connect(bp).connect(g).connect(dest); s.start(t,R(0,5)); s.stop(t+dur+0.5);
+      for(let x=t+0.6;x<t+dur;x+=R(0.35,0.9)){burst(x,dest,R(0.08,0.16),"bandpass",R(1500,2500),1.2,0.012,0.01);
+        if(chance(0.45)){const f=R(1700,2600); bubble(x+0.1,dest,f,0.12,0.01,1.0); bubble(x+0.1,dest,f*2.4,0.06,0.004,1.0);}}},R(3,15));
+  if(dusk) wok(place(0.4,0.16));
   /* 泡茶: in a Wuyi home the tea table is never cold. Every so often someone makes a round of gongfu tea at the table
      close by: the kettle poured into the 盖碗 (the pitch climbs as it fills), the lid set back on with a porcelain tick,
      a short steep, then the tea poured off into the pitcher and round the little cups, cups set down on the wooden tray.
