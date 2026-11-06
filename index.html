@@ -653,10 +653,16 @@ nav.chap{z-index:5}
    on wide or landscape screens; it never takes more than about half the screen */
 .wuyi{position:fixed;left:0;right:0;bottom:0;height:min(max(clamp(110px,24vh,260px),calc(100vw * 260 / 1200)),48vh);pointer-events:none;z-index:0;color:var(--season-accent,var(--t-oolong))}
 .wuyi svg{display:block;width:100%;height:100%}
-.wuyi .far{opacity:.1;color:var(--danxia)}.wuyi .near{opacity:.09}.wuyi .rows{opacity:.12}.wuyi .fig{opacity:.2}
+.wuyi .far{opacity:.13;color:var(--danxia)}.wuyi .near{opacity:.09}.wuyi .rows{opacity:.12}.wuyi .fig{opacity:.2}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wuyi{filter:brightness(.7)}}
 :root[data-theme="dark"] .wuyi{filter:brightness(.7)}
 .wuyi .rows path{fill:none;stroke:currentColor;stroke-width:4.5;stroke-linecap:round}
+/* the danxia cliffs: rain streaks down the red walls, green on the crowns; stone walls under the tea terraces, boulders between */
+.wuyi .back{fill:var(--danxia);opacity:.06}
+.wuyi .cliffs{fill:none;stroke:var(--danxia);stroke-width:1.3;stroke-linecap:round;opacity:.2}
+.wuyi .caps{fill:currentColor;opacity:.13}
+.wuyi .walls path{fill:none;stroke:var(--bank);stroke-width:1.5;stroke-dasharray:4 1.6;opacity:.5}
+.wuyi .rocks{fill:var(--danxia);opacity:.12}
 /* the Nine-Bend Stream: water-coloured, with a bank the tea rows stop at and glints drifting downstream, so it never
    reads as one more tea row */
 :root{--water:#7FA9B5;--water-glint:#F4FAF9;--bank:#9A8B6E}
@@ -1124,7 +1130,7 @@ nav.chap{background:var(--page-top)}
     <p class="note">Master Lin is a made-up character played by an AI. He can be wrong, so check anything important, especially about health, and he never sells anything. Your conversation isn’t saved: when you leave the page, it’s gone. To answer you, the page sends your messages, the country your device’s time zone points to, and the scene on the mountain to an AI service (Anthropic’s Claude) through Cha’s own server.</p>
 
     <h3>The mountain behind the page</h3>
-    <p>Behind every page is a tea mountain in the Wuyi Mountains <span class="zh">武夷山 <i>Wǔyí Shān</i></span> of Fujian province, in south-east China, a UNESCO World Heritage Site and the home of “rock tea” <span class="zh">岩茶 <i>yánchá</i></span>, oolongs grown among the cliffs. You can make out rust-red sandstone peaks, rows of tea bushes, the family tea house where the leaves are processed, and the Nine-Bend Stream <span class="zh">九曲溪 <i>Jiǔqū Xī</i></span> winding below, where visitors float down on bamboo rafts.</p>
+    <p>Behind every page is a tea mountain in the Wuyi Mountains <span class="zh">武夷山 <i>Wǔyí Shān</i></span> of Fujian province, in south-east China, a UNESCO World Heritage Site and the home of “rock tea” <span class="zh">岩茶 <i>yánchá</i></span>, oolongs grown among the cliffs. You can make out rust-red sandstone peaks, small stone-walled terraces of tea bushes tucked in among them, the family tea house where the leaves are processed, and the Nine-Bend Stream <span class="zh">九曲溪 <i>Jiǔqū Xī</i></span> winding below, where visitors float down on bamboo rafts.</p>
     <p>The scene is drawn faintly so it never gets in the way, and it is alive. It follows <b>your</b> season, <b>your</b> sunrise and sunset, and the tea grower’s year as it is lived on the mountain.</p>
 
     <h4>Through the day</h4>
@@ -1132,7 +1138,7 @@ nav.chap{background:var(--page-top)}
       <thead><tr><th>Time</th><th>What you see</th><th>What you hear</th></tr></thead>
       <tbody>
         <tr><td>Dawn</td><td>A peach-coloured glow, mist, and a “sea of cloud” lying between the peaks</td><td>Roosters in the village below, the bell of the Buddhist temple, and the steady knock of a “wooden fish” <span class="zh">木鱼 <i>mùyú</i></span>, a hollow wooden drum that monks strike while chanting</td></tr>
-        <tr><td>Day</td><td>Tea pickers stooping and stepping along the rows, a raftsman poling his bamboo raft down the stream</td><td>Birds and, in summer, cicadas</td></tr>
+        <tr><td>Day</td><td>Tea pickers stooping and stepping along the rows, a raftsman poling his bamboo raft down the stream</td><td>Birds and, in summer, cicadas. All day, and into the evening, someone at the tea table making a round of gongfu tea: the kettle poured, the lid set back on the bowl, the cups filled and set down</td></tr>
         <tr><td>Midday</td><td>The same scene</td><td>The quiet of the midday rest <span class="zh">午休 <i>wǔxiū</i></span>, when people nap through the heat; cicadas are at their loudest</td></tr>
         <tr><td>Dusk</td><td>Amber light; the lamp in the tea house comes on</td><td>Frogs begin to call, a dog barks</td></tr>
         <tr><td>Night</td><td>Stars, and the moon in tonight’s real phase. The whole page turns to night colours, whatever your device is set to</td><td>Frogs and crickets and, in the tea-making seasons, work going on through the night</td></tr>
@@ -1148,8 +1154,8 @@ nav.chap{background:var(--page-top)}
         <tr><td>Late spring<br><span class="zh">开山采茶 <i>kāishān cǎichá</i></span></td><td>The rock-tea harvest: pickers out on the slopes, fresh leaves wilting in wide bamboo trays, and a worker tossing them in a sieve</td><td>Pickers calling to each other across the valley by day. All night, the soft rhythm of leaves being tossed in bamboo sieves <span class="zh">做青 <i>zuòqīng</i></span>, the step that bruises their edges and makes oolong</td><td><a class="seeit" href="?season=spring&moment=picking&time=day&weather=clear#about">See it</a></td></tr>
         <tr><td>Early summer<br><span class="zh">梅雨 <i>méiyǔ</i></span></td><td>The “plum rains”, the rainy season that arrives as the plums ripen; cloud between the peaks</td><td>Rain on the eaves, a swollen stream, frogs</td><td><a class="seeit" href="?season=summer&moment=meiyu#about">See it</a></td></tr>
         <tr><td>High summer<br><span class="zh">三伏 <i>sānfú</i></span></td><td>The “dog days”, the hottest weeks of the year: fireflies at night, and a thunderstorm on some afternoons</td><td>The stream lapping against the rafts, cicadas, thunder after the lightning</td><td><a class="seeit" href="?season=summer&moment=storms&weather=storm#about">See it</a></td></tr>
-        <tr><td>Autumn<br><span class="zh">桂花 · 霜降 <i>guìhuā · Shuāngjiàng</i></span></td><td>Tiny golden osmanthus flowers drifting down, embers rising from the tea house, a porter carrying two baskets of tea up the path, and by “Frost’s Descent” frost on the rows</td><td>Charcoal roasting <span class="zh">炭焙 <i>tànbèi</i></span>: rock tea is slowly roasted over banked charcoal in autumn, which gives it its toasty depth. Wind in the bamboo, crickets</td><td><a class="seeit" href="?season=autumn&moment=osmanthus&time=day#about">See it</a></td></tr>
-        <tr><td>Winter<br><span class="zh">围炉 · 寒潮 <i>wéilú · háncháo</i></span></td><td>Steam from the kettle, frost and cold drizzle. Snow is rare on the tea slopes, so it falls only every few years</td><td>Sitting round the stove: a wood fire crackling, the kettle simmering, cold wind outside</td><td><a class="seeit" href="?season=winter&moment=hearth#about">See it</a></td></tr>
+        <tr><td>Autumn<br><span class="zh">桂花 · 霜降 <i>guìhuā · Shuāngjiàng</i></span></td><td>Tiny golden osmanthus flowers drifting down, embers rising from the tea house, a porter carrying two baskets of tea up the path, and by “Frost’s Descent” frost on the rows</td><td>Charcoal roasting <span class="zh">炭焙 <i>tànbèi</i></span>: rock tea is slowly roasted over banked charcoal in autumn, which gives it its toasty depth. Wind in the bamboo, crickets, and the stream running low</td><td><a class="seeit" href="?season=autumn&moment=osmanthus&time=day#about">See it</a></td></tr>
+        <tr><td>Winter<br><span class="zh">围炉 · 寒潮 <i>wéilú · háncháo</i></span></td><td>Steam from the kettle, frost and cold drizzle. Snow is rare on the tea slopes, so it falls only every few years</td><td>Sitting round the stove: a wood fire crackling, the kettle simmering, cold wind and a thin winter stream outside</td><td><a class="seeit" href="?season=winter&moment=hearth#about">See it</a></td></tr>
       </tbody></table></div>
 
     <h4>Festivals and tea days</h4>
@@ -1159,7 +1165,7 @@ nav.chap{background:var(--page-top)}
       <tbody>
         <tr><td>Chinese New Year<br><span class="zh">春节 <i>Chūnjié</i></span></td><td>The biggest festival of the year, also called the Spring Festival, when families gather. Red lanterns go up, and firecrackers and fireworks scare off bad luck, most of all on New Year’s Eve <span class="zh">除夕 <i>chúxī</i></span>. In the first days a lion dance performs by day while a crowd gathers round: two dancers inside one lion costume, the front one working the big head with its mirror and horn, blinking, snapping its jaw and shaking its head to drums and gongs, and now and then rearing up as the front dancer is lifted high.</td><td><a class="seeit" href="?fest=chunjie&festday=-1&time=night#about">New Year’s Eve</a> <a class="seeit" href="?fest=chunjie&festday=1&time=day#about">Lion dance</a></td></tr>
         <tr><td>Lantern Festival<br><span class="zh">元宵 <i>Yuánxiāo</i></span></td><td>The fifteenth night of the new year, under the first full moon, which closes the New Year season. Lanterns line the path and a glowing dragon lantern, carried on poles by a team of people, winds along it, chasing a shining pearl held up on a pole in front.</td><td><a class="seeit" href="?fest=chunjie&festday=14&time=night#about">See it</a></td></tr>
-        <tr><td>Calling the Mountain<br><span class="zh">喊山 <i>hǎnshān</i></span></td><td>An old Wuyi custom held on “Insects Awaken” day. Growers gather at the old imperial tea garden with red flags, drums and gongs to wake the tea bushes for the new season. (They also shout “tea, sprout!”, 茶发芽 <i>chá fāyá</i>; that waits for a real recording.)</td><td><a class="seeit" href="?fest=hanshan&time=dawn#about">See it</a></td></tr>
+        <tr><td>Calling the Mountain<br><span class="zh">喊山 <i>hǎnshān</i></span></td><td>An old Wuyi custom held on “Insects Awaken” day. Growers gather at the old imperial tea garden with red flags, drums and gongs to wake the tea bushes for the new season. Then everyone shouts together, “tea, sprout!”, <span class="zh">茶发芽 <i>chá fāyá</i></span>.</td><td><a class="seeit" href="?fest=hanshan&time=dawn#about">See it</a></td></tr>
         <tr><td>Tea contest<br><span class="zh">斗茶赛 <i>dòuchá sài</i></span></td><td>Once the spring tea is made, growers bring their best to be tasted side by side, and the winner is crowned “tea king” <span class="zh">茶王 <i>cháwáng</i></span>. People crowd round the tea house, and there is a cheer for the winner.</td><td><a class="seeit" href="?fest=doucha&time=day#about">See it</a></td></tr>
         <tr><td>Dragon Boat Festival<br><span class="zh">端午 <i>Duānwǔ</i></span></td><td>An early-summer festival. Bunches of mugwort and calamus are hung by the door to keep illness away, and families eat zongzi <span class="zh">粽子 <i>zòngzi</i></span>, sticky rice wrapped in leaves. Long, narrow boats with dragon heads race to the beat of a drum, and on the mountain two of them race down the Nine-Bend Stream.</td><td><a class="seeit" href="?fest=duanwu&time=day&weather=clear#about">See it</a></td></tr>
         <tr><td>Ghost Festival<br><span class="zh">中元 <i>Zhōngyuán</i></span></td><td>A quiet evening for remembering ancestors and the dead. The temple bell sounds at dusk, and small lanterns are floated down the stream.</td><td><a class="seeit" href="?fest=zhongyuan&time=night#about">See it</a></td></tr>
@@ -1796,6 +1802,8 @@ async function wake(on){
               wind through bamboo and tea bushes outside, crickets
    winter 冬 = 围炉煮茶 by the wood stove: crackling fire, kettle simmering, cold wind and drips outside
    mornings  = 天心寺's bell and bouts of 木鱼 drift up from the temple below 大红袍
+   always    = a round of gongfu tea at the table now and then (kettle into the 盖碗, lid, pitcher, cups on the tray),
+               and the gorge stream somewhere below, louder in spring and summer, thin in autumn and winter
    The scene clock below adds the solar-term moment and the hour: 惊蛰 thunder; the harvest (pickers calling, 做青 all night);
    the plum rains; summer afternoon storms (thunder answers the lightning drawn in the background); the 霜降 cold;
    大寒 cold rain and the rare snow. Roosters from before first light, dogs after dark, the noon hush, the small hours with only tea-making awake,
@@ -2291,6 +2299,8 @@ function startSeasonalAudio(season,opts={}){
     /* 秋风 through tea rows and a bamboo grove: rustling leaves and hollow stalks knocking in the gusts */
     /* 炭焙 in the roasting room, the door open to the wind; by 霜降 the cold has the door half shut */
     roast(place(0.2,mo==="frost"?0.12:0.06));
+    /* the 坑涧 stream never stops: low in the dry autumn, heard below the wind */
+    stream(mo==="frost"?0.16:0.22,-0.75);
     const cold=mo==="frost"?0.75:1, still=late?0.6:1;
     const gust=wind((night?0.02:0.035)*still,(night?0.07:0.14)*cold*still,mo==="frost"?300:350,mo==="frost"?900:1100);
     const grove=spots(4,[-1,1],[0.15,0.5]);
@@ -2320,11 +2330,37 @@ function startSeasonalAudio(season,opts={}){
     const gust=wind(0.01*hush,0.06*hush,250,600,snow?500:700);
     const gap=keep(F("bandpass",800,14)), wh=bed("white",place(-0.5,0.5),[gap],0);
     follow(wh.gain,()=>0.006*hush*Math.pow(gust(),3)); follow(gap.frequency,()=>600+500*gust());
+    /* the stream down the gorge, thin in the dry winter and muffled by snow */
+    stream(snow?0.08:0.13,-0.8);
     if(!snow){const eave=place(-0.6,0.35), f=R(700,1000);
       recur(1.5,4,t=>{bubble(t,eave,f*R(0.92,1.08),0.06,0.04,1.3); burst(t,eave,0.012,"bandpass",2200,2,0.02);},2);}
     /* snow sliding off a bamboo branch now and then */
     else recur(25,70,t=>burst(t,place(R(-0.8,0.8),R(0.3,0.6)),R(0.4,0.8),"lowpass",R(900,1600),0.7,0.02,0.05),10);
   }
+  /* 泡茶: in a Wuyi home the tea table is never cold. Every so often someone makes a round of gongfu tea at the table
+     close by: the kettle poured into the 盖碗 (the pitch climbs as it fills), the lid set back on with a porcelain tick,
+     a short steep, then the tea poured off into the pitcher and round the little cups, cups set down on the wooden tray.
+     Not in the small hours, unless the house is up making tea anyway (做青 in the harvest, 炭焙 in autumn) */
+  const gongfu=dest=>{
+    const pour=(t,dur,f0,f1,amp)=>{const s=AC.createBufferSource(), bp=F("bandpass",f0,3.5), g=AC.createGain(), bp2=F("bandpass",f0*2.1,5), g2=AC.createGain();
+      s.buffer=noiseBuf("white"); s.loop=true; bp.frequency.setValueAtTime(f0,t); bp.frequency.exponentialRampToValueAtTime(f1,t+dur);
+      bp2.frequency.setValueAtTime(f0*2.1,t); bp2.frequency.exponentialRampToValueAtTime(f1*2.1,t+dur);
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(amp,t+0.06); g.gain.setValueAtTime(amp,t+dur-0.12); g.gain.linearRampToValueAtTime(0,t+dur);
+      g2.gain.value=0.35; s.connect(bp).connect(g).connect(dest); s.connect(bp2).connect(g2).connect(g);
+      s.start(t,R(0,5)); s.stop(t+dur+0.05);
+      for(let x=t+0.1;x<t+dur-0.1;x+=R(0.05,0.16)) bubble(x,dest,R(f0*0.8,f1*1.2),R(0.02,0.04),R(0.002,0.006),R(1.2,1.6));};
+    const tick=(t,f,amp)=>{bubble(t,dest,f,0.18,amp,1.0); bubble(t,dest,f*2.76,0.08,amp*0.4,1.0); burst(t,dest,0.006,"highpass",5000,0.7,amp*0.5);};
+    const knock=(t,amp)=>{bubble(t,dest,R(240,340),0.06,amp,0.9); burst(t,dest,0.01,"bandpass",R(900,1400),2,amp*0.4);};
+    const round=t=>{let at=t;
+      pour(at,R(1.6,2.4),R(700,850),R(1500,1800),0.022); at+=2.6;
+      tick(at,R(2600,3200),0.012); at+=R(0.25,0.4); tick(at,R(2600,3200),0.008);
+      at+=R(6,14);
+      tick(at,R(2600,3200),0.008); pour(at+0.15,R(1.1,1.5),R(900,1100),R(1900,2300),0.018); at+=1.9;
+      knock(at,0.02); at+=R(0.8,1.4);
+      for(let i=0,k=3+Math.floor(R(0,3));i<k;i++){pour(at,R(0.35,0.55),R(1800,2200),R(3000,3500),0.012); at+=R(0.7,1);}
+      for(let i=0,k=2+Math.floor(R(0,2));i<k;i++){at+=R(2,6); tick(at,R(3000,3800),0.007); knock(at+0.02,0.012);}};
+    recur(70,160,round,R(4,20));};
+  if(!late||mo==="picking"||mo==="osmanthus"||mo==="frost") gongfu(place(0.12,0.07));
   /* the village below: roosters from before first light, the odd crow through the morning; dogs in the dark */
   const village=spots(3,[-1,1],[0.82,0.95]);
   if(dawn){recur(14,40,t=>rooster(t,any(village),0.022),R(1,6));}
@@ -2452,7 +2488,6 @@ const PROC={
  dark:{flow:["Pick","Kill-green","Roll","Pile-ferment 渥堆","Dry","Press and age"],key:3,taste:"Earthy, woody, smooth; changes for years as it ages.",try:["shupu","liubao","fuzhuan"]}
 };
 let wsel="green";
-function wr(k){const ts=T.filter(t=>t.type===k),lo=Math.min(...ts.map(t=>t.temp[0])),hi=Math.max(...ts.map(t=>t.temp[1]));return lo===hi?lo+"°C":lo+"–"+hi+"°C"}
 function buildColours(){
   const C=200,R=186,r=96,n=WHEEL.length,gap=1.2*Math.PI/180;
   const P=(a,rad)=>[C+Math.cos(a)*rad,C+Math.sin(a)*rad].map(v=>v.toFixed(2));
@@ -3064,10 +3099,42 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   /* 武夷 landscape along the bottom. The danxia cliffs keep their own rust-red all year; the tea rows and hills
      take the season's colour. Hidden pieces come out with the scene: extra pickers and drying sieves in the harvest,
      a sea of cloud between the peaks, frost on the rows, snow on the summits, lanterns at New Year */
-  const rowPath=b=>{let d=""; for(let x=0;x<=1200;x+=24){const y=x=>b+5*Math.sin(x/170+b), y0=y(x), y1=y(x+24);
-    d+=(x?"":`M0 ${y0.toFixed(1)}`)+`Q${x+12} ${((y0+y1)/2-9).toFixed(1)} ${x+24} ${y1.toFixed(1)}`;} return `<path d="${d}"/>`;};
-  const rows=[204,217,230,243].map(rowPath).join("");
-  const FAR="M0 260V170C30 160 50 150 70 150C95 150 100 120 110 95C118 70 150 65 160 90C170 115 172 140 190 150C220 160 250 150 270 140C285 132 290 80 300 60C312 35 345 32 355 60C365 88 362 130 380 140C410 155 450 150 480 145C500 140 505 110 515 100C528 88 550 90 558 105C566 120 570 140 600 145C640 150 680 130 700 120C712 110 715 60 728 45C742 30 770 32 778 55C788 80 785 118 805 130C840 148 880 140 910 135C930 130 935 95 948 85C962 75 985 80 990 100C996 120 1000 140 1030 145C1070 150 1100 140 1130 130C1150 125 1160 100 1172 95C1185 92 1195 105 1200 115V260Z";
+  /* 丹霞: Wuyi's peaks are not hills. Each is a block of red sandstone with sheer walls streaked by rain, a rounded
+     crown and a cap of green on top, standing on a short talus slope: 大王峰's broad dome on the left, 天游峰 behind,
+     slender 玉女峰 by the stream. The ridge line between them stays low. Peaks: [centre, top, half-width, foot] */
+  const PEAKS=[[150,62,30,150],[330,30,40,144],[537,86,23,147],[752,28,36,138],[868,74,13,150],[966,76,22,140],[1168,96,28,132]];
+  const peakD=([c,t,w,f])=>{const sh=Math.min(24,w*0.6), W=w*1.28;
+    return `C${c-W-6} ${f-2} ${c-W-2} ${f-8} ${c-W} ${f-16}C${c-w*1.14} ${f-40} ${c-w*1.03} ${t+sh+12} ${c-w} ${t+sh}`+
+      `C${c-w*0.97} ${t+5} ${c-w*0.5} ${t} ${c+w*0.1} ${t}C${c+w*0.6} ${t} ${c+w*0.95} ${t+6} ${c+w*0.98} ${t+sh*0.8}`+
+      `C${c+w*1.02} ${t+sh+14} ${c+w*1.12} ${f-40} ${c+W} ${f-16}C${c+W+2} ${f-8} ${c+W+6} ${f-2} ${c+W+14} ${f}`;};
+  /* the ridge between two peaks sags a little instead of running dead straight */
+  let FAR="M0 260V150", px=0, pf=150;
+  PEAKS.forEach(P=>{const [c,,w,f]=P, x0=c-w*1.28-14; FAR+=`Q${((px+x0)/2).toFixed(0)} ${Math.max(pf,f)+5} ${x0.toFixed(1)} ${f}`+peakD(P); px=c+w*1.28+14; pf=f;});
+  FAR+=`Q${((px+1200)/2).toFixed(0)} ${pf+4} 1200 140V260Z`;
+  /* a second line of peaks farther back, fainter, so the range has depth (kept clear of the moon's spot) */
+  const BACK=[[238,74,20,140],[440,60,26,140],[1062,62,24,134]];
+  const BACKD="M0 260V146"+BACK.map(P=>{const [c,,w,f]=P; return `L${(c-w*1.28-14).toFixed(1)} ${f}`+peakD(P);}).join("")+"L1200 146V260Z";
+  /* rain streaks down each cliff face, uneven, and the green on each crown */
+  const cliffs=PEAKS.map(([c,t,w,f])=>{let d=""; const n=Math.max(2,Math.round(w/9));
+    for(let i=0;i<n;i++){const k=(i+0.5)/n*2-1, x=c+k*w*0.82, y0=t+Math.min(24,w*0.6)*Math.abs(k)+8+((i*7)%9), y1=f-22-((i*13)%(w*0.9));
+      d+=`M${x.toFixed(1)} ${y0.toFixed(1)}L${(x+k*w*0.12).toFixed(1)} ${y1.toFixed(1)}`;} return d;}).join("");
+  const caps=PEAKS.map(([c,t,w])=>`M${c-w*0.8} ${t+w*0.32}C${c-w*0.7} ${t+2} ${c-w*0.35} ${t-1.5} ${c} ${t-1.5}C${c+w*0.35} ${t-1.5} ${c+w*0.7} ${t+2} ${c+w*0.8} ${t+w*0.32}`+
+    `Q${c+w*0.4} ${t+w*0.2} ${c} ${t+w*0.26}Q${c-w*0.4} ${t+w*0.2} ${c-w*0.8} ${t+w*0.32}Z`).join("");
+  /* 岩茶 grows in pockets among the rocks (盆景式茶园): short stone-walled terraces, each a line of round bushes,
+     broken where a boulder or a gully comes down, not endless rows across the hills */
+  const GAPS=[[95,128],[300,335],[455,500],[640,668],[790,840],[1085,1120]];
+  const terraces=[204,217,230,243].map((b,r)=>{let bush="",wall="",x=(r*9)%22;
+    const y=x=>b+5*Math.sin(x/170+b);
+    while(x<1200){const g=GAPS.find(([a,z])=>x+16>a+r*6&&x<z+r*6); if(g){x=g[1]+r*6+4; continue;}
+      const w=14+((x*7+r*13)%5), y0=y(x), y1=y(x+w);
+      bush+=`M${x} ${y0.toFixed(1)}Q${x+w/2} ${((y0+y1)/2-8).toFixed(1)} ${x+w} ${y1.toFixed(1)}`;
+      wall+=`M${x-2} ${(y0+4.5).toFixed(1)}L${x+w+2} ${(y1+4.5).toFixed(1)}`;
+      x+=w+3;}
+    return {bush,wall};});
+  const rows=terraces.map(t=>`<path d="${t.bush}"/>`).join("");
+  const walls=`<path d="${terraces.map(t=>t.wall).join("")}"/>`;
+  const rocks=GAPS.map(([a,z],i)=>{const c=(a+z)/2+6, w=(z-a)/2, y=212+(i%3)*9;
+    return `M${c-w} ${y+18}C${c-w} ${y+4} ${c-w*0.6} ${y-6} ${c} ${y-7}C${c+w*0.6} ${y-6} ${c+w} ${y+4} ${c+w} ${y+18}Z`;}).join("");
   const picker=`<g class="pk"><g class="pkbody"><path d="M371 197L380 189L389 197Z"/><path d="M380 197L379 211" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
       <path class="pkarm" d="M379.6 200.5L372.5 205" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></g><circle cx="386" cy="205" r="4"/></g>`;
   const land=document.createElement("div"); land.className="wuyi"; land.setAttribute("aria-hidden","true");
@@ -3076,11 +3143,14 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
       <clipPath id="wycap"><path d="M0 0H1200V114C1100 120 1000 110 900 117C800 124 700 112 600 118C500 124 400 113 300 119C200 125 100 114 0 118Z"/></clipPath>
       <filter id="wyblur" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="9"/></filter></defs>
     <g class="moon" transform="translate(642,113) scale(${south?-11:11},11)"></g>
+    <path class="back" d="${BACKD}"/>
     <path class="far" d="${FAR}"/>
+    <path class="cliffs" d="${cliffs}"/>
+    <path class="caps" d="${caps}"/>
     <path class="snowcap" d="${FAR}" clip-path="url(#wycap)"/>
     <g class="cloudsea" filter="url(#wyblur)"><ellipse cx="150" cy="150" rx="230" ry="16"/><ellipse cx="520" cy="146" rx="260" ry="18"/><ellipse cx="880" cy="150" rx="240" ry="15"/><ellipse cx="1180" cy="140" rx="200" ry="17"/></g>
     <path class="near" d="M0 260V200C150 175 300 165 450 180C600 195 700 205 850 190C1000 175 1100 185 1200 200V260Z"/>
-    <g clip-path="url(#wyland)"><g class="rows">${rows}</g>
+    <g clip-path="url(#wyland)"><path class="rocks" d="${rocks}"/><g class="walls">${walls}</g><g class="rows">${rows}</g>
     <g class="frostrows" transform="translate(0,-3)">${rows}</g></g>
     <path class="creek" d="M0 236C90 228 170 246 260 242C350 238 400 230 480 238C560 246 640 236 760 248C790 251 815 256 836 262H772L760 259C640 250 560 258 480 251C400 244 350 253 260 255C170 258 90 242 0 251Z"/>
     <path class="bank" d="M0 235C90 227 170 245 260 241C350 237 400 229 480 237C560 245 640 235 762 247C792 250 817 255 838 262"/>
@@ -3201,7 +3271,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   let lastKey="";
   const applyScene=()=>{const S=sceneNow(), key=sceneKey(S), M=MOMENTS[S.moment], tod={late:"night",noon:"day"}[S.tod]||S.tod;
     root.setAttribute("data-tod",tod); root.setAttribute("data-tod-fine",S.tod);
-    /* After dark the whole page goes to its night colours on every device, like Oelek's kampung, so a computer in light
+    /* After dark the whole page goes to its night colours on every device, so a computer in light
        mode and a phone that switched itself to dark mode show the same night. By day it follows the device's setting. */
     if(tod==="night") root.setAttribute("data-theme","dark"); else root.removeAttribute("data-theme");
     root.setAttribute("data-moment",S.moment); root.setAttribute("data-weather",S.weather);
@@ -3271,7 +3341,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
         const ok=startSeasonalAudio(season); if(ok){setOn(true);try{localStorage.setItem(AKEY,"on");}catch(e){}}}
     });
     if(want==="on"){
-      /* Start with the page, like Oelek. Where the browser allows autoplay (e.g. Chrome once you've used the site,
+      /* Start with the page. Where the browser allows autoplay (e.g. Chrome once you've used the site,
          Safari/Firefox with autoplay allowed) it plays straight away. Where it doesn't, the audio waits suspended and
          starts on the first tap, click or key press (iPhone Safari ignores touchstart, so touchend/click matter there). */
       try{if(navigator.audioSession) navigator.audioSession.type="playback";}catch(err){} // Safari: play even with the ringer switch on silent
@@ -3279,7 +3349,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
       let held=!AC||AC.state!=="running";   // started while the browser was holding audio back
       const EVS=["pointerdown","pointerup","mousedown","touchend","click","keydown"];
       const stop=()=>EVS.forEach(ev=>window.removeEventListener(ev,kick,true));
-      /* the speaker already shows on, so a first tap on it means "play", not "switch off" (Oelek does the same) */
+      /* the speaker already shows on, so a first tap on it means "play", not "switch off" */
       let woke=false;
       window.addEventListener("click",e=>{ if(woke&&ab.contains(e.target)){ woke=false; e.stopPropagation(); } },true);
       const kick=e=>{
