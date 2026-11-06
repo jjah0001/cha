@@ -908,6 +908,11 @@ nav.chap{background:var(--page-top)}
 .wuyi .flags,.wuyi .climbers,.wuyi .ju,.wuyi .crowd,.wuyi .banner,.wuyi .hedeng{display:none}
 .wuyi .flags{fill:#C8352B;stroke:currentColor;opacity:.7}
 :root[data-fest="hanshan"]:is([data-tod="dawn"],[data-tod="day"]) .wuyi .flags{display:inline}
+/* 清明: the family graves on the hillside swept and tidied, a wisp of smoke from the paper money burning at each */
+.wuyi .tombs{display:none}
+.wuyi .tombs .tomb{fill:currentColor;opacity:.32}
+.wuyi .tombs .paper{fill:#E7E2D6;opacity:.8}
+:root[data-fest="qingming"]:is([data-tod="dawn"],[data-tod="day"]) .wuyi .tombs{display:inline}
 /* 斗茶赛 and 茶博会: people gathered at the tea house, a red banner over the door */
 .wuyi .crowd{opacity:.24}
 .wuyi .banner{fill:#C8352B;opacity:.8}
@@ -1171,6 +1176,7 @@ nav.chap{background:var(--page-top)}
         <tr><td>Chinese New Year<br><span class="zh">春节 <i>Chūnjié</i></span></td><td>The biggest festival of the year, also called the Spring Festival, when families gather. Red lanterns go up and red couplets <span class="zh">春联 <i>chūnlián</i></span> are pasted round the door. Firecrackers and fireworks scare off bad luck, most of all on New Year’s Eve <span class="zh">除夕 <i>chúxī</i></span>, when the whole family sits down together to the reunion dinner <span class="zh">年夜饭 <i>niányèfàn</i></span>; you can hear the talk, the laughter and the toasts from the tea house. In the first days a lion dance performs by day while a crowd gathers round: two dancers inside one lion costume, the front one working the big head with its mirror and horn, blinking, snapping its jaw and shaking its head to drums and gongs, and now and then rearing up as the front dancer is lifted high.</td><td><a class="seeit" href="?fest=chunjie&festday=-1&time=night#about">New Year’s Eve</a> <a class="seeit" href="?fest=chunjie&festday=1&time=day#about">Lion dance</a></td></tr>
         <tr><td>Lantern Festival<br><span class="zh">元宵 <i>Yuánxiāo</i></span></td><td>The fifteenth night of the new year, under the first full moon, which closes the New Year season. Lanterns line the path and a glowing dragon lantern, carried on poles by a team of people, winds along it, chasing a shining pearl held up on a pole in front.</td><td><a class="seeit" href="?fest=chunjie&festday=14&time=night#about">See it</a></td></tr>
         <tr><td>Calling the Mountain<br><span class="zh">喊山 <i>hǎnshān</i></span></td><td>An old Wuyi custom held on “Insects Awaken” day. Growers gather at the old imperial tea garden with red flags, drums and gongs to wake the tea bushes for the new season. Then everyone shouts together, “tea, sprout!”, <span class="zh">茶发芽 <i>chá fāyá</i></span>.</td><td><a class="seeit" href="?fest=hanshan&time=dawn#about">See it</a></td></tr>
+        <tr><td>Tomb-Sweeping Day<br><span class="zh">清明 <i>Qīngmíng</i></span></td><td>“Clear and Bright”, when families climb the hill to sweep and tidy their ancestors’ graves, leave food and burn paper money for them, and set off a string of firecrackers before going home. In the hills round Wuyi it usually comes in a fine drizzle, just as the first tea is picked.</td><td><a class="seeit" href="?season=spring&moment=qingming&fest=qingming&time=day#about">See it</a></td></tr>
         <tr><td>Tea contest<br><span class="zh">斗茶赛 <i>dòuchá sài</i></span></td><td>Once the spring tea is made, growers bring their best to be tasted side by side, and the winner is crowned “tea king” <span class="zh">茶王 <i>cháwáng</i></span>. People crowd round the tea house, and there is a cheer for the winner.</td><td><a class="seeit" href="?fest=doucha&time=day#about">See it</a></td></tr>
         <tr><td>Dragon Boat Festival<br><span class="zh">端午 <i>Duānwǔ</i></span></td><td>An early-summer festival. Bunches of mugwort and calamus are hung by the door to keep illness away, and families eat zongzi <span class="zh">粽子 <i>zòngzi</i></span>, sticky rice wrapped in leaves. Long, narrow boats with dragon heads race to the beat of a drum, and on the mountain two of them race down the Nine-Bend Stream.</td><td><a class="seeit" href="?fest=duanwu&time=day&weather=clear#about">See it</a></td></tr>
         <tr><td>Ghost Festival<br><span class="zh">中元 <i>Zhōngyuán</i></span></td><td>A quiet evening for remembering ancestors and the dead. The temple bell sounds at dusk, and small lanterns are floated down the stream.</td><td><a class="seeit" href="?fest=zhongyuan&time=night#about">See it</a></td></tr>
@@ -1861,7 +1867,7 @@ function gorgeIR(){
    Southern-hemisphere visitors get the same moment at the same point of their own season.
    Previews: ?season=spring|summer|autumn|winter  ?time=late|dawn|day|noon|dusk|night
              ?moment=jingzhe|qingming|picking|meiyu|storms|osmanthus|frost|hearth|hanchao|snow  ?weather=storm
-             ?fest=chunjie|duanwu|zhongqiu|dongzhi|laba|zhongyuan|chongyang|hanshan|chabo|doucha  ?festday=-1 (除夕) | 0 (初一) | 14 (元宵) */
+             ?fest=chunjie|duanwu|zhongqiu|dongzhi|laba|zhongyuan|chongyang|hanshan|qingming|chabo|doucha  ?festday=-1 (除夕) | 0 (初一) | 14 (元宵) */
 const QS=(()=>{try{return new URLSearchParams(location.search);}catch(e){return new URLSearchParams("");}})();
 const TODS=["late","dawn","day","noon","dusk","night"];
 const TOD_FORCE=TODS.includes(QS.get("time"))?QS.get("time"):null;
@@ -1950,6 +1956,8 @@ const CHONGYANG={2025:"10-29",2026:"10-18",2027:"10-08",2028:"10-26",2029:"10-16
 const ZHONGYUAN={2025:"09-06",2026:"08-27",2027:"08-16",2028:"09-03",2029:"08-24",2030:"08-13",2031:"09-01",2032:"08-20",2033:"08-09",2034:"08-28",2035:"08-18",2036:"09-05"};
 const LABA={2025:"01-07",2026:"01-26",2027:"01-15",2028:"01-04",2029:"01-22",2030:"01-11",2031:"01-01",2032:"01-20",2033:"01-08",2034:"01-27",2035:"01-16",2036:"01-05"};
 const JINGZHE={2025:"03-05",2026:"03-05",2027:"03-06",2028:"03-05",2029:"03-05",2030:"03-05",2031:"03-06",2032:"03-05",2033:"03-05",2034:"03-05",2035:"03-06",2036:"03-05"};
+/* 清明 (the solar term's day), checked against lunar-javascript */
+const QINGMING={2025:"04-04",2026:"04-05",2027:"04-05",2028:"04-04",2029:"04-04",2030:"04-05",2031:"04-05",2032:"04-04",2033:"04-04",2034:"04-05",2035:"04-05",2036:"04-04"};
 const MIDAUTUMN={2025:"10-06",2026:"09-25",2027:"09-15",2028:"10-03",2029:"09-22",2030:"09-12",2031:"10-01",2032:"09-19",2033:"09-08",2034:"09-27",2035:"09-16",2036:"10-04"};
 /* 关于我们 · Your hemisphere: written for the visitor, from their own hemisphere, season and today's date */
 function paintHemi(){
@@ -1976,7 +1984,7 @@ function paintHemi(){
   if(el.dataset.k!==html){el.dataset.k=html; el.innerHTML=html;}
 }
 function festOf(d=new Date()){
-  const f=QS.get("fest"); if(["chunjie","zhongqiu","duanwu","dongzhi","laba","zhongyuan","chongyang","hanshan","chabo","doucha"].includes(f)) return {name:f,day:+(QS.get("festday")||0)||0};
+  const f=QS.get("fest"); if(["chunjie","zhongqiu","duanwu","dongzhi","laba","zhongyuan","chongyang","hanshan","qingming","chabo","doucha"].includes(f)) return {name:f,day:+(QS.get("festday")||0)||0};
   const y=d.getFullYear(), at=s=>new Date(y+"-"+s+"T00:00:00"), days=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-a)/864e5);
   if(CNY[y]){const k=days(at(CNY[y]),d); if(k>=-1&&k<=14) return {name:"chunjie",day:k};}
   if(MIDAUTUMN[y]){const k=days(at(MIDAUTUMN[y]),d); if(k>=-1&&k<=1) return {name:"zhongqiu",day:k};}
@@ -1988,6 +1996,8 @@ function festOf(d=new Date()){
      喊山 on 惊蛰 itself, and the spring 斗茶赛 once the spring tea is made (no fixed date; a few days after 小满) */
   if(SC.season==="spring"){const t=teaYearDate(d,"spring"), md=String(t.m).padStart(2,"0")+"-"+String(t.d).padStart(2,"0");
     if(JINGZHE[y]&&md===JINGZHE[y]) return {name:"hanshan",day:0};
+    /* 清明 itself: families go up the hill to sweep the graves */
+    if(QINGMING[y]&&md===QINGMING[y]) return {name:"qingming",day:0};
     if(t.m===5&&t.d>=24&&t.d<=26) return {name:"doucha",day:t.d-24};}
   /* 海峡两岸茶博会 is held in 武夷山市 every November (the 17th ran 16–20 Nov 2025); dates move a little each year */
   if(d.getMonth()===10&&d.getDate()>=15&&d.getDate()<=19) return {name:"chabo",day:d.getDate()-15};
@@ -2460,6 +2470,8 @@ function startSeasonalAudio(season,opts={}){
     gong(at,dest,0.08); at+=2.4;
     for(let i=0;i<3;i++){drum(at,dest,0.08); gong(at,dest,0.07); at+=2.2;}
     luogu(at+0.6,dest,0.055);};
+  /* 清明: firecrackers on the hillsides as each family finishes at its graves, in the morning, with the drizzle */
+  if(S.fest==="qingming"&&(dawn||(tod==="day"&&hr<15))) recur(60,150,t=>crackers(t,place(R(-1,1),R(0.75,0.95)),0.04),R(5,25));
   if(S.fest==="hanshan"&&(dawn||(tod==="day"&&hr<12))){const garden=place(R(-0.5,-0.2),0.4);
     recur(70,150,t=>hanshanCall(t,garden),R(3,8));}
   /* 斗茶赛: the judging at the tea house, cups set down and filled, kettles pouring, a cheer and applause for the 茶王 */
@@ -3256,6 +3268,8 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     <g class="aicao"><path d="M944 173L940 189M944 173L943.5 190M944 173L947 189M996 173L992 189M996 173L996.5 190M996 173L999 189"/>
       <ellipse cx="941" cy="183" rx="2.2" ry="1.4"/><ellipse cx="947" cy="185" rx="2.2" ry="1.4"/><ellipse cx="993" cy="184" rx="2.2" ry="1.4"/><ellipse cx="999" cy="182" rx="2.2" ry="1.4"/>
       <path class="tie" d="M942.5 174H945.5M994.5 174H997.5"/></g>
+    <g class="tombs">${[[612,186],[648,183]].map(([x,y])=>`<path class="tomb" d="M${x-9} ${y+4}Q${x-9} ${y-5} ${x} ${y-5}Q${x+9} ${y-5} ${x+9} ${y+4}Z"/><rect class="paper" x="${x-1.2}" y="${y-9}" width="2.4" height="4"/>`).join("")}
+      <g class="smoke">${[[612,186],[648,183]].map(([x,y])=>`<path d="M${x} ${y-3}c-3-4 3-7 0-11"/>`).join("")}</g></g>
     <g class="smoke"><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/><path d="M987 148c-4-6 4-10 0-16"/></g>
   </svg>`;
   /* sky wash behind everything: peach glow at dawn, amber at dusk, deep blue at night and deeper after midnight,
@@ -3327,7 +3341,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
     drawMoon(); paintBar(); paintHemi();
     if(b){b.hidden=false;b.innerHTML=`<span class="sdot"></span>${names[season]} · ${M.zh}`;
       b.title=`Themed to ${season} in your timezone (${tz||"unknown"}${south?", southern hemisphere":""}): ${M.zh}, ${M.en}.`+
-        `${({hanshan:" 喊山: on the morning of 惊蛰, red flags, gongs and drums at the imperial tea garden to wake the tea bushes.",
+        `${({qingming:" 清明: families up the hill to sweep the graves, paper money burning and firecrackers on the slopes, in the drizzle.",hanshan:" 喊山: on the morning of 惊蛰, red flags, gongs and drums at the imperial tea garden to wake the tea bushes.",
           doucha:" 斗茶赛: the spring tea contest at the tea house.",chabo:" 茶博会 week in 武夷山: visitors from town on the path.",
           chongyang:" 重阳: people climbing the peaks; chrysanthemums by the door.",zhongyuan:" 中元: the temple bell at dusk and lanterns floating down the stream.",
           laba:" 腊八: a pot of 腊八粥 on the stove from first light."})[S.fest]||""}${S.fest==="dongzhi"?(S.festDay<0?" 冬至 eve: rolling 冬至圆 at the table, the lamp lit early on the longest night.":" 冬至: 汤圆 on the stove at first light."):S.fest==="duanwu"?" 端午: mugwort and calamus by the door, 粽子 on the stove, dragon boats racing down the stream.":S.fest==="chunjie"?({chuxi:" 除夕: lanterns up, firecrackers and fireworks tonight.",chuyi:" 春节: lanterns, firecrackers and drum-and-gong troupes.",yuanxiao:" 元宵: lanterns along the path and fireworks.",after:" 春节 lanterns are still up."}[festPart(S)]):S.fest==="zhongqiu"?" 中秋: the family reunion dinner, children with lanterns, and the clouds part for the full moon.":""}`+
