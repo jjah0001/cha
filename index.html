@@ -1019,7 +1019,7 @@ nav.chap{background:var(--page-top)}
     <div class="basics">
       <div><b>One plant</b>Green, white, oolong, black and Pu'er all come from Camellia sinensis. Herbal "teas" like chamomile are infusions, not tea.</div>
       <div><b>Oxidation is the dial</b>Once a leaf is bruised it browns, like a cut apple. Stopping that early keeps tea green; letting it run makes it red.</div>
-      <div><b>Red, not black</b>What English calls black tea, China calls red tea (红茶) for its liquor. China's "black" tea (黑茶) is dark, aged tea like Pu'er.</div>
+      <div><b>Red, not black</b>What English calls black tea, China calls red tea (红茶) for its liquor. China's "black" tea (黑茶) is post-fermented dark tea, such as ripe Pu'er, Anhua bricks and Liu Bao.</div>
     </div>
   </section>
 
@@ -1029,7 +1029,7 @@ nav.chap{background:var(--page-top)}
     <div class="chips" id="chips" role="toolbar" aria-label="Filter by tea type"></div>
     <div class="tierrow"><div class="seg2" role="group" aria-label="Which teas to show" id="tier">
       <button data-t="all" aria-pressed="true">All teas</button><button data-t="full" aria-pressed="false">Full profiles</button><button data-t="idx" aria-pressed="false">Listed teas</button><button data-t="mine" aria-pressed="false">My shelf</button></div>
-      <span class="hint" id="tierHint">Full profiles share a complete reading and brewing layout. Register-based profiles identify style estimates and gaps in individual history. Historic bushes, cultivars and origins are distinguished from finished teas.</span></div>
+      <span class="hint" id="tierHint">Full profiles share a complete reading and brewing layout. Listed teas come from official registers, so their tasting and brewing notes are estimates for the style and their histories may have gaps. Historic bushes, cultivars and origins are distinguished from finished teas.</span></div>
     <div class="atlas">
       <div class="mapcol"><div class="mapbox" id="map"></div>
         <div class="crumb" id="crumb"></div></div>
@@ -1470,10 +1470,12 @@ const SHAPE_OF={}; for(const k in SHAPES) for(const id of SHAPES[k]) SHAPE_OF[id
 const PAL={green:["#5F7F2E","#7A9640","#4D6A27","#8EA858"],white:["#B9BBA8","#D6D5C6","#9FA58F","#E6E4D8"],yellow:["#A79A3B","#BFAE55","#8C8432","#C9B85E"],
  olight:["#3E6A36","#527F45","#2E5730","#5E8A4B"],oroast:["#3A2A1F","#563A28","#2A1D16","#6B4630"],red:["#2A1C17","#3B2720","#4A3226","#33231C"],
  gold:["#C8892F","#D9A048","#B5762A","#3A2720"],dark:["#3B2A20","#4C3628","#2C2019","#5A4030"],sheng:["#5B5433","#6E6640","#4A452B","#8A7A4A"],
- ripe:["#3A2418","#4A2E1E","#2C1B12","#553422"],moon:["#2B2B28","#D9D8CA","#3A3A34","#E8E6DA"],beauty:["#7A5A2E","#C9B37A","#4E6A3A","#E3DCC8"]};
-const LIQ={green:"#D7E39A",white:"#F0D99B",yellow:"#E8C65A",olight:"#E6BE58",oroast:"#B9662C",red:"#A3401F",gold:"#B85A22",dark:"#7A3518",sheng:"#D99A35",ripe:"#561E10",moon:"#EFCB84",beauty:"#D9892F"};
+ ripe:["#3A2418","#4A2E1E","#2C1B12","#553422"],amber:["#6B4A26","#7E5A2E","#57401F","#8C6A36"],moon:["#2B2B28","#D9D8CA","#3A3A34","#E8E6DA"],beauty:["#7A5A2E","#C9B37A","#4E6A3A","#E3DCC8"]};
+const LIQ={green:"#D7E39A",white:"#F0D99B",yellow:"#E8C65A",olight:"#E6BE58",oroast:"#B9662C",amber:"#D99A38",red:"#A3401F",gold:"#B85A22",dark:"#7A3518",sheng:"#D99A35",ripe:"#561E10",moon:"#EFCB84",beauty:"#D9892F"};
 function palKey(t){
   if(t.id==="yueguangbai")return"moon"; if(t.id==="dongfang")return"beauty";
+  // 单丛 and 白鸡冠: twisted strips, eel-skin yellow-brown (鳝鱼皮色) even at a medium roast
+  if(["dancong","yashixiang","lingtou","songzhong","zhilan","huangzhi","xingren","jianghua","yelaixiang","baxian","baijiguan"].includes(t.id))return"amber";
   if(t.type==="oolong")return (t.f?t.f.roast>=3:["wuyi","wuyihist"].includes(t.group))?"oroast":"olight";
   if(t.type==="red")return (SHAPE_OF[t.id]||t.shape)==="golden"?"gold":"red";
   if(t.type==="dark")return ["shupu","laochatou","xiaoqinggan"].includes(t.id)?"ripe":(["shengpu","laobanzhang","bingdao","xiaguan","jingmai","xigui","mansong","nannuoshan","jincha"].includes(t.id)?"sheng":"dark");
@@ -1486,24 +1488,57 @@ function art(t,pre){
   const pressed=["cake","tuo","brick","log","square","citrus"].includes(shape);
   // heap: points denser in the middle, drawn back to front
   const heap=(n,rx=34,ry=11,cx=64,cy=62)=>{const a=[];for(let i=0;i<n;i++){a.push([cx+(R()+R()-1)*rx,cy+(R()+R()-1)*ry-(1-Math.abs(R()+R()-1))*4])}return a.sort((p,q)=>p[1]-q[1])};
-  const leaf=(L,W,fill,x,y,r,stroke="rgba(0,0,0,.28)")=>`<path d="M${-L/2},0 Q0,${-W} ${L/2},0 Q0,${W} ${-L/2},0Z" fill="${fill}" stroke="${stroke}" stroke-width=".5" transform="translate(${f1(x)},${f1(y)}) scale(1,.72) rotate(${Math.floor(R()*180)})"/>`;
+  // a dry leaf or bud lying on the dish: rounded base at -L/2, pointed tip at +L/2, widest a third of the way up
+  const blade=(L,W,fill,stroke="rgba(0,0,0,.28)",rib)=>{const h=L/2;
+    return `<path d="M${f1(-h)},0 C${f1(-h+L*.08)},${f1(-W*1.1)} ${f1(h-L*.42)},${f1(-W*1.05)} ${f1(h)},0 C${f1(h-L*.45)},${f1(W*.9)} ${f1(-h+L*.06)},${f1(W*1.05)} ${f1(-h)},0Z" fill="${fill}" stroke="${stroke}" stroke-width=".5"/>`
+      +(rib?`<path d="M${f1(-h*.92)},0 Q0,${f1(-W*.12)} ${f1(h*.8)},0" stroke="${rib}" stroke-width=".45" fill="none"/>`:"")};
+  const lay=(inner,x,y,rot=Math.floor(R()*360))=>`<g transform="translate(${f1(x)},${f1(y)}) scale(1,.72) rotate(${rot})">${inner}</g>`;
+  const leaf=(L,W,fill,x,y,stroke,rib)=>lay(blade(L,W,fill,stroke,rib),x,y);
+  // a downy bud: pale, plump, with a silver sheen of hairs along one edge
+  const bud=(L,W,fill,down="rgba(255,255,255,.55)")=>blade(L,W,fill,"rgba(90,90,70,.35)")
+    +`<path d="M${f1(-L*.42)},${f1(-W*.35)} C${f1(-L*.1)},${f1(-W*.75)} ${f1(L*.2)},${f1(-W*.55)} ${f1(L*.44)},${f1(-W*.08)}" stroke="${down}" stroke-width="${f1(Math.max(.6,W*.35))}" fill="none" stroke-linecap="round"/>`;
+  // a long single bud (银针): plump below the middle, tapering to a fine point, gently curved, a brown stub at the base
+  const needle=(L,W,fill,bend,stub="#7A5A3A")=>{const h=L/2,n=12,top=[],bot=[];
+    for(let i=0;i<=n;i++){const u=i/n,x=-h+u*L,y=bend*u*u*L,w=W*(u<.3?.62+.38*(u/.3):Math.pow((1-u)/.7,.85));top.push(`${f1(x)},${f1(y-w)}`);bot.push(`${f1(x)},${f1(y+w)}`)}
+    return `<path d="M${f1(-h-1.4)},.2 L${f1(-h+.4)},0" stroke="${stub}" stroke-width="1.1" stroke-linecap="round"/>`
+      +`<path d="M${top[0]} L${top.slice(1).join(" ")} L${bot.reverse().join(" ")} Q${f1(-h-W*.7)},0 ${top[0]}Z" fill="${fill}" stroke="rgba(90,85,65,.38)" stroke-width=".45" stroke-linejoin="round"/>`
+      +`<path d="M${f1(-h+L*.08)},${f1(-W*.3)} Q${f1(L*.05)},${f1(bend*.3*L-W*.45)} ${f1(h-L*.12)},${f1(bend*.75*L-W*.1)}" stroke="rgba(255,255,255,.6)" stroke-width="${f1(W*.45)}" fill="none" stroke-linecap="round"/>`};
+  // one bud with one or two leaves on a short stem, all joined at the base (雀舌 / 一芽一二叶)
+  const shoot=(o)=>{const{L,Lb,W,Wb,lp,bp,spread=14,two=.5,stem="#8B8A55"}=o;
+    let s=`<path d="M-3.2,.4 L0,0" stroke="${stem}" stroke-width="1.1" stroke-linecap="round"/>`;
+    if(R()<two)s+=`<g transform="rotate(${-spread*2.2}) translate(${f1(L*.42)},0)">${blade(L*.85,W*1.05,pick(lp),"rgba(0,0,0,.28)","rgba(0,0,0,.18)")}</g>`;
+    s+=`<g transform="rotate(${spread}) translate(${f1(L*.48)},0)">${blade(L,W,pick(lp),"rgba(0,0,0,.28)","rgba(0,0,0,.18)")}</g>`;
+    s+=`<g transform="rotate(${-spread*.35}) translate(${f1(Lb*.5)},0)">${bud(Lb,Wb,pick(bp))}</g>`;
+    return s};
   const strand=(path,col,w,x,y)=>`<path d="${path}" stroke="${col}" stroke-width="${w}" fill="none" stroke-linecap="round" transform="translate(${f1(x)},${f1(y)}) scale(1,.75) rotate(${Math.floor(R()*180)})"/>`;
   let g="";
   switch(shape){
-    case"flat":for(const[x,y]of heap(42,36,12))g+=leaf(24,4.6,pick(P),x,y);break;
-    case"longflat":for(const[x,y]of heap(9,24,7))g+=leaf(46,7,pick(P),x,y);break;
+    case"flat":{const Q=t.id==="longjing"?["#8C9846","#A1A757","#7A8A3C","#B0AE68"]:P; // 龙井: flat, smooth, 糙米色
+      for(const[x,y]of heap(30,36,12))g+=leaf(22,4.2,pick(Q),x,y,"rgba(0,0,0,.28)","rgba(255,255,230,.35)");}break;
+    case"longflat":for(const[x,y]of heap(9,24,7)){const rot=Math.floor(-25+R()*50); // 猴魁: long straight blades, 两叶抱一芽, red-tinged veins
+      g+=lay(blade(48,5.6,pick(P),"rgba(0,0,0,.3)","rgba(150,60,40,.55)")+`<path d="M-18,-1.6 L20,-1.2 M-18,1.6 L18,1.3" stroke="rgba(255,255,255,.12)" stroke-width=".5"/>`,x,y,R()<.5?rot:rot+180)}break;
     case"needle":for(const[x,y]of heap(64,36,12))g+=leaf(22,2,pick(P),x,y,"rgba(0,0,0,.2)");break;
     case"spiral":{const Q=P.concat(["#A9B98A","#B7C49A"]);for(const[x,y]of heap(95,36,12))g+=`<path d="M-3.2,0 C-3.2,-3 3.2,-3 3.2,0 C3.2,2.2 0,2.6 -.6,.6" fill="${pick(Q)}" stroke="rgba(0,0,0,.25)" stroke-width=".5" transform="translate(${f1(x)},${f1(y)}) rotate(${Math.floor(R()*360)})"/>`;}break;
-    case"budleaf":{const bud=t.type==="white"?["#E8EADC","#D8DCCB","#EFF0E4"]:P;
-      for(const[x,y]of heap(38,36,12))g+=leaf(14,3.6,pick(P),x,y)+leaf(9,3.4,pick(bud),x+3,y+1);}break;
-    case"bud":{
-      const budPal=t.type!=="white"?["#C9BC6A","#D6CA82","#B8AA55","#E0D59A"]
-        :t.id==="zhengheyz"?["#A8AE94","#B8BEA3","#949A80","#C6CBB1"]
-        :t.id==="lvxueya"?["#B6C19A","#C7D1AB","#9FAB85","#D5DEBE"]
-        :["#D8DCCB","#C8CDB6","#E6E7DA","#B9C0A6"];
-      const Q=budPal, w=t.id==="zhengheyz"?5.4:4.6, L=t.id==="zhengheyz"?24:22;
-      for(const[x,y]of heap(46,36,12))g+=leaf(L,w,pick(Q),x,y,"rgba(90,90,70,.35)");
+    case"budleaf":{
+      const white=t.type==="white", bp=white?["#E8EADC","#D8DCCB","#EFF0E4"]:t.type==="yellow"?["#D2C77E","#DCD392","#C6BA6B"]:["#C9CB86","#D6D69A","#BABE76"];
+      const lp=white?["#8E9A7E","#A3AC90","#7C8A6E","#B5BBA2"]:t.id==="maofeng"?["#9EA25A","#8B9449","#B0AF68","#7F8A44"]:P;
+      const big=white?1.2:1.15;
+      for(const[x,y]of heap(white?16:18,32,8,64,65))g+=lay(shoot({L:15*big,Lb:12*big,W:white?3.8:2.9,Wb:2,lp,bp,spread:white?24:11,two:white?.8:.35}),x,y);
     }break;
+    case"bud":{
+      // 白毫银针: silvery grey-beige downy needles; 君山银针 / 蒙顶黄芽: golden-yellow buds, straighter
+      const white=t.type==="white";
+      const Q=!white?["#C9BC6A","#D6CA82","#B8AA55","#E0D59A"]
+        :t.id==="zhengheyz"?["#B4B29C","#C2C0AA","#A3A18A","#CFCDB9"]
+        :t.id==="lvxueya"?["#BFC6A6","#CDD3B6","#AEB693","#D8DDC4"]
+        :["#D3CFBC","#C3BFA8","#DEDBCB","#B2AE96","#CBC4AA"];
+      const w=t.id==="zhengheyz"?2.5:2.1, L=t.id==="zhengheyz"?25:24;
+      for(const[x,y]of heap(white?34:36,34,10,64,64))g+=lay(needle(L*(.85+R()*.3),w,pick(Q),(white?.06:.02)*(R()*2-1),white?"#7A5A3A":"#8A7A3A"),x,y);
+    }break;
+    case"melon":for(const[x,y]of heap(34,36,12))g+=lay(blade(17,5,pick(P),"rgba(0,0,0,.3)")+`<path d="M-7.5,-2.6 Q0,-4.6 7,-1" stroke="rgba(255,255,255,.22)" stroke-width="1" fill="none"/>`,x,y);break;
+    case"leafy":for(const[x,y]of heap(26,36,12)){const big=R()<.7;
+      g+=big?lay(blade(22,6.5,pick(P),"rgba(0,0,0,.28)","rgba(0,0,0,.2)")+(t.id==="huangdacha"?`<path d="M-11,0 C-15,.5 -18,2.5 -19,5" stroke="#8C7A3A" stroke-width="1.4" fill="none" stroke-linecap="round"/>`:""),x,y)
+        :lay(bud(13,2.6,t.type==="white"?"#E6E5DA":pick(P)),x,y)}break;
     case"melon":for(const[x,y]of heap(42,36,12))g+=leaf(16,6,pick(P),x,y);break;
     case"leafy":for(const[x,y]of heap(30,36,12)){const big=R()<.75;g+=leaf(big?22:14,big?8:3.5,big?pick(P):(t.type==="white"?"#E6E5DA":pick(P)),x,y)}break;
     case"ball":for(const[x,y]of heap(80,36,12)){const r=2.6+R()*1.6,c=pick(P);g+=`<path d="M${-r},0 C${-r},${-r*1.1} ${r},${-r*1.1} ${r},0 C${r},${r*.8} ${r*.2},${r} ${-r*.3},${r*.9} C${-r*.9},${r*.7} ${-r},${r*.4} ${-r},0Z" fill="${c}" stroke="rgba(0,0,0,.3)" stroke-width=".5" transform="translate(${f1(x)},${f1(y)}) rotate(${Math.floor(R()*360)})"/>`}break;
