@@ -1466,6 +1466,7 @@ const SHAPES={
  brick:["fuzhuan","jingyang","heizhuan","qingzhuan","mizhuan","zangcha"], log:["qianliang"], square:["zhangping"],
  loose:["liubao","tianjian","anqcha"], jasmine:["jasmine","bitan"]
 };
+const SHAPE_M={flat:11,longflat:24,needle:11,spiral:3,budleaf:15,bud:14,melon:9,leafy:11,ball:4,twisted:14,wiry:7,golden:7,loose:10,jasmine:9};
 const SHAPE_OF={}; for(const k in SHAPES) for(const id of SHAPES[k]) SHAPE_OF[id]=k;
 const PAL={green:["#5F7F2E","#7A9640","#4D6A27","#8EA858"],white:["#B9BBA8","#D6D5C6","#9FA58F","#E6E4D8"],yellow:["#A79A3B","#BFAE55","#8C8432","#C9B85E"],
  olight:["#3E6A36","#527F45","#2E5730","#5E8A4B"],oroast:["#3A2A1F","#563A28","#2A1D16","#6B4630"],red:["#2A1C17","#3B2720","#4A3226","#33231C"],
@@ -1487,7 +1488,10 @@ function art(t,pre){
   const pick=a=>a[Math.floor(R()*a.length)], f1=v=>v.toFixed(1);
   const pressed=["cake","tuo","brick","log","square","citrus"].includes(shape);
   // heap: points denser in the middle, drawn back to front
-  const heap=(n,rx=34,ry=11,cx=64,cy=62)=>{const a=[];for(let i=0;i<n;i++){a.push([cx+(R()+R()-1)*rx,cy+(R()+R()-1)*ry-(1-Math.abs(R()+R()-1))*4])}return a.sort((p,q)=>p[1]-q[1])};
+  // m: half the length of the piece, so nothing reaches the rim of the dish and gets cut off by it
+  const heap=(n,rx=34,ry=11,cx=64,cy=62,m=SHAPE_M[shape]||0)=>{const a=[],ex=Math.max(8,51-m),ey=Math.max(5,19-m*.55);
+    for(let i=0;i<n;i++){let x,y,k=0;do{x=cx+(R()+R()-1)*rx;y=cy+(R()+R()-1)*ry-(1-Math.abs(R()+R()-1))*4}while(++k<40&&((x-64.5)/ex)**2+((y-64)/ey)**2>1);a.push([x,y])}
+    return a.sort((p,q)=>p[1]-q[1])};
   // a dry leaf or bud lying on the dish: rounded base at -L/2, pointed tip at +L/2, widest a third of the way up
   const blade=(L,W,fill,stroke="rgba(0,0,0,.28)",rib)=>{const h=L/2;
     return `<path d="M${f1(-h)},0 C${f1(-h+L*.08)},${f1(-W*1.1)} ${f1(h-L*.42)},${f1(-W*1.05)} ${f1(h)},0 C${f1(h-L*.45)},${f1(W*.9)} ${f1(-h+L*.06)},${f1(W*1.05)} ${f1(-h)},0Z" fill="${fill}" stroke="${stroke}" stroke-width=".5"/>`
@@ -1506,8 +1510,8 @@ function art(t,pre){
   // a rolled oolong strip (条索): a leaf twisted lengthwise, thick in the middle, tapering to a point at the tip and
   // a cut stem end at the base, gently S-curved, with the spiral seam of the twist and a dull sheen along the top
   const twist=(L,W,fill,bend,seam="rgba(0,0,0,.32)")=>{const h=L/2,n=14,top=[],bot=[],sp=u=>bend*L*Math.sin(Math.PI*u)*(u-.35);
-    for(let i=0;i<=n;i++){const u=i/n,x=-h+u*L,y=sp(u),w=W*(u<.18?.55+.45*u/.18:u<.6?1:Math.pow((1-u)/.4,.7));top.push(`${f1(x)},${f1(y-w)}`);bot.push(`${f1(x)},${f1(y+w)}`)}
-    let o=`<path d="M${top[0]} L${top.slice(1).join(" ")} L${bot.reverse().join(" ")}Z" fill="${fill}" stroke="rgba(0,0,0,.35)" stroke-width=".45" stroke-linejoin="round"/>`;
+    for(let i=0;i<=n;i++){const u=i/n,x=-h+u*L,y=sp(u),w=W*(u<.2?.35+.65*Math.sqrt(u/.2):u<.6?1:Math.pow((1-u)/.4,.7));top.push(`${f1(x)},${f1(y-w)}`);bot.push(`${f1(x)},${f1(y+w)}`)}
+    let o=`<path d="M${top[0]} L${top.slice(1).join(" ")} L${bot.reverse().join(" ")} Q${f1(-h-W*.6)},${f1(sp(0))} ${top[0]}Z" fill="${fill}" stroke="rgba(0,0,0,.35)" stroke-width=".45" stroke-linejoin="round"/>`;
     for(const u of[.22,.42,.62]){const x=-h+u*L,y=sp(u);o+=`<path d="M${f1(x-W*.9)},${f1(y-W*.8)} L${f1(x+W*.9)},${f1(y+W*.8)}" stroke="${seam}" stroke-width=".5"/>`}
     return o+`<path d="M${f1(-h+L*.1)},${f1(sp(.1)-W*.45)} L${f1(-h+L*.75)},${f1(sp(.75)-W*.35)}" stroke="rgba(255,240,210,.22)" stroke-width="${f1(W*.4)}" stroke-linecap="round"/>`};
   // one bud with one or two leaves on a short stem, all joined at the base (雀舌 / 一芽一二叶)
@@ -1586,7 +1590,7 @@ function art(t,pre){
    <defs><clipPath id="${gid}c"><path d="M13,63 C32,43 98,42 116,58 C100,82 34,86 13,63Z"/></clipPath>
    <linearGradient id="${gid}l" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="${liq}" stop-opacity="0"/></linearGradient></defs>
    ${vessel}
-   ${pressed?g:`<g clip-path="url(#${gid}c)">${g}</g>`}
+   ${g}
    <ellipse cx="136" cy="99" rx="17" ry="4" fill="rgba(0,0,0,.12)"/>
    <path d="M120,70 C120,86 126,97 136,97 C146,97 152,86 152,70Z" fill="#F7F5EE" stroke="#CDC6B5"/>
    <rect x="131" y="96" width="10" height="2.5" rx="1" fill="#E9E4D6" stroke="#CDC6B5" stroke-width=".6"/>
