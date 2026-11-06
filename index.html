@@ -1104,6 +1104,9 @@ nav.chap{background:var(--page-top)}
           <img class="th-smell" data-pose="smell" src="img/master-lin/smell.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-laugh" data-pose="laugh" src="img/master-lin/laugh.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-welcome" data-pose="welcome" src="img/master-lin/welcome.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-talk-c" data-pose="talk-c" src="img/master-lin/talk-c.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-reach-pot" data-pose="reach-pot" src="img/master-lin/reach-pot.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-smell-lid" data-pose="smell-lid" src="img/master-lin/smell-lid.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
         </div>
         <div class="th-steam" aria-hidden="true"><i></i><i></i></div>
       </figure>
@@ -3643,34 +3646,44 @@ initReviews();
     ["serve",/\b(pour (you|yours?|us|a|another|some|more)|refill(s|ed|ing)?|top (you |it |that )?up|another cup|fresh cup|a cup for you|fill (your|the|our) cups?)\b|倒(一|杯|茶|上|满|点|给)|斟|续(杯|茶|上|一)|添(茶|一|点|上)|再来一杯|分茶/gi],
     ["pour",/\b(decant(s|ed|ing)?|pour(s|ed|ing)? (it |the tea )?off|fairness pitcher|into the pitcher)\b|出汤|公道杯/gi],
     ["brew",/\b(brew(s|ed|ing)?|steep(s|ed|ing)?|infusions?|fresh pot|new pot|hot water|kettle|boil(s|ed|ing)?|rinse|warm (up )?the (pot|cups))\b|泡(茶|一|上|杯|壶|了|好)|冲(泡|一|了)|烧水|开水|温杯|洗茶|醒茶|换一泡|新的一泡/gi],
+    ["sip",/\b(I'll|I will|let me|I) (have|take) a sip|\bI('ll| will)? drink\b|我(也|先)?(喝|尝)一?口|我先(喝|尝)/gi],
     ["offer",/\b(taste (this|it|that|some)|have a taste|try (this|it|some|one)|(take|have) a sip|here you (go|are)|have some|enjoy|this cup|drink up)\b|尝|喝一口|喝口|请(喝|用|品)|你试试|品一品|这杯/gi],
     ["smell",/\b(smell(s|ed|ing)?|aromas?|fragran(t|ce)|scents?|sniff)\b|闻|香气|香味|茶香/gi],
     ["laugh",/\b(ha(ha)+|he(he)+|lol|laugh(s|ed|ing)?|funny|joking)\b|\bha!|哈哈|呵呵|嘿嘿|[😄😂😆]/giu],
     ["welcome",/\b(welcome|come in|take a seat|sit,? sit|nice to meet you|goodbye|see you|come back (any ?time|soon)|safe travels)\b|欢迎|请坐|坐坐|慢走|再见|下次再来/gi]];
-  const HOLD={serve:2100,pour:2100,brew:2000,offer:1900,smell:1800,laugh:1300,welcome:1700};
+  const HOLD={serve:2100,pour:2100,brew:2000,offer:1900,smell:1800,sip:1800,laugh:1300,welcome:1700};
+  /* the frame each gesture plays: a tea master smells the lid and the wet leaves (闻盖香), and only lifts a cup to
+     his nose when he is about to drink it himself; a reach frame, where there is one, plays first */
+  const FRAME={smell:"smell-lid",sip:"smell"}, REACH={pour:"reach-pot"}, REACH_MS=380;
   const cuesFor=text=>{const L=Math.max(1,text.length), hits=[];
-    for(const [g,re] of GESTURES){re.lastIndex=0; let m; while((m=re.exec(text))) hits.push({gesture:g,at:Math.max(0,m.index/L-0.04)});}
-    return hits.sort((a,b)=>a.at-b.at);};
+    for(const [g,re] of GESTURES){re.lastIndex=0; let m; while((m=re.exec(text))) hits.push({gesture:g,at:Math.max(0,m.index/L-0.04),i:m.index});}
+    /* "let me have a sip" is him drinking, not an offer to the guest */
+    const sips=hits.filter(h=>h.gesture==="sip");
+    return hits.filter(h=>h.gesture!=="offer"||!sips.some(x=>h.i>=x.i&&h.i-x.i<16)).sort((a,b)=>a.at-b.at);};
   /* fractions of the typing time become a timeline: at most three gestures, each once and held long enough to
      read, with a beat of talking between them so he never jumps straight from one action to the next; the last
      one may land just after his final words ("Here, taste this." ends with the cup held out) */
-  const plan=(cues,dur)=>{const out=[];
-    for(const c of cues){const last=out[out.length-1]; if(out.some(o=>o.g===c.gesture)) continue;
-      const start=Math.max(c.at*dur,last?last.end+450:0); if(start>dur+400||out.length>=3) break;
-      out.push({g:c.gesture,start,end:start+HOLD[c.gesture]});}
+  const plan=(cues,dur)=>{const out=[]; let n=0;
+    for(const c of cues){const last=out[out.length-1]; if(out.some(o=>o.gesture===c.gesture)) continue;
+      let start=Math.max(c.at*dur,last?last.end+450:0); if(start>dur+400||n>=3) break; n++;
+      const reach=REACH[c.gesture]; if(reach){out.push({g:reach,gesture:"reach",start,end:start+REACH_MS}); start+=REACH_MS;}
+      out.push({g:FRAME[c.gesture]||c.gesture,gesture:c.gesture,start,end:start+HOLD[c.gesture]});}
     return out;};
   /* He talks while the words appear, his mouth swapping between two shapes, and acts out each cue in turn;
-     a gesture that starts near the end is finished after the last word. */
+     a gesture that starts near the end is finished after the last word. Between gestures he talks with his hands
+     resting (talk C and idle) and raises his hand to explain (talk A and B) on every other sentence. */
   const speak=(el,text,cues)=>new Promise(res=>{
     const sequence=cues||cuesFor(text);
     if(still()){stop();el.innerHTML=para(text);res();return;}
     const dur=Math.min(12000,Math.max(2400,text.length*35)), t0=performance.now(), tl=plan(sequence,dur),
-      end=Math.max(dur,tl.length?tl[tl.length-1].end:0), run=++acting;
+      end=Math.max(dur,tl.length?tl[tl.length-1].end:0), run=++acting,
+      breaks=[...text.matchAll(/[.!?。！？]+\s*/g)].map(m=>(m.index+m[0].length)/Math.max(1,text.length)).filter(f=>f<0.98);
     let mouth=0, flip=0, done=false;
     const step=now=>{if(run!==acting){if(!done){done=true; el.innerHTML=para(text); follow(el.parentElement); res();} return;}
       const t=now-t0, k=Math.min(1,t/dur), g=tl.find(c=>t>=c.start&&t<c.end);
       if(g) show(g.g);
-      else if(t<dur){if(now>=flip){mouth^=1; flip=now+(mouth?260+Math.random()*420:380+Math.random()*640);} show(mouth?"talk-a":"talk-b");}
+      else if(t<dur){if(now>=flip){mouth^=1; flip=now+(mouth?260+Math.random()*420:380+Math.random()*640);}
+        const up=breaks.filter(b=>b<=k).length%2===1; show(mouth?(up?"talk-a":"talk-c"):(up?"talk-b":""));}
       else show("");
       if(!done){el.innerHTML=para(text.slice(0,Math.ceil(text.length*k))); log.scrollTop=log.scrollHeight;
         if(k>=1){done=true; follow(el.parentElement); res();}}

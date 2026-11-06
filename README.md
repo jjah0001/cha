@@ -137,7 +137,10 @@ For a local build with ratings, create `config.json` (git-ignored) with `{"supab
 The Tea house tab seats the visitor at the counter of Master Lin (林清泉, 林师傅), a Wuyi tea master, in a room that follows the visitor's season and time of day (`img/teahouse-<season>[-night].webp`).
 His frames are in `img/master-lin/` (900×900 WebP): `idle`, `blink`, `listen`, two mouth shapes for talking (`talk-a`,
 `talk-b`), `pour` (pot into the fairness pitcher), `serve` (pitcher into the cups), `brew` (kettle over the pot),
-`offer` (a cup in both hands), `smell`, `laugh` and `welcome`. Every frame shares the idle frame's still pixels (tray,
+`offer` (a cup in both hands), `smell` (a cup at his nose, used when he drinks himself), `laugh` and `welcome`.
+Round 3 adds `talk-c` (talking with hands resting), `reach-pot` (hand on the teapot, played just before `pour`) and
+`smell-lid` (smelling the teapot lid, 闻盖香, which is how a tea master judges the aroma). Between gestures he talks
+with his hands down (`talk-c`/`idle`) and raises a hand to explain (`talk-a`/`talk-b`) on every other sentence. Every frame shares the idle frame's still pixels (tray,
 lower jacket, the hand he isn't using), so the tray never "swims". Exactly one frame is drawn at a time and poses
 change with a cut: a crossfade would let the frame being left show through where an arm has moved away. The artist's raw frames were composited onto idle this way before export; to add a frame, do the same.
 He welcomes you with open hands, blinks every few seconds, listens while you type and while he thinks, alternates
@@ -151,7 +154,7 @@ time zone, named in Chinese) and the scene on the mountain (season, solar-term m
 `PAIR_PROXY_URL` the tab shows the room and his greeting but says the tea master isn't available.
 His gestures come from his words, not from the AI: `/chat` returns plain text, and `GESTURES` in index.html maps
 phrases (English and Chinese) to frames: "pour you a cup"/倒/续 serve, "decant"/出汤 pour, "brew"/"kettle"/泡 brew,
-"taste this"/尝 offer, "aroma"/闻 smell, "haha"/哈哈 laugh, "welcome"/请坐 welcome. Each starts just before its words,
+"taste this"/尝 offer, "aroma"/闻 the lid, "let me have a sip"/我喝一口 the cup at his nose, "haha"/哈哈 laugh, "welcome"/请坐 welcome. Each starts just before its words,
 at most three per reply, each once, held about two seconds with a beat of talking between. If two replies in a row
 had no tea action, he tops up the guest's cup while he talks.
 Failures are logged in the Worker (`npx wrangler tail`) and in the browser console.
