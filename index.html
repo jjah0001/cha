@@ -2296,6 +2296,8 @@ function startSeasonalAudio(season,opts={}){
     /* 做青 runs through the night in the harvest: leaves shaken in sieves in the tea house up the path */
     if(mo==="picking"&&(night||dusk)) shaking(place(0.35,0.2));
     if(night||dusk) frogs(late?2:night?(mo==="meiyu"?7:5):2,0.03);
+    /* the first crickets start in the grass from 清明 on, a few at first, more by the plum rains */
+    if((night||dusk)&&mo!=="jingzhe") spots(mo==="qingming"?2:mo==="picking"?3:4,[-0.9,0.9],[0.25,0.6]).forEach(sp=>cricket(sp,night?0.016:0.01));
     else if(mo==="meiyu") frogs(2,0.025);
     if(!night){const trees=spots(4,[-0.9,0.9],[0.25,0.55]), pace=(dawn?0.5:1)*birdPace*(mo==="picking"?0.8:1);
       recur(6*pace,16*pace,t=>{if(wet()<0.85||chance(0.2)) bird(t,any(trees),"bulbul",0.03);},3);
@@ -2308,7 +2310,7 @@ function startSeasonalAudio(season,opts={}){
     river(mo==="meiyu"?1:night?0.9:0.7);
     /* the rafts stop running when the rain sets in */
     if(!night&&!wetDay){const raft=place(R(-0.4,0.4),0.3); recur(9,20,t=>pole(t,raft),4);}
-    if(night||dusk){frogs(late?3:night?(mo==="meiyu"?9:7):3,0.035); spots(late?2:3,[-0.8,0.8],[0.3,0.7]).forEach(sp=>cricket(sp,0.01));}
+    if(night||dusk){frogs(late?3:night?(mo==="meiyu"?9:7):3,0.035); spots(late?3:night?5:3,[-0.9,0.9],[0.2,0.6]).forEach(sp=>cricket(sp,night?0.022:0.016));}
     if(!night&&!wetDay){
       /* the hills full of cicadas: a shimmering distant mass, with nearer individuals swelling in and out; loudest in the noon heat */
       const heat=noon?1.35:dusk?0.4:dawn?(hr<7?0.08:0.3):1;
@@ -2336,7 +2338,7 @@ function startSeasonalAudio(season,opts={}){
     scatter(()=>gust()>0.55?0.6*gust():0,t=>{const sp=any(stalks), f=R(320,560);
       [0,R(0.12,0.3)].forEach((d,i)=>{if(i&&chance(0.4))return; bubble(t+d,sp,f*R(0.95,1.05),0.07,0.035,0.96); burst(t+d,sp,0.01,"bandpass",f*3,3,0.02);});});
     /* crickets thin out as the frosts come */
-    const k=(night?6:2)-(mo==="frost"?(night?3:1):0), crk=spots(k,[-0.9,0.9],night?[0.2,0.6]:[0.5,0.8]); crk.forEach(sp=>cricket(sp,night?0.012:0.006));
+    const k=(night?6:2)-(mo==="frost"?(night?3:1):0), crk=spots(k,[-0.9,0.9],night?[0.2,0.6]:[0.5,0.8]); crk.forEach(sp=>cricket(sp,night?0.022:0.008));
     if(!night){const trees=spots(3,[-0.9,0.9],[0.3,0.6]); recur(14*birdPace,30*birdPace,t=>bird(t,any(trees),"bulbul",0.025),6);}
   } else { // winter
     /* 围炉: the wood stove crackling close by, a kettle simmering on it; after midnight the fire is banked down */
