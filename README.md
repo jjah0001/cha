@@ -140,10 +140,13 @@ His frames are in `img/master-lin/` (900×900 WebP): `idle`, `blink`, `listen`, 
 `offer` (a cup in both hands), `smell` (a cup at his nose, used when he drinks himself), `laugh` and `welcome`.
 Round 3 adds `talk-c` (talking with hands resting), `reach-pot` (hand on the teapot, played just before `pour`) and
 `smell-lid` (smelling the teapot lid, 闻盖香, which is how a tea master judges the aroma). Between gestures he talks
-with his hands down (`talk-c`/`idle`) and raises a hand to explain (`talk-a`/`talk-b`) on every other sentence. Every frame shares the idle frame's still pixels (tray,
+with his hands down (`talk-c`/`idle`) and raises a hand to explain (`talk-a`/`talk-b`) on every other sentence.
+Each tea action starts with a reach: `reach-pot` before `pour`, `reach-pitcher` before `serve`, `reach-kettle` before
+`brew` and `reach-cup` before `offer`. `thinking` (hand at his chin) plays while he waits for his answer, `nod` on a
+"yes"/对 and `point` (an open hand towards the window) when he talks about the mountain or the weather. Every frame shares the idle frame's still pixels (tray,
 lower jacket, the hand he isn't using), so the tray never "swims". Exactly one frame is drawn at a time and poses
 change with a cut: a crossfade would let the frame being left show through where an arm has moved away. The artist's raw frames were composited onto idle this way before export; to add a frame, do the same.
-He welcomes you with open hands, blinks every few seconds, listens while you type and while he thinks, alternates
+He welcomes you with open hands, blinks every few seconds, listens while you type, sits back to think while his answer comes, alternates
 mouth shapes while his words appear, and acts out what he says (see "His gestures" below).
 `img/tea-master*.webp`, `img/teahouse.webp` and `img/teahouse-night.webp` are earlier artwork and are no longer
 used (see `img/ART-DIRECTION.md`).
@@ -154,7 +157,7 @@ time zone, named in Chinese) and the scene on the mountain (season, solar-term m
 `PAIR_PROXY_URL` the tab shows the room and his greeting but says the tea master isn't available.
 His gestures come from his words, not from the AI: `/chat` returns plain text, and `GESTURES` in index.html maps
 phrases (English and Chinese) to frames: "pour you a cup"/倒/续 serve, "decant"/出汤 pour, "brew"/"kettle"/泡 brew,
-"taste this"/尝 offer, "aroma"/闻 the lid, "let me have a sip"/我喝一口 the cup at his nose, "haha"/哈哈 laugh, "welcome"/请坐 welcome. Each starts just before its words,
+"taste this"/尝 offer, "aroma"/闻 the lid, "let me have a sip"/我喝一口 the cup at his nose, "haha"/哈哈 laugh, "welcome"/请坐 welcome, "Yes,"/"Exactly."/对 at the start of a sentence nod, "the mountains"/"the mist"/山上/外面 point. Each starts just before its words,
 at most three per reply, each once, held about two seconds with a beat of talking between. If two replies in a row
 had no tea action, he tops up the guest's cup while he talks.
 Failures are logged in the Worker (`npx wrangler tail`) and in the browser console.
