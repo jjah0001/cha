@@ -1107,6 +1107,12 @@ nav.chap{background:var(--page-top)}
           <img class="th-talk-c" data-pose="talk-c" src="img/master-lin/talk-c.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-reach-pot" data-pose="reach-pot" src="img/master-lin/reach-pot.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-smell-lid" data-pose="smell-lid" src="img/master-lin/smell-lid.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-reach-pitcher" data-pose="reach-pitcher" src="img/master-lin/reach-pitcher.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-reach-kettle" data-pose="reach-kettle" src="img/master-lin/reach-kettle.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-reach-cup" data-pose="reach-cup" src="img/master-lin/reach-cup.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-thinking" data-pose="thinking" src="img/master-lin/thinking.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-nod" data-pose="nod" src="img/master-lin/nod.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-point" data-pose="point" src="img/master-lin/point.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
         </div>
         <div class="th-steam" aria-hidden="true"><i></i><i></i></div>
       </figure>
@@ -3641,7 +3647,8 @@ initReviews();
     log.appendChild(d); follow(d); return d.querySelector(".say");};
   /* His gestures follow his words, not the AI: each one starts just before he says the words it belongs to.
      serve: pitcher into the guest's cup · pour: pot into the fairness pitcher · brew: kettle over the pot
-     offer: a cup held out in both hands · smell: the cup under his nose · laugh · welcome: open palms */
+     offer: a cup held out in both hands · smell: the lid at his nose · laugh · welcome: open palms
+     nod: "yes", "exactly", 对 at the start of a sentence · point: an open hand out towards the mountain and the weather */
   const GESTURES=[
     ["serve",/\b(pour (you|yours?|us|a|another|some|more)|refill(s|ed|ing)?|top (you |it |that )?up|another cup|fresh cup|a cup for you|fill (your|the|our) cups?)\b|倒(一|杯|茶|上|满|点|给)|斟|续(杯|茶|上|一)|添(茶|一|点|上)|再来一杯|分茶/gi],
     ["pour",/\b(decant(s|ed|ing)?|pour(s|ed|ing)? (it |the tea )?off|fairness pitcher|into the pitcher)\b|出汤|公道杯/gi],
@@ -3650,11 +3657,15 @@ initReviews();
     ["offer",/\b(taste (this|it|that|some)|have a taste|try (this|it|some|one)|(take|have) a sip|here you (go|are)|have some|enjoy|this cup|drink up)\b|尝|喝一口|喝口|请(喝|用|品)|你试试|品一品|这杯/gi],
     ["smell",/\b(smell(s|ed|ing)?|aromas?|fragran(t|ce)|scents?|sniff)\b|闻|香气|香味|茶香/gi],
     ["laugh",/\b(ha(ha)+|he(he)+|lol|laugh(s|ed|ing)?|funny|joking)\b|\bha!|哈哈|呵呵|嘿嘿|[😄😂😆]/giu],
+    ["nod",/(?:^|[.!?]\s+)(yes|yeah|exactly|indeed|of course|certainly|absolutely|that's right|quite right|good question)\b|(?:^|[。！？])\s*(对|是的|没错|当然|好问题)/gi],
+    ["point",/\b(the mountains?|these mountains|the peaks?|the cliffs?|the valley|the river|Nine.?Bend|out there|over there|outside|the mist|the fog|the rain|the snow|the weather)\b|山上|山里|山间|那边|外面|九曲|岩壁|峡谷|雾|下雨|下雪|天气/gi],
     ["welcome",/\b(welcome|come in|take a seat|sit,? sit|nice to meet you|goodbye|see you|come back (any ?time|soon)|safe travels)\b|欢迎|请坐|坐坐|慢走|再见|下次再来/gi]];
-  const HOLD={serve:2100,pour:2100,brew:2000,offer:1900,smell:1800,sip:1800,laugh:1300,welcome:1700};
+  const HOLD={serve:2100,pour:2100,brew:2000,offer:1900,smell:1800,sip:1800,laugh:1300,welcome:1700,nod:900,point:1600};
   /* the frame each gesture plays: a tea master smells the lid and the wet leaves (闻盖香), and only lifts a cup to
-     his nose when he is about to drink it himself; a reach frame, where there is one, plays first */
-  const FRAME={smell:"smell-lid",sip:"smell"}, REACH={pour:"reach-pot"}, REACH_MS=380;
+     his nose when he is about to drink it himself; a reach frame, where there is one, plays first: his hand on the
+     teapot before it pours, on the pitcher before he serves, on the kettle handle before the water, on a cup before
+     he holds it out */
+  const FRAME={smell:"smell-lid",sip:"smell"}, REACH={pour:"reach-pot",serve:"reach-pitcher",brew:"reach-kettle",offer:"reach-cup"}, REACH_MS=380;
   const cuesFor=text=>{const L=Math.max(1,text.length), hits=[];
     for(const [g,re] of GESTURES){re.lastIndex=0; let m; while((m=re.exec(text))) hits.push({gesture:g,at:Math.max(0,m.index/L-0.04),i:m.index});}
     /* "let me have a sip" is him drinking, not an offer to the guest */
@@ -3711,6 +3722,8 @@ initReviews();
     stop(); listen(true);
     chips.innerHTML=""; add("me",para(q)); msgs.push({role:"user",content:q}); inp.value="";
     if(!chatUrl){add("him","Master Lin isn’t available on this copy of the site.","err"); return}
+    /* he hears the question, then a moment later sits back to think, hand at his chin, until his answer comes */
+    const ponder=setTimeout(()=>{if(resting==="listen"){resting="thinking"; rest();}},700);
     setBusy(true); const say=add("him",`<span class="th-dots" aria-label="Master Lin is thinking"><span></span><span></span><span></span></span>`);
     try{const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),45000);
       const r=await fetch(chatUrl,{method:"POST",headers:{"content-type":"application/json"},signal:ctl.signal,
@@ -3724,10 +3737,10 @@ initReviews();
       const cues=cuesFor(reply);
       if(cues.some(c=>c.gesture==="serve"||c.gesture==="pour"||c.gesture==="brew"||c.gesture==="offer")) plainRun=0;
       else if(++plainRun>=2){cues.push({gesture:"serve",at:.45}); cues.sort((a,b)=>a.at-b.at); plainRun=0;}
-      resting=""; await speak(say,reply,cues);
+      clearTimeout(ponder); resting=""; await speak(say,reply,cues);
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
-    listen(false); setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
+    clearTimeout(ponder); listen(false); setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
   /* he looks up and listens while the guest is typing */
   inp.addEventListener("input",()=>{if(!busy) listen(inp.value.trim()!=="");});
