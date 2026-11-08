@@ -677,7 +677,9 @@ nav.chap{z-index:5}
 .wuyi .smoke path:nth-child(2){animation-delay:-2.3s}.wuyi .smoke path:nth-child(3){animation-delay:-4.6s}
 @keyframes ssmoke{0%{transform:translate(0,0) scale(.6);opacity:0}20%{opacity:.5}100%{transform:translate(16px,-42px) scale(1.4);opacity:0}}
 .wuyi .raft{animation:sraft 140s linear -40s infinite}
-@keyframes sraft{from{transform:translateX(-90px)}to{transform:translateX(760px)}}
+/* the raft follows the middle of the stream as it wanders (sampled from the creek path), and slips out of sight
+   where the stream turns away out of the picture, instead of riding up over the bank and on across the terraces */
+@keyframes sraft{0%{transform:translate(-90px,4.5px);opacity:1}3.5%{transform:translate(-60px,4.5px)}7.1%{transform:translate(-30px,4.5px)}10.6%{transform:translate(0px,3.1px)}14.1%{transform:translate(30px,2.1px)}17.6%{transform:translate(60px,2.5px)}21.2%{transform:translate(90px,3.8px)}24.7%{transform:translate(120px,5.7px)}28.2%{transform:translate(150px,7.6px)}31.8%{transform:translate(180px,9.2px)}35.3%{transform:translate(210px,10.0px)}38.8%{transform:translate(240px,9.6px)}42.4%{transform:translate(270px,8.3px)}45.9%{transform:translate(300px,6.7px)}49.4%{transform:translate(330px,4.9px)}52.9%{transform:translate(360px,3.4px)}56.5%{transform:translate(390px,2.5px)}60.0%{transform:translate(420px,2.8px)}63.5%{transform:translate(450px,4.5px)}67.1%{transform:translate(480px,6.9px)}70.6%{transform:translate(510px,8.3px)}74.1%{transform:translate(540px,8.8px)}77.6%{transform:translate(570px,8.9px)}81.2%{transform:translate(600px,8.9px)}84.7%{transform:translate(630px,9.1px)}88.2%{transform:translate(660px,9.8px)}91.8%{transform:translate(690px,11.0px);opacity:1}92.9%{transform:translate(700px,11.5px);opacity:0}95.3%{transform:translate(720px,12.8px);opacity:0}100%{transform:translate(720px,12.8px);opacity:0}}
 .wuyi.still *{animation-play-state:paused}
 .seasonfx i{position:absolute;display:block;opacity:0}
 .seasonfx i.rain{top:-10%;left:var(--x);width:1px;height:var(--len,16px);background:linear-gradient(transparent,var(--fx-rain));animation:srain var(--dur,1.6s) linear var(--dly,0s) infinite}
@@ -1962,7 +1964,10 @@ function todFine(d=new Date()){
 /* the four broad bands the stylesheet knows */
 function todNow(){return {late:"night",noon:"day"}[todFine()]||todFine();}
 /* SC is filled in by the background set-up below: the season shown and whether this visitor is south of the equator */
-const SC={season:"spring",south:false,forced:false};
+const SC={season:"spring",south:false,home:false,forced:false};
+/* a "See it" preview (?fest= ?season= ?moment= ?festday=) always shows the northern-hemisphere calendar, the one the
+   festivals and solar terms were named for: 春节 in winter, 清明 in spring, wherever the visitor is */
+const PREVIEW=["fest","season","moment","festday"].some(k=>QS.has(k));
 const MOMENTS={
  jingzhe:  {zh:"惊蛰",en:"first thunder wakes the hills",snd:"spring drizzle in the rock gorges and the first thunder of the year"},
  qingming: {zh:"清明",en:"drizzle and mountain mist",snd:"清明 drizzle in the rock gorges, cuckoos and bulbuls"},
@@ -2020,8 +2025,8 @@ const QINGMING={2025:"04-04",2026:"04-05",2027:"04-05",2028:"04-04",2029:"04-04"
 const MIDAUTUMN={2025:"10-06",2026:"09-25",2027:"09-15",2028:"10-03",2029:"09-22",2030:"09-12",2031:"10-01",2032:"09-19",2033:"09-08",2034:"09-27",2035:"09-16",2036:"10-04"};
 /* Previewing a festival (?fest=…&festday=…) moves the whole scene to that festival's date this year, keeping the clock's
    time of day: the season, the solar-term moment, the moon and the date Master Lin is told all match it, so 春节 is
-   shown in winter (in summer south of the equator) and he isn't told "today is 8 November, and it's New Year's Eve".
-   The tea year's own days (喊山, 清明, 斗茶赛) follow the visitor's season, so south of the equator they move by six months. */
+   shown in winter and he isn't told "today is 8 November, and it's New Year's Eve". Previews always use the northern
+   calendar (SC.south is false while PREVIEW), so the southern branches below only matter on the real date. */
 function previewDay(){
   const f=QS.get("fest"), y=new Date().getFullYear(), south=SC.south;
   const md=({chunjie:CNY[y],zhongqiu:MIDAUTUMN[y],duanwu:DUANWU[y],dongzhi:south?"06-21":DONGZHI_N[y],laba:LABA[y],zhongyuan:ZHONGYUAN[y],
@@ -2036,7 +2041,7 @@ function sceneDate(){const now=new Date(), p=previewDay(); if(!p) return now;
 /* 关于我们 · Your hemisphere: written for the visitor, from their own hemisphere, season and today's date */
 function paintHemi(){
   const el=document.getElementById("hemiText"); if(!el) return;
-  const now=new Date(), day=new Date(now.getFullYear(),now.getMonth(),now.getDate()), south=SC.south;
+  const now=new Date(), day=new Date(now.getFullYear(),now.getMonth(),now.getDate()), south=SC.home;
   const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
   const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
   const seasonAt=d=>south?flip[N[d.getMonth()]]:N[d.getMonth()];
@@ -2051,6 +2056,7 @@ function paintHemi(){
   const parts=[fest("Chinese New Year",cny),fest("Mid-Autumn Festival",mid)].filter(Boolean);
   const html=`You're in the <b>${south?"southern":"northern"}</b> hemisphere, so it's <b>${seasonAt(day)}</b> on the mountain now, as it is where you are.`+
     (SC.forced?` (You're previewing ${SC.season} at the moment.)`:"")+
+    (PREVIEW&&south?` (Previews show the northern-hemisphere calendar, so the scene up top is the northern one.)`:"")+
     ` The lunar festivals (Chinese New Year, the Dragon Boat and Mid-Autumn festivals and the rest) fall on the same dates all over the world, and Chinese communities in both halves of the world celebrate them then`+
     (parts.length?`: ${parts.join(", and ")}.`:".")+
     (dz?` The Winter Solstice festival follows the sun instead, so on Cha it falls on your own shortest day: <b>${fmt(dz)}</b>.`:"")+
@@ -3238,13 +3244,14 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
 /* seasonal theming: pick season from the user's current date + hemisphere (inferred from IANA timezone),
    then rain season-appropriate particles across the viewport. Badge toggles the particles on/off. */
 (function(){try{const tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||"").replace(/_/g," ");
-  const south=/^(Antarctica|Australia|Pacific\/(Auckland|Chatham|Easter|Fiji|Norfolk|Tahiti|Tongatapu|Apia)|America\/(Argentina|Santiago|La Paz|Lima|Asuncion|Montevideo|Punta Arenas|Sao Paulo|Araguaina|Bahia|Belem|Boa Vista|Campo Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto Velho|Recife|Rio Branco|Santarem)|Africa\/(Johannesburg|Harare|Luanda|Lusaka|Maputo|Nairobi|Windhoek|Blantyre|Gaborone|Kinshasa|Mbabane|Maseru)|Indian\/(Antananarivo|Mauritius|Reunion|Mahe))\b/.test(tz);
+  let south=/^(Antarctica|Australia|Pacific\/(Auckland|Chatham|Easter|Fiji|Norfolk|Tahiti|Tongatapu|Apia)|America\/(Argentina|Santiago|La Paz|Lima|Asuncion|Montevideo|Punta Arenas|Sao Paulo|Araguaina|Bahia|Belem|Boa Vista|Campo Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto Velho|Recife|Rio Branco|Santarem)|Africa\/(Johannesburg|Harare|Luanda|Lusaka|Maputo|Nairobi|Windhoek|Blantyre|Gaborone|Kinshasa|Mbabane|Maseru)|Indian\/(Antananarivo|Mauritius|Reunion|Mahe))\b/.test(tz);
+  const home=south; south=south&&!PREVIEW;
   const m=(SC.south=south,sceneDate()).getMonth();  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
   const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
   /* ?season=summer etc. previews another season (visuals + ambience) without changing the clock */
   const force=QS.get("season");
   const season=flip[force]?force:south?flip[N[m]]:N[m];
-  SC.season=season; SC.south=south; SC.forced=!!flip[force];
+  SC.season=season; SC.south=south; SC.home=home; SC.forced=!!flip[force];
   const names={spring:"Spring 春",summer:"Summer 夏",autumn:"Autumn 秋",winter:"Winter 冬"};
   const root=document.documentElement, todTxt={late:"the small hours",dawn:"dawn",day:"daytime",noon:"the noon rest",dusk:"dusk",night:"night"};
   root.setAttribute("data-season",season);
