@@ -1,6 +1,6 @@
 // Tea pairing proxy for the GitHub Pages build.
 // POST /pair { food, catalogue } -> { picks:[{id,why}], tip } | { error }
-// POST /chat { messages:[{role,content}], country, season, moment, tod, weather, fest, festDay, date, weekday, moon, around[], next, guest* } -> { reply } | { error }
+// POST /chat { messages:[{role,content}], country, season, moment, tod, weather, fest, festDay, date, weekday, moon, around[], next, calendar[], guest* } -> { reply } | { error }
 //   The tea master (茶师) in the Tea house tab. The persona prompt lives here, not in the page, so the key can't be
 //   used for anything else; the page only sends the conversation and a few short scene words.
 // Per-IP rate limited via env.PAIR_RL (Cloudflare rate-limit binding).
@@ -237,10 +237,15 @@ function teaMasterPrompt(b) {
   const fest = festToday(b.fest, day);
   const sights = seen(b);
   const nx = b.next && FEST_NAME[b.next.fest] && isDate(b.next.date) && Number.isInteger(b.next.days) && b.next.days > 0 && b.next.days <= 400 ? b.next : null;
+  /* the year ahead: every festival's next date, so "when is Chinese New Year?" gets the real answer */
+  const cal = (Array.isArray(b.calendar) ? b.calendar.slice(0, 20) : []).filter((c) => c && FEST_NAME[c.fest] && isDate(c.date))
+    .map((c) => FEST_NAME[c.fest] + (c.fest === "chunjie" ? `：${zhDate(c.date)}（除夕是前一天）` : `：${zhDate(c.date)}`));
+  const year = isDate(b.date) ? b.date.slice(0, 4) : "";
   const next = nx ? `下一个节日是${FEST_NAME[nx.fest]}，在${zhDate(nx.date)}${nx.days === 1 ? "，就是明天" : nx.days === 2 ? "，就是后天" : `，还有${nx.days}天`}。` : "";
   const scene = when || date || fest || sights.length ? `\n\n此刻的武夷山（茶店的日子和钟点跟旅客那边一样）：${date ? `今天是${date}。` : ""}${fest ? fest + "。" : date ? "今天不是什么节日。" : ""}${when ? when + "。" : ""}` +
     (sights.length ? `\n旅客在网页背景里看到的、你窗外和门前的景象：${sights.join("；")}。` : "") + (next ? "\n" + next : "") +
-    `\n以上就是你身边此刻的真实情况。旅客问今天几号、星期几、是什么节日、外面天气怎么样、外面在干什么、下一个节日是什么时候，就按这里回答。这里没写的节日和景象就是没有，不要编造（例如不要说外面在下雨，除非上面写了），也不要自己推算农历日期。聊天时可以自然地提到，但不要每次都提。` : "";
+    (cal.length ? `\n接下来一年里各个节日的日子（按时间先后）：${cal.join("；")}。今年是${year}年，说到“今年”“明年”时以此为准，不要用你自己记得的年份。` : "") +
+    `\n以上就是你身边此刻的真实情况。旅客问今天几号、星期几、是什么节日、外面天气怎么样、外面在干什么、某个节日在哪天，就按这里回答。这里没写的节日和景象就是没有，不要编造（例如不要说外面在下雨，除非上面写了），也不要自己推算农历日期。聊天时可以自然地提到，但不要每次都提。` : "";
   /* where the guest is: their own season and local time, so he never has to guess */
   const gHemi = b.guestHemi === "south" ? "南半球" : b.guestHemi === "north" ? "北半球" : "";
   const gSeason = SEASON[b.guestSeason] || "";

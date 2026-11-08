@@ -2018,6 +2018,21 @@ const JINGZHE={2025:"03-05",2026:"03-05",2027:"03-06",2028:"03-05",2029:"03-05",
 /* 清明 (the solar term's day), checked against lunar-javascript */
 const QINGMING={2025:"04-04",2026:"04-05",2027:"04-05",2028:"04-04",2029:"04-04",2030:"04-05",2031:"04-05",2032:"04-04",2033:"04-04",2034:"04-05",2035:"04-05",2036:"04-04"};
 const MIDAUTUMN={2025:"10-06",2026:"09-25",2027:"09-15",2028:"10-03",2029:"09-22",2030:"09-12",2031:"10-01",2032:"09-19",2033:"09-08",2034:"09-27",2035:"09-16",2036:"10-04"};
+/* Previewing a festival (?fest=…&festday=…) moves the whole scene to that festival's date this year, keeping the clock's
+   time of day: the season, the solar-term moment, the moon and the date Master Lin is told all match it, so 春节 is
+   shown in winter (in summer south of the equator) and he isn't told "today is 8 November, and it's New Year's Eve".
+   The tea year's own days (喊山, 清明, 斗茶赛) follow the visitor's season, so south of the equator they move by six months. */
+function previewDay(){
+  const f=QS.get("fest"), y=new Date().getFullYear(), south=SC.south;
+  const md=({chunjie:CNY[y],zhongqiu:MIDAUTUMN[y],duanwu:DUANWU[y],dongzhi:south?"06-21":DONGZHI_N[y],laba:LABA[y],zhongyuan:ZHONGYUAN[y],
+    chongyang:CHONGYANG[y],hanshan:JINGZHE[y],qingming:QINGMING[y],doucha:"05-24",chabo:"11-15"})[f];
+  if(!md) return null;
+  let [m,d]=md.split("-").map(Number); if(south&&["hanshan","qingming","doucha"].includes(f)) m=(m+5)%12+1;
+  return new Date(y,m-1,d+(+(QS.get("festday")||0)||0));
+}
+/* the date the scene shows: today, or the previewed festival's day at the clock's own time */
+function sceneDate(){const now=new Date(), p=previewDay(); if(!p) return now;
+  return new Date(p.getFullYear(),p.getMonth(),p.getDate(),now.getHours(),now.getMinutes(),now.getSeconds());}
 /* 关于我们 · Your hemisphere: written for the visitor, from their own hemisphere, season and today's date */
 function paintHemi(){
   const el=document.getElementById("hemiText"); if(!el) return;
@@ -2042,8 +2057,8 @@ function paintHemi(){
     ` The north/south switch under the tea of the day changes which teas it suggests.`;
   if(el.dataset.k!==html){el.dataset.k=html; el.innerHTML=html;}
 }
-function festOf(d=new Date(),season=SC.season){
-  const f=QS.get("fest"); if(["chunjie","zhongqiu","duanwu","dongzhi","laba","zhongyuan","chongyang","hanshan","qingming","chabo","doucha"].includes(f)) return {name:f,day:+(QS.get("festday")||0)||0};
+function festOf(d=new Date(),season=SC.season,real=false){
+  const f=QS.get("fest"); if(!real&&["chunjie","zhongqiu","duanwu","dongzhi","laba","zhongyuan","chongyang","hanshan","qingming","chabo","doucha"].includes(f)) return {name:f,day:+(QS.get("festday")||0)||0};
   const y=d.getFullYear(), at=s=>new Date(y+"-"+s+"T00:00:00"), days=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-a)/864e5);
   if(CNY[y]){const k=days(at(CNY[y]),d); if(k>=-1&&k<=14) return {name:"chunjie",day:k};}
   if(MIDAUTUMN[y]){const k=days(at(MIDAUTUMN[y]),d); if(k>=-1&&k<=1) return {name:"zhongqiu",day:k};}
@@ -2078,7 +2093,7 @@ function weatherOf(moment,hr,fest,tod,d,hf){
   return {jingzhe:"drizzle",qingming:"drizzle",hanchao:"drizzle",meiyu:"rain",snow:"snow"}[moment]||(moment==="storms"&&!TOD_FORCE&&(st=>st&&hf>=st.start&&hf<st.end)(stormToday(d||new Date()))?"storm":"clear");
 }
 function sceneNow(){
-  const d=new Date(), tod=todFine(d), hr=TOD_FORCE?{late:2,dawn:6,day:10,noon:13,dusk:18,night:21}[TOD_FORCE]:d.getHours();
+  const d=sceneDate(), tod=todFine(d), hr=TOD_FORCE?{late:2,dawn:6,day:10,noon:13,dusk:18,night:21}[TOD_FORCE]:d.getHours();
   const moment=momentOf(SC.season,d), fest=festOf(d);
   return {season:SC.season,moment,tod,hr,weather:weatherOf(moment,hr,fest&&fest.name,tod,d,d.getHours()+d.getMinutes()/60),fest:fest&&fest.name,festDay:fest?fest.day:null,sun:sunTimes(d)};
 }
@@ -2090,22 +2105,26 @@ function moonPhase(d=new Date()){const P=29.530588853, ref=Date.UTC(2000,0,6,18,
 /* the moon the scene shows: 中秋 and 元宵 fall on the 15th of the lunar month, so it is full for them (also in previews);
    除夕 and 初一 close and open a lunar month, so there is no moon at all */
 function moonOf(S){const part=festPart(S);
-  return S.fest==="zhongqiu"||part==="yuanxiao"?0.5:part==="chuxi"||(part==="chuyi"&&S.festDay===0)?0:moonPhase();}
+  return S.fest==="zhongqiu"||part==="yuanxiao"?0.5:part==="chuxi"||(part==="chuyi"&&S.festDay===0)?0:moonPhase(sceneDate());}
 /* fireworks over the villages: 除夕 night, the small hours of 初一, 元宵 night, and 中秋 night */
 function fireworksNow(S){const part=festPart(S), tf=S.tod;
   return (S.fest==="zhongqiu"&&tf==="night"&&S.festDay===0)||(part==="chuxi"&&(tf==="dusk"||tf==="night"||tf==="late"))||
     (part==="chuyi"&&tf==="late"&&S.festDay===0)||(part==="yuanxiao"&&(tf==="dusk"||tf==="night"));}
 /* the next festival after the one on now (if any), with the date of its main day, looking ahead up to a year in the
    visitor's own seasons; none while a festival is being previewed */
-function nextFest(d=new Date()){
-  if(QS.get("fest")) return null;
+/* the festival calendar for the year ahead: the main day of each festival's next time round (today counts while it is
+   still to come or is today), soonest first, with 元宵 fifteen days into 春节. Looks ahead in the visitor's own seasons. */
+function festCalendar(d=sceneDate()){
   const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"],
-    flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"}, now=festOf(d);
-  for(let k=1;k<=400;k++){const dd=new Date(d.getFullYear(),d.getMonth(),d.getDate()+k), n=N[dd.getMonth()];
-    const f=festOf(dd,SC.south?flip[n]:n); if(!f||(now&&f.name===now.name&&k<20)) continue;
-    const main=new Date(dd.getFullYear(),dd.getMonth(),dd.getDate()-f.day);
-    return {fest:f.name,date:ymd(main),days:Math.round((main-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5)};}
-  return null;}
+    flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"}, today=new Date(d.getFullYear(),d.getMonth(),d.getDate()), out={};
+  const put=(name,main)=>{const days=Math.round((main-today)/864e5); if(days>=0&&!out[name]) out[name]={fest:name,date:ymd(main),days};};
+  for(let k=-15;k<=400;k++){const dd=new Date(d.getFullYear(),d.getMonth(),d.getDate()+k), n=N[dd.getMonth()];
+    const f=festOf(dd,SC.south?flip[n]:n,true); if(!f) continue;
+    const main=new Date(dd.getFullYear(),dd.getMonth(),dd.getDate()-f.day); put(f.name,main);
+    if(f.name==="chunjie") put("yuanxiao",new Date(main.getFullYear(),main.getMonth(),main.getDate()+14));}
+  return Object.values(out).sort((a,b)=>a.days-b.days);}
+/* the next festival still to come (not today's) */
+function nextFest(d=sceneDate()){const c=festCalendar(d).filter(x=>x.days>0); return c[0]||null;}
 const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 function startSeasonalAudio(season,opts={}){
   const xf=opts.xfade?4:3;
@@ -3220,7 +3239,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
    then rain season-appropriate particles across the viewport. Badge toggles the particles on/off. */
 (function(){try{const tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||"").replace(/_/g," ");
   const south=/^(Antarctica|Australia|Pacific\/(Auckland|Chatham|Easter|Fiji|Norfolk|Tahiti|Tongatapu|Apia)|America\/(Argentina|Santiago|La Paz|Lima|Asuncion|Montevideo|Punta Arenas|Sao Paulo|Araguaina|Bahia|Belem|Boa Vista|Campo Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto Velho|Recife|Rio Branco|Santarem)|Africa\/(Johannesburg|Harare|Luanda|Lusaka|Maputo|Nairobi|Windhoek|Blantyre|Gaborone|Kinshasa|Mbabane|Maseru)|Indian\/(Antananarivo|Mauritius|Reunion|Mahe))\b/.test(tz);
-  const m=new Date().getMonth();  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
+  const m=(SC.south=south,sceneDate()).getMonth();  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
   const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
   /* ?season=summer etc. previews another season (visuals + ambience) without changing the clock */
   const force=QS.get("season");
@@ -3654,12 +3673,12 @@ initReviews();
     return out;};
   const MOONS=p=>{const lit=(1-Math.cos(2*Math.PI*p))/2;
     return lit<0.06?"new":lit>0.97?"full":(p<0.5?"waxing":"waning")+(lit<0.35?"-crescent":lit<0.65?"-half":"-gibbous");};
-  const scene=()=>{try{const S=sceneNow(), part=festPart(S), d=new Date(), nx=nextFest(d);
+  const scene=()=>{try{const S=sceneNow(), part=festPart(S), d=sceneDate(), cal=festCalendar(d), nx=cal.find(x=>x.days>0)||null;
       return {season:S.season,moment:S.moment,tod:S.tod,weather:S.weather,
         fest:S.fest==="chunjie"?(part==="yuanxiao"?"yuanxiao":"chunjie"):(S.fest||""),festDay:S.fest?S.festDay:null,
-        date:ymd(d),weekday:d.getDay(),moon:MOONS(moonOf(S)),around:around(S),next:nx}}catch(e){console.warn("Master Lin: scene",e); return {}}};
+        date:ymd(d),weekday:d.getDay(),moon:MOONS(moonOf(S)),around:around(S),next:nx,calendar:cal.map(x=>({fest:x.fest,date:x.date}))}}catch(e){console.warn("Master Lin: scene",e); return {}}};
   /* the guest's own season and local time (from the real date, even when a season is being previewed) */
-  const guest=()=>{const d=new Date(), N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"],
+  const guest=()=>{const d=sceneDate(), N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"],
       F={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"}, n=N[d.getMonth()];
     return {guestHemi:SC.south?"south":"north",guestSeason:SC.forced?"":SC.south?F[n]:n,guestTime:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};};
   /* stage directions like *nods* or (smiles) are taken out of what he says; if one is about pouring, he pours instead */
