@@ -2042,7 +2042,7 @@ function paintHemi(){
     ` The north/south switch under the tea of the day changes which teas it suggests.`;
   if(el.dataset.k!==html){el.dataset.k=html; el.innerHTML=html;}
 }
-function festOf(d=new Date()){
+function festOf(d=new Date(),season=SC.season){
   const f=QS.get("fest"); if(["chunjie","zhongqiu","duanwu","dongzhi","laba","zhongyuan","chongyang","hanshan","qingming","chabo","doucha"].includes(f)) return {name:f,day:+(QS.get("festday")||0)||0};
   const y=d.getFullYear(), at=s=>new Date(y+"-"+s+"T00:00:00"), days=(a,b)=>Math.round((new Date(b.getFullYear(),b.getMonth(),b.getDate())-a)/864e5);
   if(CNY[y]){const k=days(at(CNY[y]),d); if(k>=-1&&k<=14) return {name:"chunjie",day:k};}
@@ -2053,7 +2053,7 @@ function festOf(d=new Date()){
   const lunar=on(LABA,"laba")||on(ZHONGYUAN,"zhongyuan")||on(CHONGYANG,"chongyang"); if(lunar) return lunar;
   /* the tea year's own days follow the visitor's season, like the solar-term moments:
      喊山 on 惊蛰 itself, and the spring 斗茶赛 once the spring tea is made (no fixed date; a few days after 小满) */
-  if(SC.season==="spring"){const t=teaYearDate(d,"spring"), md=String(t.m).padStart(2,"0")+"-"+String(t.d).padStart(2,"0");
+  if(season==="spring"){const t=teaYearDate(d,"spring"), md=String(t.m).padStart(2,"0")+"-"+String(t.d).padStart(2,"0");
     if(JINGZHE[y]&&md===JINGZHE[y]) return {name:"hanshan",day:0};
     /* 清明 itself: families go up the hill to sweep the graves */
     if(QINGMING[y]&&md===QINGMING[y]) return {name:"qingming",day:0};
@@ -2087,6 +2087,26 @@ const festPart=s=>s.fest!=="chunjie"?(s.fest||""):s.festDay<0?"chuxi":s.festDay<
 const sceneKey=s=>[s.season,s.moment,s.tod,s.weather,festPart(s)].join("|");
 /* moon phase 0…1 (0 = new, 0.5 = full), from a known new moon */
 function moonPhase(d=new Date()){const P=29.530588853, ref=Date.UTC(2000,0,6,18,14); const a=((d-ref)/864e5)%P; return (a<0?a+P:a)/P;}
+/* the moon the scene shows: 中秋 and 元宵 fall on the 15th of the lunar month, so it is full for them (also in previews);
+   除夕 and 初一 close and open a lunar month, so there is no moon at all */
+function moonOf(S){const part=festPart(S);
+  return S.fest==="zhongqiu"||part==="yuanxiao"?0.5:part==="chuxi"||(part==="chuyi"&&S.festDay===0)?0:moonPhase();}
+/* fireworks over the villages: 除夕 night, the small hours of 初一, 元宵 night, and 中秋 night */
+function fireworksNow(S){const part=festPart(S), tf=S.tod;
+  return (S.fest==="zhongqiu"&&tf==="night"&&S.festDay===0)||(part==="chuxi"&&(tf==="dusk"||tf==="night"||tf==="late"))||
+    (part==="chuyi"&&tf==="late"&&S.festDay===0)||(part==="yuanxiao"&&(tf==="dusk"||tf==="night"));}
+/* the next festival after the one on now (if any), with the date of its main day, looking ahead up to a year in the
+   visitor's own seasons; none while a festival is being previewed */
+function nextFest(d=new Date()){
+  if(QS.get("fest")) return null;
+  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"],
+    flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"}, now=festOf(d);
+  for(let k=1;k<=400;k++){const dd=new Date(d.getFullYear(),d.getMonth(),d.getDate()+k), n=N[dd.getMonth()];
+    const f=festOf(dd,SC.south?flip[n]:n); if(!f||(now&&f.name===now.name&&k<20)) continue;
+    const main=new Date(dd.getFullYear(),dd.getMonth(),dd.getDate()-f.day);
+    return {fest:f.name,date:ymd(main),days:Math.round((main-new Date(d.getFullYear(),d.getMonth(),d.getDate()))/864e5)};}
+  return null;}
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 function startSeasonalAudio(season,opts={}){
   const xf=opts.xfade?4:3;
   stopSeasonalAudio(opts.xfade?4:0.4); primeAudio(); if(!AC) return false;
@@ -3368,11 +3388,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   const moon=land.querySelector(".moon");
   const drawMoon=()=>{const big=root.getAttribute("data-fest")==="zhongqiu", k=big?22:11;
     moon.setAttribute("transform",`translate(642,${big?96:113}) scale(${south?-k:k},${k})`);
-    /* 中秋 and 元宵 fall on the 15th of the lunar month, so the moon is always full for them (also in previews) */
-    const fullNight=big||root.getAttribute("data-fest-part")==="yuanxiao";
-    /* 除夕 and 初一 close and open a lunar month, so there is no moon at all (also in previews) */
-    const dark=root.getAttribute("data-fest-part")==="chuxi"||(root.getAttribute("data-fest-part")==="chuyi"&&sceneNow().festDay===0);
-    const p=fullNight?0.5:dark?0:moonPhase(), r=1, rx=Math.abs(Math.cos(2*Math.PI*p))*r, wax=p<0.5, fat=(p>0.25&&p<0.75);
+    const p=moonOf(sceneNow()), r=1, rx=Math.abs(Math.cos(2*Math.PI*p))*r, wax=p<0.5, fat=(p>0.25&&p<0.75);
     const outer=wax?`M0 ${-r}A${r} ${r} 0 0 1 0 ${r}`:`M0 ${-r}A${r} ${r} 0 0 0 0 ${r}`;
     const term=`A${rx.toFixed(3)} ${r} 0 0 ${wax?(fat?1:0):(fat?0:1)} 0 ${-r}Z`;
     const lit=(1-Math.cos(2*Math.PI*p))/2;
@@ -3429,9 +3445,7 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
   /* fireworks over the villages on 除夕 night, the small hours of 初一, and 元宵 night. Each rocket is heard too:
      a whistle going up, then the bang, later the farther off it burst */
   const COLS=["#F2C14E","#E2453C","#F59A4A","#FFF1C9","#E86A8C"];
-  const rocket=()=>{const part=root.getAttribute("data-fest-part"), tf=root.getAttribute("data-tod-fine");
-    const zq=part==="zhongqiu"&&tf==="night"&&sceneNow().festDay===0;
-    const on=zq||(part==="chuxi"&&(tf==="dusk"||tf==="night"||tf==="late"))||(part==="chuyi"&&tf==="late"&&sceneNow().festDay===0)||(part==="yuanxiao"&&(tf==="dusk"||tf==="night"));
+  const rocket=()=>{const S=sceneNow(), part=festPart(S), on=fireworksNow(S), zq=on&&S.fest==="zhongqiu";
     if(on){const dist=Math.random(), rise=1+Math.random()*0.6;
       if(fxOn&&!still()){const x=8+Math.random()*84, y=10+Math.random()*30, c=COLS[Math.floor(Math.random()*COLS.length)], sz=(1-dist*0.55)*(70+Math.random()*60);
         const el=document.createElement("i"); el.className="fw"; el.style.cssText=`left:${x}vw;top:${y}vh;--c:${c};--rise:${rise}s`;
@@ -3626,12 +3640,28 @@ initReviews();
     if(!cc) return {zh:"",en:""};
     const nm=l=>{try{return new Intl.DisplayNames([l],{type:"region"}).of(cc)||""}catch(e){return ""}};
     return {zh:nm("zh-Hans"),en:nm("en")};})();
-  const scene=()=>{try{const S=sceneNow(), part=festPart(S);
-      return {season:S.season,moment:S.moment,tod:S.tod,fest:S.fest==="chunjie"?(part==="yuanxiao"?"yuanxiao":"chunjie"):(S.fest||"")}}catch(e){return {}}};
+  /* What the visitor can see on the mountain behind the page right now, read off the drawing itself so he never
+     mentions lanterns that aren't up or misses the dragon boats that are */
+  const SEEN={chunlian:".wuyi .chunlian",lanterns:".wuyi .lanterns",lanternrow:".wuyi .lanternrow",lion:".wuyi .lionshow",dragon:".wuyi .dragon",
+    boats:".wuyi .longzhou",aicao:".wuyi .aicao",kids:".wuyi .kids",flags:".wuyi .flags",tombs:".wuyi .tombs",crowd:".wuyi .crowd",banner:".wuyi .banner",
+    climbers:".wuyi .climbers",ju:".wuyi .ju",hedeng:".wuyi .hedeng",pickers:".wuyi .picker",trays:".wuyi .trays",sifter:".wuyi .sifter",porter:".wuyi .porter",
+    raft:".wuyi .raft",snowcap:".wuyi .snowcap",frost:".wuyi .frostrows",cloudsea:".wuyi .cloudsea",lamp:".wuyi .lamp",moon:".wuyi .moon",
+    stars:".seasonfx i.star",fireflies:".seasonfx i.fly",osmanthus:".seasonfx i.gui",embers:".seasonfx i.ember",mist:".seasonfx i.mist"};
+  const around=S=>{const out=[];
+    for(const k in SEEN){const el=document.querySelector(SEEN[k]); if(!el) continue; const cs=getComputedStyle(el);
+      if(cs.display!=="none"&&cs.visibility!=="hidden"&&(k==="lamp"?+cs.opacity>0.3:+cs.opacity>0.1)) out.push(k);}
+    if(fireworksNow(S)) out.push("fireworks");
+    return out;};
+  const MOONS=p=>{const lit=(1-Math.cos(2*Math.PI*p))/2;
+    return lit<0.06?"new":lit>0.97?"full":(p<0.5?"waxing":"waning")+(lit<0.35?"-crescent":lit<0.65?"-half":"-gibbous");};
+  const scene=()=>{try{const S=sceneNow(), part=festPart(S), d=new Date(), nx=nextFest(d);
+      return {season:S.season,moment:S.moment,tod:S.tod,weather:S.weather,
+        fest:S.fest==="chunjie"?(part==="yuanxiao"?"yuanxiao":"chunjie"):(S.fest||""),festDay:S.fest?S.festDay:null,
+        date:ymd(d),weekday:d.getDay(),moon:MOONS(moonOf(S)),around:around(S),next:nx}}catch(e){console.warn("Master Lin: scene",e); return {}}};
   /* the guest's own season and local time (from the real date, even when a season is being previewed) */
   const guest=()=>{const d=new Date(), N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"],
       F={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"}, n=N[d.getMonth()];
-    return {guestHemi:SC.south?"south":"north",guestSeason:SC.south?F[n]:n,guestTime:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};};
+    return {guestHemi:SC.south?"south":"north",guestSeason:SC.forced?"":SC.south?F[n]:n,guestTime:String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")};};
   /* stage directions like *nods* or (smiles) are taken out of what he says; if one is about pouring, he pours instead */
   const tidy=t=>{let acts="";
     const out=String(t).replace(/\*([^*\n]{1,120})\*|（([^）\n]{1,40})）/g,(m,a,b)=>{acts+=" "+(a||b); return "";})
@@ -3702,18 +3732,27 @@ initReviews();
     requestAnimationFrame(step);
   });
   /* his greeting, for this moment on the mountain */
-  const greet=()=>{const S=scene(), m=S.moment, f=S.fest;
+  const greet=()=>{const S=scene(), m=S.moment, f=S.fest, fd=S.festDay, wx=S.weather, late=S.tod==="late", dark=late||S.tod==="night";
     const line={jingzhe:"Come in out of the drizzle, and mind the step.",qingming:"Come in out of the drizzle, and mind the step.",
       picking:"Forgive the smell of fresh leaves everywhere: it's harvest time, and we work through the night.",meiyu:"Come in out of the rain, it hasn't stopped for days.",
-      storms:"It's hot out there, so let's start with something light.",osmanthus:"We're roasting tea this season. Can you smell the charcoal?",
+      storms:wx==="storm"?"Quick, come in out of the storm! Listen to that thunder over the peaks.":dark?"It's a warm night, so let's start with something light.":"It's hot out there, so let's start with something light.",osmanthus:"We're roasting tea this season. Can you smell the charcoal?",
       frost:"There was frost on the tea rows this morning. Come in and warm up.",hearth:"Come and warm your hands by the stove.",
       hanchao:"Come and warm your hands by the stove, it's bitter out.",snow:"Snow on the peaks! It hardly ever happens. Come in and get warm."}[m]||"";
-    const fl={chunjie:"Happy New Year! ",yuanxiao:"Happy Lantern Festival! ",zhongqiu:"Happy Mid-Autumn Festival! ",duanwu:"Happy Dragon Boat Festival! "}[f]||"";
+    /* the festival, on the day itself, its eve or the day after */
+    const fl=({chunjie:fd<0?"Happy New Year's Eve! ":"Happy New Year! ",yuanxiao:fd===13?"Happy New Year! The Lantern Festival is tomorrow. ":"Happy Lantern Festival! ",
+      zhongqiu:fd<0?"The Mid-Autumn Festival is tomorrow! ":fd>0?"I hope you had a good Mid-Autumn Festival! ":"Happy Mid-Autumn Festival! ",
+      duanwu:fd<0?"The Dragon Boat Festival is tomorrow! ":fd>0?"I hope you had a good Dragon Boat Festival! ":"Happy Dragon Boat Festival! ",
+      dongzhi:fd<0?"It's the eve of the Winter Solstice, and we're rolling sweet rice balls. ":"It's the Winter Solstice today, the longest night of the year. ",
+      laba:"It's Laba today, and there's a pot of Laba porridge on the stove. ",chongyang:"It's the Double Ninth today, a day for climbing the peaks. ",
+      qingming:"It's Tomb-Sweeping Day, and families are up on the hill tending their ancestors' graves. ",
+      zhongyuan:"It's the Ghost Festival today, a quiet day for remembering the dead. ",hanshan:"Today we called the mountain to wake the tea bushes. Did you hear the drums? ",
+      doucha:"You've come on the day of the tea contest! ",chabo:"The tea expo is on in town this week, so it's been busy. "})[f]||"";
+    const up=late&&!fl&&m!=="picking"?"You're up late! ":"";
     /* "the United States", "the United Kingdom", "the Netherlands"… read better with "the" */
     const the=/^(United|Netherlands|Philippines|Czech)/.test(country.en)?"the ":"";
     const from=country.en&&country.en!=="China"?`All the way from ${the}${country.en}? `:"";
     const far=from?" I don’t often get guests from so far away.":"";
-    return `欢迎光临！Welcome, welcome. ${from}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled. Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
+    return `欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled. Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
   const CHIPS=["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
   const showChips=()=>{chips.innerHTML=CHIPS.map(q=>`<button type="button">${esc(q)}</button>`).join("");
     chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
