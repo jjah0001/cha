@@ -462,6 +462,7 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .totd .why{margin:10px 0 0;max-width:58ch}
 .totd .tn{font-size:14px;color:var(--ink-2);margin:6px 0 0}
 .totd .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+#hemiText .hemiswitch{background:none;border:0;padding:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer}
 .totd .hemi{font-size:12.5px;color:var(--ink-2);margin-top:12px}
 .totd .hemi button{background:none;border:0;padding:0;color:var(--ink-2);text-decoration:underline;cursor:pointer;font-size:12.5px}
 .totd .art{max-width:300px}
@@ -1964,7 +1965,7 @@ function todFine(d=new Date()){
 /* the four broad bands the stylesheet knows */
 function todNow(){return {late:"night",noon:"day"}[todFine()]||todFine();}
 /* SC is filled in by the background set-up below: the season shown and whether this visitor is south of the equator */
-const SC={season:"spring",south:false,home:false,forced:false};
+const SC={season:"spring",south:false,home:false,picked:false,forced:false};
 /* a "See it" preview (?fest= ?season= ?moment= ?festday=) always shows the northern-hemisphere calendar, the one the
    festivals and solar terms were named for: 春节 in winter, 清明 in spring, wherever the visitor is */
 const PREVIEW=["fest","season","moment","festday"].some(k=>QS.has(k));
@@ -2054,14 +2055,17 @@ function paintHemi(){
   let dz=null; for(let y=day.getFullYear();y<=day.getFullYear()+1&&!dz;y++){const md=south?"06-21":DONGZHI_N[y]; if(md){const d=at(y,md); if(d>=day) dz=d;}}
   const fest=(name,f)=>!f?"":f.on?`it's <b>${name}</b> now`:`the next <b>${name}</b> is on <b>${fmt(f.d)}</b>, in your <b>${seasonAt(f.d)}</b>`;
   const parts=[fest("Chinese New Year",cny),fest("Mid-Autumn Festival",mid)].filter(Boolean);
-  const html=`You're in the <b>${south?"southern":"northern"}</b> hemisphere, so it's <b>${seasonAt(day)}</b> on the mountain now, as it is where you are.`+
+  const other=south?"northern":"southern";
+  const html=(SC.picked?`You've set Cha to the <b>${south?"southern":"northern"}</b> hemisphere's seasons, so it's <b>${seasonAt(day)}</b> on the mountain now.`
+      :`You're in the <b>${south?"southern":"northern"}</b> hemisphere, so it's <b>${seasonAt(day)}</b> on the mountain now, as it is where you are.`)+
     (SC.forced?` (You're previewing ${SC.season} at the moment.)`:"")+
     (PREVIEW&&south?` (Previews show the northern-hemisphere calendar, so the scene up top is the northern one.)`:"")+
     ` The lunar festivals (Chinese New Year, the Dragon Boat and Mid-Autumn festivals and the rest) fall on the same dates all over the world, and Chinese communities in both halves of the world celebrate them then`+
     (parts.length?`: ${parts.join(", and ")}.`:".")+
     (dz?` The Winter Solstice festival follows the sun instead, so on Cha it falls on your own shortest day: <b>${fmt(dz)}</b>.`:"")+
-    ` The north/south switch under the tea of the day changes which teas it suggests.`;
-  if(el.dataset.k!==html){el.dataset.k=html; el.innerHTML=html;}
+    ` <button type="button" class="hemiswitch">${SC.picked?"Back to my own seasons":`Follow the ${other} seasons instead`}</button>`;
+  if(el.dataset.k!==html){el.dataset.k=html; el.innerHTML=html;
+    el.querySelector(".hemiswitch").onclick=()=>setHemi(SC.picked?null:south?"N":"S");}
 }
 function festOf(d=new Date(),season=SC.season,real=false){
   const f=QS.get("fest"); if(!real&&["chunjie","zhongqiu","duanwu","dongzhi","laba","zhongyuan","chongyang","hanshan","qingming","chabo","doucha"].includes(f)) return {name:f,day:+(QS.get("festday")||0)||0};
@@ -3069,7 +3073,10 @@ const TERMS=[[1,5,"小寒","Minor Cold"],[1,20,"大寒","Major Cold"],[2,4,"立�
 function solarTerm(d){const m=d.getMonth()+1,day=d.getDate();let cur=TERMS[TERMS.length-1];for(const t of TERMS){if(m>t[0]||(m===t[0]&&day>=t[1]))cur=t}return cur}
 const SOUTH_TZ=/^(Australia|Antarctica)\/|^Pacific\/(Auckland|Chatham|Fiji|Tongatapu|Apia|Noumea|Efate|Port_Moresby)|^America\/(Argentina|Santiago|Sao_Paulo|Montevideo|Asuncion|La_Paz|Lima)|^Africa\/(Johannesburg|Maputo|Harare|Lusaka|Windhoek|Gaborone|Maseru|Mbabane|Antananarivo|Luanda)|^Indian\/(Mauritius|Reunion)/;
 const HKEY="chaatlas.hemi";
-function hemisphere(){try{const h=localStorage.getItem(HKEY);if(h==="N"||h==="S")return h}catch(e){} let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){} return SOUTH_TZ.test(tz)?"S":"N"}
+/* switching hemisphere rebuilds the scene and its sound, so store the choice (null = follow the time zone) and reload */
+function setHemi(h){try{if(h)localStorage.setItem(HKEY,h);else localStorage.removeItem(HKEY);}catch(e){} location.reload();}
+function tzHemi(){let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){} return SOUTH_TZ.test(tz)?"S":"N"}
+function hemisphere(){try{const h=localStorage.getItem(HKEY);if(h==="N"||h==="S")return h}catch(e){} return tzHemi()}
 function seasonOf(d,h){const m=d.getMonth(); let s=[3,4,5].includes(m+1)?"spring":[6,7,8].includes(m+1)?"summer":[9,10,11].includes(m+1)?"autumn":"winter";
   if(h==="S") s={spring:"autumn",summer:"winter",autumn:"spring",winter:"summer"}[s]; return s}
 const SEASON={
@@ -3096,11 +3103,11 @@ function paintTOTD(){
     <p class="why">${esc(S.line)}</p>
     <p class="tn">${esc(t.notes)}. Brew at ${tempTxt(t)}, first steep ${esc(t.time)}.</p>
     <div class="acts"><button class="btn" id="tdOpen">Open and brew</button><button class="btn ghost" id="tdAdd">${SHELF[t.id]?"On your shelf ✓":"Want to try"}</button><button class="small" id="tdNext">Another pick</button></div>
-    <div class="hemi">${totdShift?"":"Everyone in your hemisphere gets the same tea today. "}Season based on the ${h==="S"?"southern":"northern"} hemisphere, from your device's time zone. In China it's ${term[2]} (${esc(term[3])}). <button id="tdHemi">Switch to ${h==="S"?"northern":"southern"}</button></div></div>`;
+    <div class="hemi">${totdShift?"":"Everyone in your hemisphere gets the same tea today. "}Season based on the ${h==="S"?"southern":"northern"} hemisphere, ${h!==tzHemi()?"as you chose":"from your device's time zone"}. In China it's ${term[2]} (${esc(term[3])}). <button id="tdHemi">Switch to ${h==="S"?"northern":"southern"}</button></div></div>`;
   $("tdOpen").onclick=()=>{prov=null;setFilter("all");select(t.id);go("atlas");setTimeout(()=>{const b=$("brewer");if(b)b.scrollIntoView({behavior:"smooth",block:"center"})},150)};
   $("tdAdd").onclick=()=>{if(!SHELF[t.id]){SHELF[t.id]={st:"wish",g:null,y:null,r:0,n:"",at:Date.now()};saveShelf();toast(`${t.en} · Want to try`)} paintTOTD()};
   $("tdNext").onclick=()=>{totdShift++;paintTOTD()};
-  $("tdHemi").onclick=()=>{try{localStorage.setItem(HKEY,h==="S"?"N":"S")}catch(e){} totdShift=0;paintTOTD()};
+  $("tdHemi").onclick=()=>{const to=h==="S"?"N":"S"; setHemi(to===tzHemi()?null:to);};
 }
 
 /* ── views ── */
@@ -3245,13 +3252,17 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
    then rain season-appropriate particles across the viewport. Badge toggles the particles on/off. */
 (function(){try{const tz=(Intl.DateTimeFormat().resolvedOptions().timeZone||"").replace(/_/g," ");
   let south=/^(Antarctica|Australia|Pacific\/(Auckland|Chatham|Easter|Fiji|Norfolk|Tahiti|Tongatapu|Apia)|America\/(Argentina|Santiago|La Paz|Lima|Asuncion|Montevideo|Punta Arenas|Sao Paulo|Araguaina|Bahia|Belem|Boa Vista|Campo Grande|Cuiaba|Eirunepe|Fortaleza|Maceio|Manaus|Noronha|Porto Velho|Recife|Rio Branco|Santarem)|Africa\/(Johannesburg|Harare|Luanda|Lusaka|Maputo|Nairobi|Windhoek|Blantyre|Gaborone|Kinshasa|Mbabane|Maseru)|Indian\/(Antananarivo|Mauritius|Reunion|Mahe))\b/.test(tz);
+  /* a visitor can pick the other hemisphere's seasons (the switch under the tea of the day, or in About), say to
+     follow the northern summer from Australia; the whole site follows: scene, sound, tea of the day, Master Lin */
+  const tzSouth=south; let pick=null; try{pick=localStorage.getItem(HKEY);}catch(e){}
+  if(pick==="N"||pick==="S") south=pick==="S";
   const home=south; south=south&&!PREVIEW;
   const m=(SC.south=south,sceneDate()).getMonth();  const N=["winter","winter","spring","spring","spring","summer","summer","summer","autumn","autumn","autumn","winter"];
   const flip={spring:"autumn",autumn:"spring",summer:"winter",winter:"summer"};
   /* ?season=summer etc. previews another season (visuals + ambience) without changing the clock */
   const force=QS.get("season");
   const season=flip[force]?force:south?flip[N[m]]:N[m];
-  SC.season=season; SC.south=south; SC.home=home; SC.forced=!!flip[force];
+  SC.season=season; SC.south=south; SC.home=home; SC.picked=home!==tzSouth; SC.forced=!!flip[force];
   const names={spring:"Spring 春",summer:"Summer 夏",autumn:"Autumn 秋",winter:"Winter 冬"};
   const root=document.documentElement, todTxt={late:"the small hours",dawn:"dawn",day:"daytime",noon:"the noon rest",dusk:"dusk",night:"night"};
   root.setAttribute("data-season",season);
