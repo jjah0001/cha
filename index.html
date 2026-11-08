@@ -3577,6 +3577,8 @@ $("listedTotal").textContent=XT.length.toLocaleString("en");
       document.documentElement.dataset.script=toTrad?"hant":"hans";
       /* Deliberately do NOT change <html lang>: browsers swap CJK fonts between PingFang/Songti SC and TC variants based on lang, which looks jarring on toggle. Keep lang stable so font rendering stays consistent and only the glyph content changes. */
     };
+    /* Master Lin greets visitors from Hong Kong, Macau and Taiwan in Traditional characters */
+    window.chaToHant=s=>loadDict().then(()=>convert(s));
     sc.addEventListener("click",()=>{ const next=state!=="hant"; apply(next).then(()=>{try{localStorage.setItem(SKEY,next?"hant":"hans");}catch(e){}}).catch(e=>{sc.setAttribute("aria-pressed",state==="hant"?"true":"false"); sc.title="简体 / 繁體 — dictionary failed to load ("+e.message+")";}); });
     try{if(localStorage.getItem(SKEY)==="hant") apply(true);}catch(e){}
   }
@@ -3656,9 +3658,18 @@ initReviews();
   const country=(()=>{let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
     let cc=TZC[tz]||(tz.startsWith("Australia/")?"AU":"");
     if(!cc){for(const l of (navigator.languages||[navigator.language||""])){const m=/-([A-Z]{2})\b/.exec(l||""); if(m){cc=m[1];break}}}
-    if(!cc) return {zh:"",en:""};
+    if(!cc) return {zh:"",en:"",cc:""};
     const nm=l=>{try{return new Intl.DisplayNames([l],{type:"region"}).of(cc)||""}catch(e){return ""}};
-    return {zh:nm("zh-Hans"),en:nm("en")};})();
+    return {zh:nm("zh-Hans"),en:nm("en"),cc};})();
+  /* Visitors in mainland China, Hong Kong, Macau or Taiwan, or anyone whose browser's first language is Chinese, are
+     greeted in Chinese: Traditional characters in Hong Kong, Macau and Taiwan (or with a zh-Hant/zh-TW/zh-HK browser,
+     or the site's 繁 switch on), Simplified otherwise. He still answers in whatever language the guest writes in. */
+  const ZH=(()=>{const first=String((navigator.languages||[])[0]||navigator.language||"").toLowerCase(), home=["CN","HK","MO","TW"].includes(country.cc);
+    if(!home&&!first.startsWith("zh")) return "";
+    let hant=/^zh-(hant|tw|hk|mo)/.test(first)||(!/^zh-(hans|cn|sg|my)/.test(first)&&["HK","MO","TW"].includes(country.cc));
+    try{if(localStorage.getItem("teatime.hant")==="hant") hant=true;}catch(e){}
+    return hant?"hant":"hans";})();
+  const T=(en,zh,zht)=>ZH==="hant"?zht:ZH?zh:en;
   /* What the visitor can see on the mountain behind the page right now, read off the drawing itself so he never
      mentions lanterns that aren't up or misses the dragon boats that are */
   const SEEN={chunlian:".wuyi .chunlian",lanterns:".wuyi .lanterns",lanternrow:".wuyi .lanternrow",lion:".wuyi .lionshow",dragon:".wuyi .dragon",
@@ -3709,6 +3720,10 @@ initReviews();
     ["nod",/(?:^|[.!?]\s+)(yes|yeah|exactly|indeed|of course|certainly|absolutely|that's right|quite right|good question)\b|(?:^|[。！？])\s*(对|是的|没错|当然|好问题)/gi],
     ["point",/\b(the mountains?|these mountains|the peaks?|the cliffs?|the valley|the river|Nine.?Bend|out there|over there|outside|the mist|the fog|the rain|the snow|the weather)\b|山上|山里|山间|那边|外面|九曲|岩壁|峡谷|雾|下雨|下雪|天气/gi],
     ["welcome",/\b(welcome|come in|take a seat|sit,? sit|nice to meet you|goodbye|see you|come back (any ?time|soon)|safe travels)\b|欢迎|请坐|坐坐|慢走|再见|下次再来/gi]];
+  /* he answers Hong Kong, Macau and Taiwan guests in Traditional characters, so each cue also matches its Traditional form */
+  const TRAD={冲:"沖衝",壶:"壺",对:"對",尝:"嘗",岩:"巖",峡:"峽",开:"開",当:"當",换:"換",来:"來",欢:"歡",气:"氣",汤:"湯",没:"沒",温:"溫",满:"滿",点:"點",
+    烧:"燒",给:"給",续:"續",见:"見",试:"試",请:"請",边:"邊",这:"這",里:"裏裡",错:"錯",问:"問",间:"間",闻:"聞",雾:"霧",题:"題"};
+  for(const g of GESTURES) g[1]=new RegExp(g[1].source.replace(/[\u4e00-\u9fff]/g,c=>TRAD[c]?"["+c+TRAD[c]+"]":c),g[1].flags);
   const HOLD={serve:2100,pour:2100,brew:2000,offer:1900,smell:1800,sip:1800,laugh:1300,welcome:1700,nod:900,point:1600};
   /* the frame each gesture plays: a tea master smells the lid and the wet leaves (闻盖香), and only lifts a cup to
      his nose when he is about to drink it himself; a reach frame, where there is one, plays first: his hand on the
@@ -3771,21 +3786,36 @@ initReviews();
     const the=/^(United|Netherlands|Philippines|Czech)/.test(country.en)?"the ":"";
     const from=country.en&&country.en!=="China"?`All the way from ${the}${country.en}? `:"";
     const far=from?" I don’t often get guests from so far away.":"";
+    if(ZH){
+      const zline={jingzhe:"外面下着毛毛雨，快进来，小心台阶。",qingming:"外面下着毛毛雨，快进来，小心台阶。",
+        picking:"到处都是鲜叶的味道，别介意：现在是采茶季，我们晚上还要通宵做青。",meiyu:"快进来躲躲雨，这雨已经下了好几天了。",
+        storms:wx==="storm"?"快进来！外面雷雨正大，听听这雷声。":dark?"晚上还是挺热的，先来一杯清淡点的吧。":"外面热得很，先来一杯清淡点的吧。",
+        osmanthus:"这个季节我们在炭焙茶，你闻到炭火的香味了吗？",frost:"今天早上茶垄上结了霜，快进来暖和暖和。",hearth:"来，到炉子边暖暖手。",
+        hanchao:"来，到炉子边暖暖手，外面又冷又湿。",snow:"峰顶下雪了！这可是难得一见。快进来暖和暖和。"}[m]||"";
+      const zfl=({chunjie:fd<0?"除夕快乐！":"新年好！",yuanxiao:fd===13?"新年好！明天就是元宵节了。":"元宵节快乐！",
+        zhongqiu:fd<0?"明天就是中秋节了！":fd>0?"中秋节过得好吗？":"中秋节快乐！",duanwu:fd<0?"明天就是端午节了！":fd>0?"端午节过得好吗？":"端午安康！",
+        dongzhi:fd<0?"明天冬至，今晚我们在搓汤圆。":"今天冬至，一年里夜最长的一天。",laba:"今天腊八，炉子上熬着腊八粥呢。",chongyang:"今天重阳，好多人登高去了。",
+        qingming:"今天清明，大家都上山扫墓去了。",zhongyuan:"今天是中元节，纪念先人的日子。",hanshan:"今天喊山了，你听到锣鼓声了吗？",
+        doucha:"你来得正好，今天斗茶赛！",chabo:"这几天城里在办茶博会，忙得很。"})[f]||"";
+      const zup=up?"这么晚还没睡啊！":"", zfrom=country.zh&&!["CN","HK","MO","TW"].includes(country.cc)?`大老远从${country.zh}来的吧？`:"";
+      return `欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！我姓林，叫我林师傅就行。水刚烧开。想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom?"很少有客人从这么远的地方来。":""}`;}
     return `欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled. Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
-  const CHIPS=["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
-  const showChips=()=>{chips.innerHTML=CHIPS.map(q=>`<button type="button">${esc(q)}</button>`).join("");
+  const CHIPS=ZH?["我第一次喝中国茶，该从哪里开始？","武夷岩茶有什么特别？","中国其他地方有什么茶值得一试？","在家怎么泡工夫茶？","山上的日子是什么样的？"]:["I'm new to Chinese tea. Where should I start?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
+  let chipText=CHIPS;
+  if(ZH==="hant"&&window.chaToHant) Promise.all(CHIPS.map(q=>window.chaToHant(q))).then(c=>{chipText=c; if(chips.children.length) showChips();}).catch(()=>{});
+  const showChips=()=>{chips.innerHTML=chipText.map(q=>`<button type="button">${esc(q)}</button>`).join("");
     chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
   const setBusy=b=>{busy=b; inp.disabled=b||!chatUrl; send.disabled=b||!chatUrl; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
   async function ask(q){q=String(q||"").trim().slice(0,500); if(!q||busy) return;
     stop(); listen(true);
     chips.innerHTML=""; add("me",para(q)); msgs.push({role:"user",content:q}); inp.value="";
-    if(!chatUrl){add("him","Master Lin isn’t available on this copy of the site.","err"); return}
+    if(!chatUrl){add("him",T("Master Lin isn’t available on this copy of the site.","这个版本的网站没有接通林师傅。","這個版本的網站沒有接通林師傅。"),"err"); return}
     /* he hears the question, then a moment later sits back to think, hand at his chin, until his answer comes */
     const ponder=setTimeout(()=>{if(resting==="listen"){resting="thinking"; rest();}},700);
     setBusy(true); const say=add("him",`<span class="th-dots" aria-label="Master Lin is thinking"><span></span><span></span><span></span></span>`);
     try{const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),45000);
       const r=await fetch(chatUrl,{method:"POST",headers:{"content-type":"application/json"},signal:ctl.signal,
-        body:JSON.stringify({messages:msgs.slice(-16),country:country.zh,...scene(),...guest()})}); clearTimeout(to);
+        body:JSON.stringify({messages:msgs.slice(-16),country:country.zh,lang:ZH,...scene(),...guest()})}); clearTimeout(to);
       if(r.status===429) throw {code:"rate"};
       if(!r.ok){let why="";try{why=(await r.json()).error||""}catch(e){} console.warn("Master Lin: chat failed",r.status,why); throw {code:"up"};}
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
@@ -3797,7 +3827,7 @@ initReviews();
       else if(++plainRun>=2){cues.push({gesture:"serve",at:.45}); cues.sort((a,b)=>a.at-b.at); plainRun=0;}
       clearTimeout(ponder); resting=""; await speak(say,reply,cues);
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
-      say.innerHTML=para(e&&e.code==="rate"?"Master Lin is busy pouring for other guests. Wait a minute, then ask again.":"Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.");}
+      say.innerHTML=para(e&&e.code==="rate"?T("Master Lin is busy pouring for other guests. Wait a minute, then ask again.","林师傅正忙着给别的客人倒茶，请等一分钟再问。","林師傅正忙著給別的客人倒茶，請等一分鐘再問。"):T("Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.","抱歉，现在联系不上林师傅，请稍后再试。","抱歉，現在聯繫不上林師傅，請稍後再試。"));}
     clearTimeout(ponder); listen(false); setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
   /* he looks up and listens while the guest is typing */
@@ -3807,8 +3837,11 @@ initReviews();
   let greeted=false;
   /* He welcomes the guest with open hands, then acts out whatever his greeting mentions (the kettle, a cup). */
   const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; setBusy(true); const el=add("him",`<span class="th-dots" aria-hidden="true"><span></span><span></span><span></span></span>`);
-    (t=>speak(el,t,[{gesture:"welcome",at:0},...cuesFor(t)]))(greet()).then(()=>{setBusy(false); showChips();});};
+    const t0=greet();
+    (ZH==="hant"&&window.chaToHant?window.chaToHant(t0).catch(()=>t0):Promise.resolve(t0))
+      .then(t=>speak(el,t,[{gesture:"welcome",at:0},...cuesFor(t)])).then(()=>{setBusy(false); showChips();});};
   new MutationObserver(open).observe($("teahouse"),{attributes:true,attributeFilter:["hidden"]}); open();
-  if(!chatUrl){inp.placeholder="Master Lin isn’t available on this copy of the site"; inp.disabled=true; send.disabled=true;}
+  if(ZH){inp.placeholder=T("","问问林师傅…","問問林師傅…"); inp.setAttribute("aria-label",T("","你想对林师傅说的话","你想對林師傅說的話")); if(send.textContent.trim()==="Ask") send.textContent=T("","问","問");}
+  if(!chatUrl){inp.placeholder=T("Master Lin isn’t available on this copy of the site","这个版本的网站没有接通林师傅","這個版本的網站沒有接通林師傅"); inp.disabled=true; send.disabled=true;}
 })();
 </script>

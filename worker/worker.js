@@ -1,6 +1,6 @@
 // Tea pairing proxy for the GitHub Pages build.
 // POST /pair { food, catalogue } -> { picks:[{id,why}], tip } | { error }
-// POST /chat { messages:[{role,content}], country, season, moment, tod, weather, fest, festDay, date, weekday, moon, around[], next, calendar[], guest* } -> { reply } | { error }
+// POST /chat { messages:[{role,content}], country, season, moment, tod, weather, fest, festDay, date, weekday, moon, around[], next, calendar[], lang, guest* } -> { reply } | { error }
 //   The tea master (茶师) in the Tea house tab. The persona prompt lives here, not in the page, so the key can't be
 //   used for anything else; the page only sends the conversation and a few short scene words.
 // Per-IP rate limited via env.PAIR_RL (Cloudflare rate-limit binding).
@@ -251,7 +251,10 @@ function teaMasterPrompt(b) {
   const gSeason = SEASON[b.guestSeason] || "";
   const gTime = clip(b.guestTime, 20);
   const guest = gSeason ? `旅客住在${gHemi}，他家乡那边现在也是${gSeason}${gTime ? `，当地时间${gTime}` : ""}。在你的茶店里，季节总是和旅客家乡一样：他那边是${gSeason}，你这里也是${gSeason}。说到他那边的季节、天气或时间时，以这个为准；不要自己用南北半球去推算季节相反，也不要说中国和他那边季节不同。` : "";
-  return `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}
+  /* visitors from mainland China, Hong Kong, Macau and Taiwan (or with a Chinese browser) were greeted in Chinese */
+  const lang = b.lang === "hant" ? "繁体字" : b.lang === "hans" ? "简体字" : "";
+  const zh = lang ? `\n这位旅客来自华语地区（或者用的是中文浏览器），你已经用中文（${lang}）跟他打过招呼。他写中文，你就用中文、用${lang}回答${b.lang === "hant" ? "，用词也照港澳台的习惯" : ""}；他写英文或别的语言，就用他写的那种语言回答。跟中文旅客说中文时，茶名不用再附拼音。` : "";
+  return `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}${zh}
 
 你怎么说话：
 - 用旅客使用的语言回答：他写英文你就用英文，写中文就用中文，写别的语言也一样。
