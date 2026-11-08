@@ -1,6 +1,6 @@
 // Tea pairing proxy for the GitHub Pages build.
 // POST /pair { food, catalogue } -> { picks:[{id,why}], tip } | { error }
-// POST /chat { messages:[{role,content}], country, season, moment, tod, fest } -> { reply } | { error }
+// POST /chat { messages:[{role,content}], country, season, moment, tod, weather, fest, festDay, date, weekday, moon, around[], next, guest* } -> { reply } | { error }
 //   The tea master (茶师) in the Tea house tab. The persona prompt lives here, not in the page, so the key can't be
 //   used for anything else; the page only sends the conversation and a few short scene words.
 // Per-IP rate limited via env.PAIR_RL (Cloudflare rate-limit binding).
@@ -82,10 +82,84 @@ const clip = (v, n) => String(v || "").replace(/[\u0000-\u001f]/g, " ").slice(0,
 const SEASON = { spring: "春天", summer: "夏天", autumn: "秋天", winter: "冬天" };
 const MOMENT = { jingzhe: "惊蛰前后，山里刚响过春雷，细雨蒙蒙", qingming: "清明时节，细雨和山雾", picking: "正是开山采岩茶的季节，白天采茶，晚上通宵做青",
   meiyu: "梅雨季，雨下个不停", storms: "三伏天，蝉声不断，午后常有雷雨", osmanthus: "桂花开了，茶厂在炭焙", frost: "霜降以后，早上茶垄上有霜，炭焙快结束了",
-  hearth: "冬天，大家围着炉子煮水喝茶", hanchao: "寒潮来了，又冷又湿", snow: "难得下了雪，峰顶都白了" };
+  hearth: "大家围着炉子煮水喝茶", hanchao: "寒潮来了，又冷又湿", snow: "难得下了雪，峰顶都白了" };
 const TOD = { late: "深夜", dawn: "清晨", day: "白天", noon: "中午", dusk: "傍晚", night: "晚上" };
 const FEST = { chunjie: "春节期间", yuanxiao: "元宵节", duanwu: "端午节", zhongqiu: "中秋节", dongzhi: "冬至", laba: "腊八", zhongyuan: "中元节",
-  chongyang: "重阳节", hanshan: "惊蛰喊山的日子", doucha: "斗茶赛的日子", chabo: "茶博会期间" };
+  chongyang: "重阳节", hanshan: "惊蛰喊山的日子", qingming: "清明节", doucha: "斗茶赛的日子", chabo: "茶博会期间" };
+const FEST_NAME = { chunjie: "春节（大年初一）", yuanxiao: "元宵节", duanwu: "端午节", zhongqiu: "中秋节", dongzhi: "冬至", laba: "腊八节", zhongyuan: "中元节",
+  chongyang: "重阳节", hanshan: "惊蛰喊山", qingming: "清明节", doucha: "春茶斗茶赛", chabo: "海峡两岸茶博会" };
+/* the festival on the day: fest plus festDay (−1 the eve, 0 the day, 1 the day after; 春节 counts from 初一 to 元宵 = 14) */
+const LUNAR_DAY = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十", "十一", "十二", "十三", "十四", "十五"];
+function festToday(fest, day) {
+  if (!FEST[fest]) return "";
+  if (!Number.isInteger(day)) return "现在是" + FEST[fest];
+  if (fest === "chunjie" || fest === "yuanxiao") {
+    if (day < 0) return "今天是除夕，农历年的最后一天：家家贴春联、挂灯笼，晚上全家团聚吃年夜饭、守岁，半夜放鞭炮烟花";
+    if (day === 0) return "今天是大年初一，春节第一天，大家互相拜年";
+    if (day <= 12) return `今天是正月${LUNAR_DAY[day]}，春节还没过完，春联和灯笼都还挂着`;
+    if (day === 13) return "今天是正月十四，明天就是元宵节";
+    return "今天是元宵节（正月十五），春节的最后一天，晚上赏花灯、吃元宵";
+  }
+  const eve = day < 0, after = day > 0;
+  switch (fest) {
+    case "zhongqiu": return eve ? "明天就是中秋节（农历八月十五）" : after ? "昨天是中秋节，今天是八月十六，俗话说“十五的月亮十六圆”" : "今天是中秋节（农历八月十五），家家团圆、赏月、吃月饼";
+    case "duanwu": return eve ? "明天就是端午节（农历五月初五）" : after ? "昨天是端午节" : "今天是端午节（农历五月初五），门口挂艾草菖蒲，吃粽子，九曲溪上赛龙舟";
+    case "dongzhi": return eve ? "明天就是冬至，今晚是冬至前夜，一家人围着桌子搓汤圆（冬至圆）" : "今天是冬至，一年里白天最短、夜最长的一天，早上吃汤圆";
+    case "laba": return "今天是腊八（腊月初八），家家熬腊八粥";
+    case "zhongyuan": return "今天是中元节（农历七月十五），傍晚寺里敲钟，溪上放河灯，纪念祖先和故人";
+    case "chongyang": return "今天是重阳节（农历九月初九），登高、赏菊、敬老";
+    case "hanshan": return "今天是惊蛰，御茶园那边在“喊山”：插红旗、敲锣打鼓，大家齐声喊“茶发芽”";
+    case "qingming": return "今天是清明节，家家上山扫墓、祭祖";
+    case "doucha": return "这几天在办春茶的斗茶赛，大家把最好的新茶拿来比，评出“茶王”";
+    case "chabo": return "这几天武夷山市在办一年一度的海峡两岸茶博会，城里来了很多看茶的人";
+  }
+  return FEST[fest];
+}
+const WEATHER = { clear: "天晴", drizzle: "下着蒙蒙细雨", rain: "下着雨", storm: "正在下雷阵雨，电闪雷鸣", snow: "在下雪" };
+const MOON = { new: "", "waxing-crescent": "一弯上弦的月牙", "waxing-half": "半个月亮（上弦月）", "waxing-gibbous": "快圆的月亮",
+  full: "一轮圆月", "waning-gibbous": "刚过了圆的月亮", "waning-half": "半个月亮（下弦月）", "waning-crescent": "一弯残月" };
+/* what the guest can see in the drawing of the mountain right now (the page reads it off the drawing) */
+function seen(b) {
+  const a = new Set(Array.isArray(b.around) ? b.around.slice(0, 40).map(String) : []);
+  const harvest = b.moment === "picking", out = [];
+  const add = (k, t) => { if (a.has(k) && t) out.push(t); };
+  add("chunlian", "茶店门口贴着红春联");
+  add("lanterns", "屋檐下挂着两盏红灯笼");
+  add("lanternrow", "门前小路两边挂满了灯笼");
+  add("lion", "门前有人在舞狮，敲锣打鼓，围了一圈人看");
+  add("dragon", "一条龙灯沿着小路游过来，前面有人举着龙珠");
+  add("fireworks", "村子里在放烟花爆竹");
+  add("boats", "九曲溪上两条龙舟在比赛，鼓声咚咚");
+  add("aicao", "门边挂着艾草和菖蒲");
+  add("kids", "孩子们提着灯笼在小路上跑");
+  add("flags", "御茶园那边插着红旗，敲锣打鼓在喊山");
+  add("tombs", "对面山坡上有人家在扫墓");
+  add("crowd", b.fest === "doucha" ? "茶店门口围了很多来看斗茶的人" : "小路上有从城里来逛茶博会的人");
+  add("banner", "茶店前挂着斗茶赛的红横幅");
+  add("climbers", "峰上有人在登高");
+  add("ju", "门口摆着菊花");
+  add("hedeng", "溪上漂着一盏盏河灯");
+  add("pickers", harvest ? "茶山上有好几个人在采茶" : "茶垄间有人在干农活");
+  add("trays", "门前晾着一筛筛摊青的鲜叶");
+  add("sifter", "有人在门前摇青");
+  add("porter", "有个挑夫挑着两筐担子从小路上走过");
+  add("raft", "九曲溪上有人撑着竹筏");
+  add("snowcap", "峰顶积了雪");
+  add("frost", "茶垄上结了一层霜");
+  add("cloudsea", "山间飘着云海");
+  add("mist", "山坡上有薄雾");
+  add("osmanthus", "桂花开了，花瓣被风吹着飘");
+  add("embers", "焙房里炭火的火星往上飘");
+  add("lamp", "焙房的灯亮着");
+  add("fireflies", "外面有萤火虫");
+  if (a.has("moon") && MOON[b.moon]) out.push("天上挂着" + MOON[b.moon]);
+  else if (b.moon === "new" && (b.tod === "night" || b.tod === "late") && b.weather === "clear") out.push("今晚没有月亮");
+  add("stars", "满天星星");
+  return out;
+}
+const WEEKDAY = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+const isDate = (v) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+const zhDate = (v) => { const [y, m, d] = v.split("-").map(Number); return `${y}年${m}月${d}日`; };
 
 /* What Master Lin knows. A fixed block (cached between calls) so his facts stay consistent; he draws on it, he does not recite it. */
 const TEA_KNOWLEDGE = `以下是林师傅心里有数的茶知识。聊天时自然地用上，挑和话题有关的一两点说，不要背诵，也不要一次讲一大段。凡是标着“相传”的，说的时候也要讲明是传说。
@@ -156,13 +230,23 @@ const TEA_KNOWLEDGE = `以下是林师傅心里有数的茶知识。聊天时自
 function teaMasterPrompt(b) {
   const country = clip(b.country, 40) || "远方";
   const head = SEASON[b.season] && TOD[b.tod] ? SEASON[b.season] + "的" + TOD[b.tod] : SEASON[b.season] || TOD[b.tod] || "";
-  const when = [FEST[b.fest], head, MOMENT[b.moment]].filter(Boolean).join("，");
+  const day = Number.isInteger(b.festDay) ? b.festDay : null;
+  const when = [head, MOMENT[b.moment], WEATHER[b.weather]].filter(Boolean).join("，");
+  /* today's date and festival, what can be seen around the tea house, and the next festival */
+  const date = isDate(b.date) ? zhDate(b.date) + (Number.isInteger(b.weekday) && WEEKDAY[b.weekday] ? "，" + WEEKDAY[b.weekday] : "") : "";
+  const fest = festToday(b.fest, day);
+  const sights = seen(b);
+  const nx = b.next && FEST_NAME[b.next.fest] && isDate(b.next.date) && Number.isInteger(b.next.days) && b.next.days > 0 && b.next.days <= 400 ? b.next : null;
+  const next = nx ? `下一个节日是${FEST_NAME[nx.fest]}，在${zhDate(nx.date)}${nx.days === 1 ? "，就是明天" : nx.days === 2 ? "，就是后天" : `，还有${nx.days}天`}。` : "";
+  const scene = when || date || fest || sights.length ? `\n\n此刻的武夷山（茶店的日子和钟点跟旅客那边一样）：${date ? `今天是${date}。` : ""}${fest ? fest + "。" : date ? "今天不是什么节日。" : ""}${when ? when + "。" : ""}` +
+    (sights.length ? `\n旅客在网页背景里看到的、你窗外和门前的景象：${sights.join("；")}。` : "") + (next ? "\n" + next : "") +
+    `\n以上就是你身边此刻的真实情况。旅客问今天几号、星期几、是什么节日、外面天气怎么样、外面在干什么、下一个节日是什么时候，就按这里回答。这里没写的节日和景象就是没有，不要编造（例如不要说外面在下雨，除非上面写了），也不要自己推算农历日期。聊天时可以自然地提到，但不要每次都提。` : "";
   /* where the guest is: their own season and local time, so he never has to guess */
   const gHemi = b.guestHemi === "south" ? "南半球" : b.guestHemi === "north" ? "北半球" : "";
   const gSeason = SEASON[b.guestSeason] || "";
   const gTime = clip(b.guestTime, 20);
   const guest = gSeason ? `旅客住在${gHemi}，他家乡那边现在也是${gSeason}${gTime ? `，当地时间${gTime}` : ""}。在你的茶店里，季节总是和旅客家乡一样：他那边是${gSeason}，你这里也是${gSeason}。说到他那边的季节、天气或时间时，以这个为准；不要自己用南北半球去推算季节相反，也不要说中国和他那边季节不同。` : "";
-  return `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${when ? `\n\n此刻的武夷山：${when}。聊天时可以自然地提到，但不要每次都提。` : ""}${guest ? `\n${guest}` : ""}
+  return `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}
 
 你怎么说话：
 - 用旅客使用的语言回答：他写英文你就用英文，写中文就用中文，写别的语言也一样。
