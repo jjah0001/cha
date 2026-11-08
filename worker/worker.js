@@ -1,6 +1,6 @@
 // Tea pairing proxy for the GitHub Pages build.
 // POST /pair { food, catalogue } -> { picks:[{id,why}], tip } | { error }
-// POST /chat { messages:[{role,content}], country, season, moment, tod, weather, fest, festDay, date, weekday, moon, around[], next, guest* } -> { reply } | { error }
+// POST /chat { messages:[{role,content}], country, season, moment, tod, weather, fest, festDay, date, weekday, moon, around[], next, calendar[], lang, guest* } -> { reply } | { error }
 //   The tea master (茶师) in the Tea house tab. The persona prompt lives here, not in the page, so the key can't be
 //   used for anything else; the page only sends the conversation and a few short scene words.
 // Per-IP rate limited via env.PAIR_RL (Cloudflare rate-limit binding).
@@ -237,16 +237,24 @@ function teaMasterPrompt(b) {
   const fest = festToday(b.fest, day);
   const sights = seen(b);
   const nx = b.next && FEST_NAME[b.next.fest] && isDate(b.next.date) && Number.isInteger(b.next.days) && b.next.days > 0 && b.next.days <= 400 ? b.next : null;
+  /* the year ahead: every festival's next date, so "when is Chinese New Year?" gets the real answer */
+  const cal = (Array.isArray(b.calendar) ? b.calendar.slice(0, 20) : []).filter((c) => c && FEST_NAME[c.fest] && isDate(c.date))
+    .map((c) => FEST_NAME[c.fest] + (c.fest === "chunjie" ? `：${zhDate(c.date)}（除夕是前一天）` : `：${zhDate(c.date)}`));
+  const year = isDate(b.date) ? b.date.slice(0, 4) : "";
   const next = nx ? `下一个节日是${FEST_NAME[nx.fest]}，在${zhDate(nx.date)}${nx.days === 1 ? "，就是明天" : nx.days === 2 ? "，就是后天" : `，还有${nx.days}天`}。` : "";
   const scene = when || date || fest || sights.length ? `\n\n此刻的武夷山（茶店的日子和钟点跟旅客那边一样）：${date ? `今天是${date}。` : ""}${fest ? fest + "。" : date ? "今天不是什么节日。" : ""}${when ? when + "。" : ""}` +
     (sights.length ? `\n旅客在网页背景里看到的、你窗外和门前的景象：${sights.join("；")}。` : "") + (next ? "\n" + next : "") +
-    `\n以上就是你身边此刻的真实情况。旅客问今天几号、星期几、是什么节日、外面天气怎么样、外面在干什么、下一个节日是什么时候，就按这里回答。这里没写的节日和景象就是没有，不要编造（例如不要说外面在下雨，除非上面写了），也不要自己推算农历日期。聊天时可以自然地提到，但不要每次都提。` : "";
+    (cal.length ? `\n接下来一年里各个节日的日子（按时间先后）：${cal.join("；")}。今年是${year}年，说到“今年”“明年”时以此为准，不要用你自己记得的年份。` : "") +
+    `\n以上就是你身边此刻的真实情况。旅客问今天几号、星期几、是什么节日、外面天气怎么样、外面在干什么、某个节日在哪天，就按这里回答。这里没写的节日和景象就是没有，不要编造（例如不要说外面在下雨，除非上面写了），也不要自己推算农历日期。聊天时可以自然地提到，但不要每次都提。` : "";
   /* where the guest is: their own season and local time, so he never has to guess */
   const gHemi = b.guestHemi === "south" ? "南半球" : b.guestHemi === "north" ? "北半球" : "";
   const gSeason = SEASON[b.guestSeason] || "";
   const gTime = clip(b.guestTime, 20);
   const guest = gSeason ? `旅客住在${gHemi}，他家乡那边现在也是${gSeason}${gTime ? `，当地时间${gTime}` : ""}。在你的茶店里，季节总是和旅客家乡一样：他那边是${gSeason}，你这里也是${gSeason}。说到他那边的季节、天气或时间时，以这个为准；不要自己用南北半球去推算季节相反，也不要说中国和他那边季节不同。` : "";
-  return `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}
+  /* visitors from mainland China, Hong Kong, Macau and Taiwan (or with a Chinese browser) were greeted in Chinese */
+  const lang = b.lang === "hant" ? "繁体字" : b.lang === "hans" ? "简体字" : "";
+  const zh = lang ? `\n这位旅客来自华语地区（或者用的是中文浏览器），你已经用中文（${lang}）跟他打过招呼。他写中文，你就用中文、用${lang}回答${b.lang === "hant" ? "，用词也照港澳台的习惯" : ""}；他写英文或别的语言，就用他写的那种语言回答。跟中文旅客说中文时，茶名不用再附拼音。` : "";
+  return `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}${zh}
 
 你怎么说话：
 - 用旅客使用的语言回答：他写英文你就用英文，写中文就用中文，写别的语言也一样。
