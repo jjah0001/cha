@@ -3148,28 +3148,26 @@ const SEASON={
  autumn:{zh:"秋",line:"It's autumn where you are, when oolongs come into their own and roasted teas start to feel right.",pool:t=>t.type==="oolong"||(t.type==="red"&&t.f.roast>=2)||t.id==="shoumei"},
  winter:{zh:"冬",line:"It's winter where you are. Warming red, roasted and aged dark teas are the classic choice.",pool:t=>t.type==="red"||t.type==="dark"||(t.type==="oolong"&&t.f.roast>=3.5)||t.id==="shoumei"}};
 function dayKey(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
-let totdShift=0;
 function teaOfDay(){
   const now=new Date(), h=hemisphere(), season=seasonOf(now,h), term=solarTerm(now);
   // shared pick: each tea gets its own score from (date, hemisphere, tea id), so the result
   // is the same for every visitor that day and doesn't depend on their shelf or list order
   const day=dayKey(now)+"|"+h;
   const order=T.filter(SEASON[season].pool).map(t=>[rng(day+"|"+t.id)(),t]).sort((a,b)=>a[0]-b[0]||(a[1].id<b[1].id?-1:1)).map(x=>x[1]);
-  return {t:order[totdShift%order.length],season,h,term,n:order.length};
+  return {t:order[0],season,h,term};
 }
 function paintTOTD(){
   const {t,season,h,term}=teaOfDay(), ty=DATA.types[t.type], S=SEASON[season];
   const el=$("totd"); el.className="totd c-"+t.type; el.dataset.term=term[2];
   el.innerHTML=`<div class="art">${art(t,"d")}</div>
-   <div><div class="tk"><span>${totdShift?"Another pick":"Tea of the day"}</span><span class="term">${S.zh} · ${term[2]} ${esc(term[3])}</span></div>
+   <div><div class="tk"><span>Tea of the day</span><span class="term">${S.zh} · ${term[2]} ${esc(term[3])}</span></div>
     <div class="tz">${t.zh}</div><div class="te">${esc(t.en)} <span style="font-size:15px;color:var(--ink-2)">· ${esc(ty.en)} tea</span></div>
     <p class="why">${esc(S.line)}</p>
     <p class="tn">${esc(t.notes)}. Brew at ${tempTxt(t)}, first steep ${esc(t.time)}.</p>
-    <div class="acts"><button class="btn" id="tdOpen">Open and brew</button><button class="btn ghost" id="tdAdd">${SHELF[t.id]?"On your shelf ✓":"Want to try"}</button><button class="small" id="tdNext">Another pick</button></div>
-    <div class="hemi">${totdShift?"":"Everyone in your hemisphere gets the same tea today. "}Season based on the ${h==="S"?"southern":"northern"} hemisphere, ${h!==tzHemi()?"as you chose":"from your device's time zone"}. In China it's ${term[2]} (${esc(term[3])}). <button id="tdHemi">Switch to ${h==="S"?"northern":"southern"}</button></div></div>`;
+    <div class="acts"><button class="btn" id="tdOpen">Open and brew</button><button class="btn ghost" id="tdAdd">${SHELF[t.id]?"On your shelf ✓":"Want to try"}</button></div>
+    <div class="hemi">Everyone in your hemisphere gets the same tea today. Season based on the ${h==="S"?"southern":"northern"} hemisphere, ${h!==tzHemi()?"as you chose":"from your device's time zone"}. In China it's ${term[2]} (${esc(term[3])}). <button id="tdHemi">Switch to ${h==="S"?"northern":"southern"}</button></div></div>`;
   $("tdOpen").onclick=()=>{prov=null;setFilter("all");select(t.id);go("atlas");setTimeout(()=>{const b=$("brewer");if(b)b.scrollIntoView({behavior:"smooth",block:"center"})},150)};
   $("tdAdd").onclick=()=>{if(!SHELF[t.id]){SHELF[t.id]={st:"wish",g:null,y:null,r:0,n:"",at:Date.now()};saveShelf();toast(`${t.en} · Want to try`)} paintTOTD()};
-  $("tdNext").onclick=()=>{totdShift++;paintTOTD()};
   $("tdHemi").onclick=()=>{const to=h==="S"?"N":"S"; setHemi(to===tzHemi()?null:to);};
 }
 
