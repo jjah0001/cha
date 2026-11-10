@@ -1,5 +1,6 @@
 // Health boxes for every tea card. Each tile is one short idea, never a paragraph.
-// Rule: every tile cites a Chinese-language source someone opened (checked 2026-10-24).
+// Rule: every tile cites a Chinese-language source someone opened (checked 2026-10-24; reviewed 2026-11-10).
+// Each note says only what its source measured: lab (in vitro) findings are labelled as lab, not as benefits in people.
 // Cohorts only show a link, so their notes say "linked to", never that tea caused it.
 // Topics with no usable Chinese source (jasmine aroma and mood, oral health, bone density) are left out on purpose.
 
@@ -11,7 +12,10 @@ const sources = {
   ukbb: { url: "http://www.fortunechina.com/lingdaoli/c/2022-09/02/content_418454.htm", title: "最新研究发现，喝红茶可以延年益寿", pub: "财富中文网 2022 (UK Biobank, Ann Intern Med)" },
   theaflavin: { url: "https://www.spkx.net.cn/CN/10.7506/spkx1002-6630-20210603-045", title: "茶黄素生物学活性研究进展", pub: "食品科学 2022 · 刘仲华等" },
   whitetea: { url: "https://wsyj.cbpt.cnki.net/portal/journal/portal/client/paper/5ad857d49bf5d1e2d8282fb54574f4da", title: "茶的健康效益和人群干预研究", pub: "卫生研究 2011 · 韩驰 (中国疾控中心)" },
-  yellowtea: { url: "https://www.spkx.net.cn/fileup/HTML/2017-38-17-024.shtml", title: "基于色差系统的黄茶外观色泽评价模型构建及其关键物质基础分析", pub: "食品科学 2017" },
+  yellowing: { url: "https://xdspkj.alljournals.cn/xdspkj/article/abstract/20211209", title: "野化白云黄茶闷黄过程中的品质成分变化及其菌种分离鉴定", pub: "现代食品科技 2021" },
+  whitegrade: { url: "https://www.spkx.net.cn/CN/Y2016/V37/I20/42", title: "不同花色种类白茶的抗氧化活性及其主要品质化学成分分析", pub: "食品科学 2016" },
+  whiteage: { url: "https://www.spkx.net.cn/CN/Y2025/V46/I7/217", title: "基于代谢组学的不同贮藏年份紧压寿眉白茶化学成分分析", pub: "食品科学 2025" },
+  roast: { url: "https://www.spkx.net.cn/CN/abstract/abstract58119.shtml", title: "基于UPLC-Q-Exactive/MS的不同烘焙处理岩茶化学成分差异分析", pub: "食品科学 2023" },
   oolong: { url: "https://www.tea-science.com/CN/abstract/abstract579.shtml", title: "乌龙茶减肥功效的研究现状", pub: "茶叶科学 2001 · 林智等" },
   puer: { url: "https://www.spkx.net.cn/CN/Y2024/V45/I12/144", title: "普洱熟茶对糖脂代谢异常改善效果的临床研究", pub: "食品科学 2024 · 孙颖等" },
   fu1: { url: "https://www.spkx.net.cn/CN/10.7506/spkx1002-6630-20201028-284", title: "茯砖茶通过调节肠道菌群和胆汁酸代谢预防肥胖及高胆固醇血症作用机制", pub: "食品科学 2022 · 湖南农业大学" },
@@ -27,17 +31,22 @@ const sources = {
 };
 
 const tiles = {
-  heart: { icon: "heart", title: "Heart & vessels", note: "Regular drinkers: linked to ~22% fewer heart & stroke deaths", src: ["chinapar"] },
-  heartG: { icon: "heart", title: "Heart & vessels", note: "Linked to ~22% fewer heart & stroke deaths · most in long-term green-tea drinkers", src: ["chinapar"] },
-  bpG: { icon: "drop", title: "Blood pressure", note: "About −2 / −2 mmHg · daily for 12+ weeks", src: ["bpmeta"] },
-  bpR: { icon: "drop", title: "Blood pressure", note: "About −1.4 / −1.1 mmHg · daily for 12+ weeks", src: ["bpmeta"] },
-  focus: { icon: "mind", title: "Calm focus", note: "Theanine + caffeine together · steadier attention", src: ["theanine"] },
-  sugar: { icon: "shield", title: "Blood sugar", note: "Daily drinkers: linked to 8% lower type 2 diabetes risk", src: ["ckb"] },
+  heart: { icon: "heart", title: "Heart & vessels", note: "Tea 3+ times a week: linked to ~20% fewer cases of heart disease & stroke · Chinese cohort, clearest for green tea", src: ["chinapar"] },
+  heartG: { icon: "heart", title: "Heart & vessels", note: "Tea 3+ times a week: linked to ~20% fewer cases of heart disease & stroke · clearest for green tea", src: ["chinapar"] },
+  bpG: { icon: "drop", title: "Blood pressure", note: "About −2.1 / −1.7 mmHg in trials · daily for 12+ weeks", src: ["bpmeta"] },
+  bpR: { icon: "drop", title: "Blood pressure", note: "About −1.4 / −1.1 mmHg in trials · daily for 12+ weeks", src: ["bpmeta"] },
+  catechin: { icon: "leaf", title: "Catechins (EGCG)", note: "Unoxidised leaf keeps the most EGCG · antioxidant in the lab; benefit in people not proven", src: ["theanine"] },
+  focus: { icon: "mind", title: "Calm focus", note: "Theanine + caffeine together · steadier attention for a few hours", src: ["theanine"] },
+  sugar: { icon: "shield", title: "Blood sugar", note: "Daily drinkers: linked to 8% lower type 2 diabetes risk · most drank green tea", src: ["ckb"] },
   life: { icon: "clock", title: "Longevity link", note: "2+ cups a day: linked to 9–13% lower risk of dying · UK, mostly black tea", src: ["ukbb"] },
   theaflavin: { icon: "leaf", title: "Theaflavins", note: "Red pigments born in oxidation · poorly absorbed, effects still unclear", src: ["theaflavin"] },
-  white: { icon: "shield", title: "Glucose support", note: "Lowered blood sugar in diabetic mice · only one small human trial", src: ["whitetea"] },
-  yellow: { icon: "leaf", title: "Liver & lipids", note: "Antioxidant, liver-protective · lab and rat studies only", src: ["yellowtea"] },
-  oolong: { icon: "flame", title: "Weight control", note: "Early Fujian clinical reports · not yet confirmed by trials", src: ["oolong"] },
+  whiteAox: { icon: "leaf", title: "Antioxidant buds", note: "Buds and young leaf, little processed · antioxidant in lab tests; not shown in people", src: ["whitegrade"] },
+  needleAox: { icon: "leaf", title: "Antioxidant buds", note: "Strongest of the white teas in lab antioxidant tests · not shown in people", src: ["whitegrade"] },
+  whiteAged: { icon: "clock", title: "Years in storage", note: "Ageing lowers catechins & amino acids, adds other polyphenols · health effect unknown", src: ["whiteage"] },
+  white: { icon: "shield", title: "Blood sugar", note: "Lowered blood sugar in diabetic mice · one small human trial, not yet repeated", src: ["whitetea"] },
+  yellow: { icon: "leaf", title: "Yellowing 闷黄", note: "Sealed yellowing lowers EGCG & other ester catechins vs green tea", src: ["yellowing"] },
+  oolong: { icon: "flame", title: "Weight control", note: "Early Fujian clinical reports, uncontrolled · not confirmed by trials", src: ["oolong"] },
+  roast: { icon: "flame", title: "Charcoal roast", note: "Medium-to-high roasting lowers catechins & amino acids · Wuyi Rougui study", src: ["roast"] },
   puer: { icon: "drop", title: "Blood lipids", note: "3 months ripe pu-erh: better HDL, BMI, liver fat · small, no comparison group", src: ["puer"] },
   fu: { icon: "gut", title: "Golden flower 金花", note: "Eurotium cristatum · gut microbes & cholesterol in rats", src: ["fu1", "fu2"] },
   anji: { icon: "leaf", title: "Amino-rich leaf", note: "Pale albino leaf · more free amino acids, more umami", src: ["anji", "albino"] },
@@ -56,17 +65,23 @@ const RIPE_IDS = new Set(["shupu", "laochatou", "xiaoqinggan"]);
 const isBrick = t => t.type === "dark" && (BRICK_IDS.has(t.id) || /砖|茯|边茶|藏茶|金尖|千两/.test(t.zh));
 const isFu = t => t.type === "dark" && (FU_IDS.has(t.id) || /茯/.test(t.zh));
 const isRipe = t => t.type === "dark" && (RIPE_IDS.has(t.id) || /熟/.test(t.zh));
+const isRoast = t => t.type === "oolong" && (t.f ? t.f.roast >= 3 : ["wuyi", "wuyihist"].includes(t.group));
+const isNeedle = t => t.type === "white" && (["yinzhen", "zhengheyz"].includes(t.id) || /银针/.test(t.zh));
+const isAgedWhite = t => t.type === "white" && (t.id === "shoumei" || /老白茶|白茶饼|饼/.test(t.zh));
 const isAlbino = t => t.type === "green" && (t.id === "anji" || /安吉白|白叶|白片|白茶/.test(t.zh));
 
 // The tile keys for one tea: benefits first, then the "mind the cup" notes.
 function pick(t) {
   const k = [];
-  if (t.type === "green") k.push("heartG", "bpG", "focus", "sugar");
-  else if (t.type === "red") k.push("bpR", "life", "heart", "sugar", "theaflavin");
+  if (t.type === "green") k.push("heartG", "bpG", "catechin", "focus", "sugar");
+  // China-PAR found no clear heart link for black tea, so red teas cite the UK cohort instead
+  else if (t.type === "red") k.push("bpR", "life", "focus", "sugar", "theaflavin");
   else {
-    if (t.type === "white") k.push("white");
+    if (t.type === "white") k.push(isNeedle(t) ? "needleAox" : "whiteAox", "white");
+    if (isAgedWhite(t)) k.push("whiteAged");
     if (t.type === "yellow") k.push("yellow");
     if (t.type === "oolong") k.push("oolong");
+    if (isRoast(t)) k.push("roast");
     if (isRipe(t)) k.push("puer");
     if (isFu(t)) k.push("fu");
     k.push("heart", "sugar");
