@@ -248,6 +248,7 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .seg{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:2px;gap:2px;justify-self:start}
 .seg button{border:0;background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;color:var(--ink-2)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+@media (max-width:420px){.seg button{padding:5px 8px;font-size:12px}}
 .water{font-size:13.5px}
 .water b{font-family:var(--f-mono);font-weight:500}
 .steeps{display:flex;gap:6px;flex-wrap:wrap}
@@ -1778,6 +1779,36 @@ function westernPlan(t){
   const a=m?+m[1]:3, b=m&&m[2]?+m[2]:a, sec=Math.round(((a+b)/2)*60/15)*15;
   return [{label:"Mug",sec}];
 }
+/* Yum cha teapot: the round Cantonese pot of a dim sum table, about 600 ml (4–5 small cups). Leaf follows the tea's own
+   western ratio scaled to the pot; steeps are longer than gaiwan and shorter than a mug left to stand, and each round is
+   poured right out so the leaf doesn't stew between refills. */
+const POT_ML=600;
+const YUMCHA={shupu:"The tea most dim sum houses pour (普洱, bou lei). Add 3–4 dried chrysanthemum flowers for 菊普, another yum cha favourite.",
+ liubao:"A Cantonese favourite with dim sum: its smooth, woody cup sits well with rich food.",
+ shoumei:"Shou Mei (壽眉) is one of the standard teas on a yum cha menu.",
+ tieguanyin:"Tieguanyin (鐵觀音) is one of the standard teas on a yum cha menu.",
+ shuixian:"Shui Xian (水仙) is one of the standard teas on a yum cha menu.",
+ jasmine:"Jasmine (香片, heung pin) is one of the standard teas on a yum cha menu."};
+function potGuide(t){
+  const m=t.western.match(/^[^·]*?(\d+(?:\.\d+)?)\s*g\s*·[^·]*?(\d+)\s*ml/);
+  const leaf=m?Math.max(4,Math.round(+m[1]*POT_ML/+m[2]))+" g":t.western.split("·")[0].trim().replace(/^Break\s+/,"");
+  const mm=t.western.match(/(\d+(?:\.\d+)?)(?:–\d+(?:\.\d+)?)?\s*min/), first=mm?Math.round(+mm[1]*60):180;
+  const n=Math.min(5,Math.max(3,Math.round(Math.max(...String(t.inf).match(/\d+/g).map(Number))/2)));
+  const delicate=t.temp[1]<=90, inc=delicate?30:60;
+  const rinse=t.type==="dark"||(t.type==="oolong"&&!["baozhong","dongfang"].includes(t.id))||t.id==="shoumei";
+  return {leaf,first,n,inc,rinse,delicate};
+}
+function potPlan(t){
+  const g=potGuide(t), p=[]; if(g.rinse) p.push({label:"Rinse",sec:10,rinse:true});
+  for(let i=0;i<g.n;i++) p.push({label:String(i+1),sec:g.first+i*g.inc});
+  return p;
+}
+function potHint(t){
+  const g=potGuide(t), mins=s=>s%60?(s/60).toFixed(1).replace(/\.0$/,"")+" min":s/60+" min";
+  return `Use ${g.leaf.replace(/^One/,"one")} in a ${POT_ML} ml pot. First pot ${mins(g.first)}, then ${g.n-1} refills, each about ${g.inc} s longer.`+
+    `${g.rinse?" Rinse the leaf first: fill, then pour straight off.":""} Pour the whole pot into cups or a jug each round so the leaf doesn't stew${g.delicate?", and leave the lid off between pours":""}.`+
+    `${YUMCHA[t.id]?" "+YUMCHA[t.id]:""}`;
+}
 function coolHint(t){
   const lo=t.temp[0];
   if(lo>=98) return "Pour straight off the boil.";
@@ -1788,23 +1819,23 @@ function initBrew(t){
   stopTick(); B.id=t.id; B.mode="gongfu"; B.done=new Set(); setPlan(t); drawBrew();
 }
 function setPlan(t){
-  B.plan=B.mode==="gongfu"?gongfuPlan(t):westernPlan(t);
+  B.plan=B.mode==="gongfu"?gongfuPlan(t):B.mode==="pot"?potPlan(t):westernPlan(t);
   B.idx=0; loadStep();
 }
 function loadStep(){B.dur=B.plan[B.idx].sec;B.left=B.dur;B.run=false;B.over=false;}
 function drawBrew(){
   const t=byId[B.id], el=$("brewer"); if(!el) return;
-  const gw=B.mode==="gongfu";
+  const gw=B.mode==="gongfu", pot=B.mode==="pot", multi=gw||pot;
   el.innerHTML=`<div class="seg" role="group" aria-label="Brewing style">
-      <button data-m="gongfu" aria-pressed="${gw}">Gongfu · gaiwan</button><button data-m="western" aria-pressed="${!gw}">Western · mug</button></div>
-    <div class="water">Water <b>${tempTxt(t)}</b>. ${coolHint(t)}${gw?"":` <span class="hint">${esc(t.western)}</span>`}</div>
-    ${gw?`<div><div class="hint" style="margin-bottom:6px">Steeps (seconds). Tap one to jump to it.</div><div class="steeps" id="steeps"></div></div>`:""}
+      <button data-m="gongfu" aria-pressed="${gw}">Gongfu · gaiwan or small pot</button><button data-m="pot" aria-pressed="${pot}">Yum cha · large pot</button><button data-m="western" aria-pressed="${B.mode==="western"}">Western · mug</button></div>
+    <div class="water">Water <b>${tempTxt(t)}</b>. ${coolHint(t)}<span class="hint"> ${gw?`A gaiwan or a small teapot (Yixing or Chaozhou clay, about 100–150 ml) both work: ${t.g} g for every 100 ml it holds, pour it all out each steep.`:esc(pot?potHint(t):t.western)}</span></div>
+    ${multi?`<div><div class="hint" style="margin-bottom:6px">${pot?"Pots":"Steeps (seconds)"}. Tap one to jump to it.</div><div class="steeps" id="steeps"></div></div>`:""}
     <div class="clock">
       <div class="ring" id="ring"><svg viewBox="0 0 132 132"><circle class="bg" cx="66" cy="66" r="58"/><circle class="fg" id="arc" cx="66" cy="66" r="58" stroke-dasharray="${2*Math.PI*58}" stroke-dashoffset="0"/></svg>
         <div class="read"><div><div class="t" id="tleft">0:00</div><div class="s" id="tstate">Ready</div></div></div></div>
       <div class="ctrls">
         <div class="row"><button class="btn" id="go">Start steep</button><button class="small" id="rst">Reset</button></div>
-        <div class="row"><button class="small" id="m5" aria-label="5 seconds shorter">−5 s</button><button class="small" id="p5" aria-label="5 seconds longer">+5 s</button>${gw?`<button class="small" id="nx">Next steep →</button>`:""}</div>
+        <div class="row"><button class="small" id="m5" aria-label="5 seconds shorter">−5 s</button><button class="small" id="p5" aria-label="5 seconds longer">+5 s</button>${multi?`<button class="small" id="nx">${pot?"Next pot →":"Next steep →"}</button>`:""}</div>
         <div class="hint" id="tnote" aria-live="polite"></div>
       </div></div>`;
   el.querySelectorAll(".seg button").forEach(b=>b.addEventListener("click",()=>{stopTick();B.mode=b.dataset.m;B.done=new Set();setPlan(t);drawBrew();}));
@@ -1817,7 +1848,7 @@ function drawBrew(){
 }
 function paintSteeps(){
   const st=$("steeps"); if(!st) return;
-  st.innerHTML=B.plan.map((p,i)=>`<button data-i="${i}" class="${p.rinse?"rinse ":""}${i===B.idx?"cur ":""}${B.done.has(i)?"done":""}" aria-label="${p.rinse?"Rinse":"Steep "+p.label}, ${p.sec} seconds">${p.rinse?"Rinse":p.label} · ${p.sec}s</button>`).join("");
+  st.innerHTML=B.plan.map((p,i)=>`<button data-i="${i}" class="${p.rinse?"rinse ":""}${i===B.idx?"cur ":""}${B.done.has(i)?"done":""}" aria-label="${p.rinse?"Rinse":(B.mode==="pot"?"Pot ":"Steep ")+p.label}, ${p.sec} seconds">${p.rinse?"Rinse":p.label} · ${B.mode==="pot"&&p.sec>=60?fmt(p.sec):p.sec+"s"}</button>`).join("");
   st.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>jump(+b.dataset.i)));
 }
 function paintBrew(){
@@ -1827,11 +1858,12 @@ function paintBrew(){
   $("ring").classList.toggle("over",B.over);
   $("tleft").textContent=B.over?"Pour":fmt(B.left);
   const step=B.plan[B.idx];
-  $("tstate").textContent=B.over?"now":B.run?(step.rinse?"Rinsing":"Steeping"):(B.left<B.dur?"Paused":(step.rinse?"Rinse":B.mode==="gongfu"?"Steep "+step.label:"Ready"));
+  $("tstate").textContent=B.over?"now":B.run?(step.rinse?"Rinsing":"Steeping"):(B.left<B.dur?"Paused":(step.rinse?"Rinse":B.mode==="gongfu"?"Steep "+step.label:B.mode==="pot"?"Pot "+step.label:"Ready"));
   $("go").textContent=B.over?(B.idx<B.plan.length-1?"Start next steep":"Start again"):B.run?"Pause":(B.left<B.dur?"Resume":(step.rinse?"Start rinse":"Start steep"));
   $("tnote").textContent=B.over?(step.rinse?"Pour off the rinse water and discard it.":"Pour every drop out so the leaf doesn't keep stewing."):
-    (B.mode!=="gongfu"?"One long steep, then take the leaves out.":
+    (B.mode==="western"?"One long steep, then take the leaves out.":
      step.rinse?"A quick rinse wakes up rolled or aged leaf. Discard it.":
+     B.mode==="pot"?`Pot ${B.plan.filter(p=>!p.rinse).indexOf(step)+1} of ${B.plan.filter(p=>!p.rinse).length}. Pour it all out, then refill with hot water.`:
      `Steep ${B.plan.filter(p=>!p.rinse).indexOf(step)+1} of ${B.plan.filter(p=>!p.rinse).length}`);
   paintSteeps();
 }
