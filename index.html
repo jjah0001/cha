@@ -1827,8 +1827,8 @@ function drawBrew(){
   const t=byId[B.id], el=$("brewer"); if(!el) return;
   const gw=B.mode==="gongfu", pot=B.mode==="pot", multi=gw||pot;
   el.innerHTML=`<div class="seg" role="group" aria-label="Brewing style">
-      <button data-m="gongfu" aria-pressed="${gw}">Gongfu · gaiwan</button><button data-m="pot" aria-pressed="${pot}">Teapot · yum cha</button><button data-m="western" aria-pressed="${B.mode==="western"}">Western · mug</button></div>
-    <div class="water">Water <b>${tempTxt(t)}</b>. ${coolHint(t)}${gw?"":` <span class="hint">${esc(pot?potHint(t):t.western)}</span>`}</div>
+      <button data-m="gongfu" aria-pressed="${gw}">Gongfu · gaiwan or small pot</button><button data-m="pot" aria-pressed="${pot}">Yum cha · large pot</button><button data-m="western" aria-pressed="${B.mode==="western"}">Western · mug</button></div>
+    <div class="water">Water <b>${tempTxt(t)}</b>. ${coolHint(t)}<span class="hint"> ${gw?`A gaiwan or a small teapot (Yixing or Chaozhou clay, about 100–150 ml) both work: ${t.g} g for every 100 ml it holds, pour it all out each steep.`:esc(pot?potHint(t):t.western)}</span></div>
     ${multi?`<div><div class="hint" style="margin-bottom:6px">${pot?"Pots":"Steeps (seconds)"}. Tap one to jump to it.</div><div class="steeps" id="steeps"></div></div>`:""}
     <div class="clock">
       <div class="ring" id="ring"><svg viewBox="0 0 132 132"><circle class="bg" cx="66" cy="66" r="58"/><circle class="fg" id="arc" cx="66" cy="66" r="58" stroke-dasharray="${2*Math.PI*58}" stroke-dashoffset="0"/></svg>
