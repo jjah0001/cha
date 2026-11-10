@@ -148,6 +148,10 @@ lower jacket, the hand he isn't using), so the tray never "swims". Exactly one f
 change with a cut: a crossfade would let the frame being left show through where an arm has moved away. The artist's raw frames were composited onto idle this way before export; to add a frame, do the same.
 He welcomes you with open hands, blinks every few seconds, listens while you type, sits back to think while his answer comes, alternates
 mouth shapes while his words appear, and acts out what he says (see "His gestures" below).
+With the ambience on, his tea gestures make their sounds as his hands move (`linTea` in index.html, built from the
+ambience's own gongfu-tea sounds): the clay lid under his finger, the pour into the pitcher, the pitcher round the cups,
+the kettle lifted and its water, a cup picked up, the lid lifted and set back when he smells it. The speaker button
+switches them off with the ambience, and the background round of tea stays quiet while the tea house is open.
 `img/tea-master*.webp`, `img/teahouse.webp` and `img/teahouse-night.webp` are earlier artwork and are no longer
 used (see `img/ART-DIRECTION.md`).
 He is an AI character served by the same Worker as the pairing search,
