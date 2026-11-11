@@ -14,7 +14,7 @@ for (const f of fs.readdirSync(__dirname + "/idx").filter(f => /^[A-Z]_.*\.txt$/
     if (seen.has(zh)) console.log(`${f}:${i + 2} duplicate "${zh}" (already ${seen.get(zh)}) — will be skipped`);
     else seen.set(zh, f); });
 }
-// histories: hist/*.txt — every row needs a #src line above it and must name a listed or full tea (or @group)
+// histories: hist/*.txt — every row needs a #src line above it and must name a tea (or @group)
 let hrows = 0;
 for (const f of fs.readdirSync(__dirname + "/hist").filter(f => /\.txt$/.test(f))) {
   let src = false;
@@ -25,5 +25,5 @@ for (const f of fs.readdirSync(__dirname + "/hist").filter(f => /\.txt$/.test(f)
     if (!text || l.indexOf("|") < 0) { console.log(`hist/${f}:${i + 1} empty history`); problems++; }
     if (!zh.startsWith("@") && !seen.has(zh)) { console.log(`hist/${f}:${i + 1} "${zh}" is not a tea in the library`); problems++; } });
 }
-console.log(`${rows} listed rows and ${hrows} history rows checked, ${problems} problems.`);
+console.log(`${rows} register rows and ${hrows} history rows checked, ${problems} problems.`);
 process.exit(problems ? 1 : 0);

@@ -91,7 +91,7 @@ for (const en in provMeta) {
     if (d < th) { const m = (th - d) / 2; dx /= d; dy /= d; a.x -= dx * m; a.y -= dy * m; c.x += dx * m; c.y += dy * m; } }
   mem.forEach((t, i) => { t.zx = Math.round(P[i].x * 10) / 10; t.zy = Math.round(P[i].y * 10) / 10; });
 }
-// ── geocode listed teas to county (or prefecture), and tag full teas with their county
+// ── geocode register teas to county (or prefecture), and tag hand-written teas with their county
 const GC = require("./geocode.js");
 const r1 = v => Math.round(v * 10) / 10;
 let lvl = { county: 0, pref: 0, prov: 0 };
