@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Oelek — chilli in a cobek</title>
+  <rect width="64" height="64" rx="15" fill="#eef0e6"/>
+  <path d="M13 34h38c-1 13-8 20-19 20S14 47 13 34Z" fill="#1b2140"/>
+  <ellipse cx="32" cy="34" rx="21" ry="9" fill="#5a6075"/>
+  <ellipse cx="32" cy="33" rx="16" ry="5" fill="#1b2140"/>
+  <path d="M23 35c13 0 21-8 23-19 3 10-1 23-16 26-6 1-11-1-13-5 2 0 4-1 6-2Z" fill="#c3301d"/>
+  <path d="M46 17c0-5 3-7 6-7" fill="none" stroke="#4a6e3a" stroke-width="5" stroke-linecap="round"/>
+  <path d="m19 15 11 15" fill="none" stroke="#969082" stroke-width="9" stroke-linecap="round"/>
+</svg>
