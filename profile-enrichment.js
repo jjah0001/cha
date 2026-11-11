@@ -25,7 +25,7 @@ function enrich(x, idx, research) {
  const record=e?.history?.text || x.h;
  const group=idx.groups[x.group];
  const history=record || (group?`${x.en} belongs to the ${kind.toLowerCase()} records. Its individual naming date and biography are not established in the available material. The shared historical background below explains the tradition; it is not an individual origin story.`:`${x.en} is recorded in the linked tea register as a ${x.type==='red'?'black':x.type} tea associated with ${x.prov}. The register documents the name and regional association, but an individual founding date, inventor or tribute history has not been established. This entry preserves that distinction instead of assigning the wider region's history to this particular tea.`);
- return {...s,fullProfile:true,profileKind:kind,alt:kind,region,
+ return {...s,profileKind:kind,alt:kind,region,
    f:Object.fromEntries(AX.map((a,i)=>[a,s.f[i]])),
    notes:e?.flavour?.text || s.notes,
    flavourBasis:e?.flavour?'Source-described flavour; the radar is an editorial style guide, not a measured tasting.':'Tea-style reference, not a tasting of this named tea. Radar and body are illustrative style estimates.',

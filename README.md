@@ -74,8 +74,8 @@ Preview any of it with URL parameters, e.g. `?season=summer&moment=storms&time=d
 `festday` days from the festival (春节: −1 = 除夕, 0 = 初一, 14 = 元宵).
 
 ## Where the teas live
-- `teas.js` … `teas5.js` — the full profiles (tasting notes, history, brewing, coordinates). `pairs.js` holds food pairings.
-- `idx/*.txt` — the listed teas, one file per source batch. Each file:
+- `teas.js` … `teas5.js` — the hand-written profiles (tasting notes, history, brewing, coordinates). `pairs.js` holds food pairings.
+- `idx/*.txt` — the register teas, one file per source batch. Every one is expanded into a full profile at build time (see below). Each file:
   ```
   #src https://source-url | Source title · Publisher; https://second-url | …
   名称|省份|地点|type|group|note
@@ -87,7 +87,7 @@ Preview any of it with URL parameters, e.g. `?season=summer&moment=storms&time=d
 - Rule: a tea is only added if a source you actually read names it. Every row must sit under a `#src` line pointing to that source.
 
 ## Map placement
-`geocode.js` matches each listed tea's 地点 (and name) to a county; aliases for scenic places (e.g. 易武 → 勐腊) are in its ALIAS table.
+`geocode.js` matches each register tea's 地点 (and name) to a county; aliases for scenic places (e.g. 易武 → 勐腊) are in its ALIAS table.
 
 ## Histories
 
@@ -100,7 +100,7 @@ Preview any of it with URL parameters, e.g. `?season=summer&moment=storms&time=d
 ```
 
 - Every row belongs to the nearest `#src` line above it. A tea can appear in several files; the texts are joined and every source is listed on its card.
-- A name that matches a full profile adds a "From the record" paragraph to that profile and removes its "General entry" note.
+- A name that matches a hand-written profile adds a "From the record" paragraph to that profile and removes its "General entry" note.
 - Teas with no row show "No individual record found" (plus their group background, if any). That is deliberate: never write a history that a source you opened doesn't support. Mark legends and single-source claims as such ("Tradition says…", "This source says…").
 
 ## Health notes
@@ -119,7 +119,7 @@ Every tea card has a Rating section: the average, the number of ratings, a 5-to-
 | claude.ai artifact | the artifact's built-in database | You, and teammates on a Team plan; public-link visitors see ratings only |
 | A copy opened from disk with no config | none | Nobody; the section says ratings aren't connected |
 
-Tea ids are stable (listed teas use a hash of the Chinese name), so adding or removing teas never moves ratings, shelves or shared links onto the wrong tea.
+Tea ids are stable (register teas use a hash of the Chinese name), so adding or removing teas never moves ratings, shelves or shared links onto the wrong tea.
 
 ### Setting up the public site (about 15 minutes, free tiers)
 
@@ -193,7 +193,8 @@ Costs: the Worker free tier covers a personal site many times over; Anthropic bi
 Use Node 24 or later (the build loads the ESM d3-geo dependency).
 `profile-enrichment.js` expands the 2,024 register records into the same
 `renderSpec` layout as the 152 original profiles. `idx` remains a map-location
-provenance flag; `fullProfile` controls the profile filter and shared renderer.
+provenance flag. Every tea renders through the same full-profile layout; there is no
+separate listed tier, badge or filter.
 IDs are unchanged, preserving shelf and rating associations.
 
 This is layout and editorial enrichment, not 2,024 newly researched monographs.

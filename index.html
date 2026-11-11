@@ -273,7 +273,6 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .hint{font-size:12.5px;color:var(--ink-2)}
 
 .tierrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:-4px 0 14px}
-.tierrow .hint{max-width:60ch}
 .seg2{display:inline-flex;border:1px solid var(--rule);border-radius:999px;padding:2px;gap:2px;background:var(--card)}
 .seg2 button{border:0;background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;color:var(--ink-2)}
 .seg2 button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
@@ -294,11 +293,8 @@ section{padding-block:40px 8px;scroll-margin-top:56px}
 .crumb .han{font:20px var(--f-kai);color:var(--seal)}
 .cardhead{font-size:13.5px;color:var(--ink-2);margin:14px 0 10px}
 .more{display:flex;justify-content:center;margin-top:14px}
-.tcard .lst{position:absolute;top:8px;left:8px;font:600 9.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);background:var(--card);border:1px solid var(--rule);border-radius:999px;padding:1px 6px}
-.srcline{font-size:14px;margin:0;max-width:62ch}
 .srcs{font-size:12.5px;color:var(--ink-2);margin:6px 0 0;padding-left:16px}
 .srcs a{color:var(--ink-2)}
-.idxnote{font-size:12.5px;color:var(--ink-2);border-left:2px dashed var(--rule);padding-left:10px}
 .clu{cursor:pointer;outline:none}
 .clu circle:not(.anchor){fill:var(--card);stroke:var(--ink-2);fill-opacity:.85}
 .clu .lead{stroke:var(--ink-2);opacity:.6}.clu .anchor{fill:var(--ink-2);stroke:none}
@@ -566,9 +562,6 @@ html{scroll-behavior:smooth}
 .mastwrap:has(.pun:hover,.pun:focus,.pun.open){z-index:6} /* lift the header above the sticky tab bar only while the tip shows */
 </style>
 <style>
-.evidence{border-left:3px solid var(--seal);padding:0 0 0 14px}
-.evidence h3{font-family:var(--f-display);margin:0 0 8px}
-.evidence p{margin:6px 0}.evidence .lab{margin-top:14px}
 .pair-advice{padding-left:20px}.pair-advice li{margin:10px 0}
 .pair-advice small{display:block;color:var(--ink-2)}
 
@@ -1034,8 +1027,7 @@ nav.chap{background:var(--page-top)}
       <p>Each bubble counts the teas from a province. Tap one to zoom in and see every tea placed by county, then pick a card.</p></div>
     <div class="chips" id="chips" role="toolbar" aria-label="Filter by tea type"></div>
     <div class="tierrow"><div class="seg2" role="group" aria-label="Which teas to show" id="tier">
-      <button data-t="all" aria-pressed="true">All teas</button><button data-t="full" aria-pressed="false">Full profiles</button><button data-t="idx" aria-pressed="false">Listed teas</button><button data-t="mine" aria-pressed="false">My shelf</button></div>
-      <span class="hint" id="tierHint">Full profiles share a complete reading and brewing layout. Listed teas come from official registers, so their tasting and brewing notes are estimates for the style and their histories may have gaps. Historic bushes, cultivars and origins are distinguished from finished teas.</span></div>
+      <button data-t="all" aria-pressed="true">Whole atlas</button><button data-t="mine" aria-pressed="false">My shelf</button></div></div>
     <div class="atlas">
       <div class="mapcol"><div class="mapbox" id="map"></div>
         <div class="crumb" id="crumb"></div></div>
@@ -1086,7 +1078,7 @@ nav.chap{background:var(--page-top)}
 
   <section id="test">
     <div class="sec-head"><h2>Which tea are you?</h2><span class="han">茶性测试</span>
-      <p>Twelve quick questions. Your answers build a flavour profile, match you to one of twelve tea styles and the closest teas in the atlas, then point you to listed teas in the same style.</p></div>
+      <p>Twelve quick questions. Your answers build a flavour profile, match you to one of twelve tea styles and the closest teas in the atlas, then point you to more teas in the same style.</p></div>
     <div class="quiz" id="quiz"></div>
   </section>
 
@@ -1214,7 +1206,7 @@ nav.chap{background:var(--page-top)}
   </section>
   <footer><details><summary>Sources and notes</summary>
     <p><strong>Sources checked.</strong> History and brewing details were cross-checked against Chinese-language sources, including China's national intangible heritage register (中国非物质文化遗产网), Xinhua, The Paper (澎湃新闻), People's Daily, Lugu Township Office (Taiwan) and Taiwan's Tea Research and Extension Station reporting. Where legends differ, the page says so. Entries whose specific history no Chinese source confirmed are marked "General entry" on their card and kept to basics. Food pairings are suggestions, not sourced facts.</p>
-    <p><strong>Listed teas.</strong> <span id="listedTotal"></span> register-based profiles come from published registers and lists. These include regional teas, historic bushes and tea-growing places, not a count of botanically distinct varieties. English names are pinyin transliterations.</p>
+    <p><strong>Register teas.</strong> <span id="regTotal"></span> of the profiles come from published registers and lists. These include regional teas, historic bushes and tea-growing places, not a count of botanically distinct varieties. English names are pinyin transliterations.</p>
     <p><strong>Evidence and suggestions.</strong> Newly researched facts link to their Chinese-language sources beside each field. Missing facts are marked as unrecorded. Food pairings are editorial suggestions. Timer settings are adjustable starting points, not sourced recipes for every named tea. Existing profile prose and radar scores have not all been re-audited.</p>
     <ul id="xsrc"></ul>
     <ul>
@@ -1349,8 +1341,6 @@ function buildMap(){
 }
 function passes(t,ignoreProv,ignoreCty){
   if(filter!=="all"&&t.type!==filter) return false;
-  if(tier==="full"&&t.idx&&!t.fullProfile) return false;
-  if(tier==="idx"&&(!t.idx||t.fullProfile)) return false;
   if(tier==="mine"&&!SHELF[t.id]) return false;
   if(!hit(t)) return false;
   if(!ignoreProv&&prov&&t.prov!==prov) return false;
@@ -1365,7 +1355,7 @@ function paintMap(){
     g.querySelector("circle").setAttribute("r",(9+Math.sqrt(n)*2.4).toFixed(1));g.querySelector("text").textContent=n;
     g.setAttribute("aria-label",`${g.dataset.p}: ${n} teas. Zoom in`);});
   if(prov&&PM[prov]){
-    // listed teas in this province, grouped by county
+    // register teas in this province, grouped by county
     const groups=new Map();
     for(const t of XT){ if(t.prov!==prov||!passes(t,false,true)) continue; const g=groups.get(t.cty)||{cs:t.cs,x:t.cx,y:t.cy,lv:t.lv,ids:[]}; g.ids.push(t.id); groups.set(t.cty,g); }
     const [x0,y0,x1,y1]=PM[prov].box, pad=22, w=x1-x0+pad*2, h=y1-y0+pad*2;
@@ -1402,7 +1392,7 @@ function paintMap(){
         continue; }
       if(n===1&&g.lv!=="prov"){ cl+=dot(byId[g.ids[0]],g.x,g.y,g.cs); continue; }
       const r=Math.min(7+Math.sqrt(n)*2.3,17)/k;
-      // nudge the badge clear of full-profile dots so neither hides the other
+      // nudge the badge clear of individually mapped dots so neither hides the other
       let bx=g.x, by=g.y; const near=pinPts.filter(q=>Math.hypot(q.x-g.x,q.y-g.y)<r+12/k);
       if(near.length){ let dx=near.reduce((a,q)=>a+(g.x-q.x),0), dy=near.reduce((a,q)=>a+(g.y-q.y),0); let L=Math.hypot(dx,dy); if(L<1e-6){dx=-1;dy=-1;L=Math.SQRT2} dx/=L; dy/=L;
         for(let step=1;step<=12;step++){ bx=g.x+dx*step*7/k; by=g.y+dy*step*7/k; if(pinPts.every(q=>Math.hypot(q.x-bx,q.y-by)>=r+8/k)) break; } }
@@ -1446,8 +1436,8 @@ function setFilter(f){
   page=1; render();
 }
 function cardHTML(t){const ty=DATA.types[t.type];
-  return `<button class="tcard c-${t.type}" data-id="${t.id}" aria-label="${esc(t.en)}, ${esc(ty.en)} tea${t.idx&&!t.fullProfile?", listed tea":", full profile"}">
-    <span class="stamp" aria-hidden="true">${ty.zh[0]}</span>${t.idx&&!t.fullProfile?`<span class="lst">Listed</span>`:""}${SHELF[t.id]?`<span class="mine ${SHELF[t.id].st}" title="${ST[SHELF[t.id].st].en}">${ST[SHELF[t.id].st].mark}</span>`:""}
+  return `<button class="tcard c-${t.type}" data-id="${t.id}" aria-label="${esc(t.en)}, ${esc(ty.en)} tea">
+    <span class="stamp" aria-hidden="true">${ty.zh[0]}</span>${SHELF[t.id]?`<span class="mine ${SHELF[t.id].st}" title="${ST[SHELF[t.id].st].en}">${ST[SHELF[t.id].st].mark}</span>`:""}
     <span class="tart">${art(t,"c")}</span>
     <span class="tzh">${t.zh}</span><span class="ten">${esc(t.en)}</span>
     <span class="tmeta">${t.cs&&t.lv!=="prov"?esc(t.cs)+" · ":""}${esc(t.prov)}</span>${ratingBadge(t.id)}</button>`}
@@ -1457,8 +1447,7 @@ function buildIndex(){
   const list=ALL.filter(t=>passes(t)).sort(sorter);
   const shown=list.slice(0,page*40);
   $("index").innerHTML=shown.map(cardHTML).join("");
-  const nf=list.filter(t=>!t.idx||t.fullProfile).length;
-  $("cardhead").textContent=list.length?`Showing ${shown.length} of ${list.length} teas${cty?" in "+((ALL.find(t=>t.cty===cty)||{}).cs||"")+",":""}${prov?" in "+prov:""} · ${nf} full profiles, ${list.length-nf} listed`:"No teas match. Clear the search or pick another type.";
+  $("cardhead").textContent=list.length?`Showing ${shown.length} of ${list.length} teas${cty?" in "+((ALL.find(t=>t.cty===cty)||{}).cs||"")+",":""}${prov?" in "+prov:""}`:"No teas match. Clear the search or pick another type.";
   $("moreBtn").hidden=shown.length>=list.length;
   $("index").querySelectorAll(".tcard").forEach(b=>{b.classList.toggle("sel",b.dataset.id===sel);b.addEventListener("click",()=>{select(b.dataset.id);
     if(window.matchMedia("(max-width:880px)").matches) $("spec").scrollIntoView({behavior:"smooth",block:"start"});})});
@@ -1684,44 +1673,11 @@ function harvestStrip(txt){ const M=harvestMonths(txt); if(!M) return '';
     labels.map((n,i)=>`<g><rect x="${i*(w+gap)}" y="0" width="${w}" height="${h}" rx="2" fill="${M[i]?'var(--tc)':'var(--rule)'}" fill-opacity="${M[i]?.85:.35}"/><text x="${i*(w+gap)+w/2}" y="${h+11}" text-anchor="middle" font-size="9" fill="var(--ink-2)" font-family="var(--f-mono)">${n}</text></g>`).join('')+
     '</svg>'; }
 const srcUL=(...ix)=>`<ul class="srcs">${[...new Map([...new Set(ix)].flatMap(i=>DATA.XS[i].links).map(l=>[l.url,l])).values()].map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("")}</ul>`;
-const GROUPNAME={wuyi:"Wuyi rock tea cultivars",wuyihist:"Wuyi's historic named bushes",dancong:"Phoenix Dancong strains",puer:"Pu'er tea mountains",ttes:"Taiwan's bred cultivars"};
-function histHTML(t){ const G=DATA.XG[t.group];
-  let h=`<div><p class="lab">History</p>`;
-  if(t.h) h+=`<p class="hist">${esc(t.h)}</p>${srcUL(t.hs,...(t.hx||[]))}`;
-  if(G) h+=`<p class="hist ghist"><span class="gl">${esc(GROUPNAME[t.group]||"Background")}</span>${esc(G.t)}</p>${srcUL(G.s)}`;
-  if(!t.h) h+=`<p class="gen">No individual record found: the sources checked don't give a history for this tea itself${G?", so only its group's background is shown":""}.</p>`;
-  return h+`</div>`; }
 let specFor=null;
 function renderSpec(){
   if(specFor===sel) return; specFor=sel;
   const t=byId[sel], ty=DATA.types[t.type];
   const el=$("spec"); el.className="spec c-"+t.type;
-  if(t.idx&&!t.fullProfile){ const S=DATA.XS[t.s];
-    el.innerHTML=`<div class="spec-art">${art(t,"s")}</div>
-    <div class="spec-top"><div><div class="zh">${t.zh}</div><div class="en">${esc(t.en)}</div><div class="py">${esc(t.py)}</div><a class="rsum" id="rsum" href="#reviews"></a></div>
-      <div class="badge"><b>${ty.zh}</b><span>${ty.en}</span></div></div>
-    <div class="shelfctl" id="shelfctl"></div>
-    ${t.scented?`<div class="scent">Scented tea (再加工茶) on a green tea base. Strictly it sits outside the six types.</div>`:""}
-    <div class="meta">${esc(t.place||"")}${t.place?" · ":""}${esc(t.prov)}${t.lv==="county"&&t.place&&!t.place.includes(t.cs)?` · map: ${esc(t.cty)}`:""}${t.lv==="pref"?` · placed at ${esc(t.cty)}`:""}${t.lv==="prov"?" · exact place not given":""}</div>
-    ${evidenceHTML(t)}
-    ${rhythmHTML(t)}
-    ${healthHTML(t)}
-    ${sourceBrewHTML(t)}
-  ${t.evidence?.brewing?`<p>${esc(t.evidence.brewing.text)}</p>${evidenceLinks(t.evidence.brewing.sources)}`:""}
-  ${t.brewBasis?`<p class="hint">${esc(t.brewBasis)}</p>`:""}
-    <div><p class="lab">Brew it · adjustable starting point</p>
-      <div class="brew"><div><b>${tempTxt(t)}</b><span>Water</span></div><div><b>${t.g} g</b><span>per 100 ml (1:${Math.round(100/t.g)})</span></div>
-        <div><b>${esc(t.time)}</b><span>First steep</span></div><div><b>${esc(t.inf)}</b><span>Infusions</span></div></div>
-      ${thermo(t)}<div class="brewer" id="brewer"></div></div>
-    <div><p class="lab">Suggested pairings</p><p class="hint">${esc(t.pairingSuggestions.basis)}</p><div class="pair">${t.pairingSuggestions.items.map(i=>`<span title="${esc(i.reason)}">${esc(i.food)}</span>`).join("")}</div></div>
-    ${t.evidence?"":histHTML(t)}
-    <details class="idxref"><summary>Source entry</summary>
-      <p class="srcline">${esc(t.line)}</p>
-      <ul class="srcs">${S.links.map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("")}</ul>
-      <p class="idxnote">Listed tea: individual tasting and brewing evidence may be incomplete. The adjustable timer above is a tea-style starting point.</p>
-    </details>
-    <div class="reviews" id="reviews"></div>`;
-    initBrew(t); paintShelfCtl(t); paintRsum(t); paintReviews(t); return; }
   el.innerHTML=`
   <div class="spec-art">${art(t,"s")}</div>
   <div class="spec-top"><div><div class="zh">${t.zh}</div><div class="en">${esc(t.en)}</div>
@@ -1753,7 +1709,7 @@ function renderSpec(){
     <div class="brewer" id="brewer"></div></div>
   <div><p class="lab">Suggested pairings</p><p class="hint">Editorial recommendations, not sourced historical facts.</p><div class="pair">${t.pair.map(p=>`<span>${esc(p)}</span>`).join("")}</div></div>
   <div><p class="lab">History</p>${t.historyBasis?`<p class="hint">${esc(t.historyBasis)}</p>`:""}<p class="hist">${esc(t.history)}</p>
-    ${t.fullProfile?srcUL(t.s,...(t.hs!==undefined?[t.hs]:[]),...(t.hx||[])):""}
+    ${t.idx?srcUL(t.s,...(t.hs!==undefined?[t.hs]:[]),...(t.hx||[])):""}
     ${t.historySources?.length?evidenceLinks(t.historySources):""}
     ${t.groupHistory?`<p class="hist ghist"><span class="gl">Shared historical background</span>${esc(t.groupHistory)}</p>${srcUL(t.groupSource)}`:""}
     ${t.rh?`<p class="hist ghist"><span class="gl">From the record</span>${esc(t.rh)}</p>${srcUL(...t.rs)}`:""}
@@ -2776,7 +2732,7 @@ const Q=[
  {q:"Your perfect tea companion?",o:[["Just me and a book",{floral:2},2],["One close friend",{fruity:2,sweet:1},3],["A loud table full of food",{roast:2,sweet:1},4],["A stranger at a mountain teahouse",{earthy:2},4],["Whoever's at the morning market",{vegetal:2},2]]},
  {q:"A friend would describe you as…",o:[["Fresh and direct",{vegetal:2},2],["Gentle and sweet",{sweet:2,floral:1},2],["Complex and surprising",{floral:1,fruity:1,roast:1},3],["Warm and generous",{sweet:1,roast:1,fruity:1},4],["Deep and steady",{earthy:2},5]]}
 ];
-// personas: tea styles, with a rule for which full-profile teas belong and which listed teas to explore
+// personas: tea styles, with a rule for which teas belong and which register teas to explore
 const PERSONAS=[
  {k:"spring",zh:"春",name:"The Spring Poet",style:"Fresh bud green teas",blurb:"Bright, quick and a little lyrical. You notice the first green shoots and want things at their freshest.",in:t=>t.type==="green"&&t.f.vegetal>=3.5&&t.f.roast<2,more:x=>x.type==="green"},
  {k:"scholar",zh:"儒",name:"The Garden Scholar",style:"Toasty, nutty greens",blurb:"Steady and thoughtful, with a warm streak. Chestnut, toasted grain and a clear finish suit you.",in:t=>t.type==="green"&&t.f.roast>=2,more:x=>x.type==="green"},
@@ -2846,7 +2802,7 @@ function quizResult(){
     </div>
     <div>${radar([{cls:"shape",f:top.f},{cls:"you",f:u.f}],260)}
       <div class="rlegend"><span><i style="background:var(--tc)"></i>${esc(top.en)}</span><span><i style="background:var(--seal)"></i>Your answers</span></div></div></div>
-    ${explore.length?`<div class="explore"><p class="lab">Explore further · listed teas in your style</p><div class="cards">${explore.map(cardHTML).join("")}</div></div>`:""}`;
+    ${explore.length?`<div class="explore"><p class="lab">Explore further · more teas in your style</p><div class="cards">${explore.map(cardHTML).join("")}</div></div>`:""}`;
   const openTea=id=>{prov=null;setFilter("all");select(id);go("atlas")};
   $("qmap").addEventListener("click",()=>openTea(top.id));
   $("qagain").addEventListener("click",()=>{qi=0;ans=[];quizStep()});
@@ -3307,7 +3263,7 @@ let qt;$("q").addEventListener("input",e=>{clearTimeout(qt);qt=setTimeout(()=>{q
 $("moreBtn").addEventListener("click",()=>{page++;buildIndex()});
 $("tier").querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{tier=b.dataset.t;$("tier").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));page=1;render()}));
 $("count").textContent=ALL.length.toLocaleString("en");
-$("listedTotal").textContent=XT.length.toLocaleString("en");
+$("regTotal").textContent=XT.length.toLocaleString("en");
 {const seen=new Set();$("xsrc").innerHTML=DATA.XS.flatMap(s=>s.links).filter(l=>!seen.has(l.url)&&seen.add(l.url)).map(l=>`<li><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a></li>`).join("");}
 /* seasonal theming: pick season from the user's current date + hemisphere (inferred from IANA timezone),
    then rain season-appropriate particles across the viewport. Badge toggles the particles on/off. */

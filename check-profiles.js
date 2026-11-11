@@ -11,7 +11,6 @@ assert.equal(new Set(all.map(t=>t.id||t.i)).size,all.length);
 const old=require('./idx.json');
 assert.deepEqual(data.X.map(t=>t.i),old.teas.map(t=>t.i),'stable IDs');
 for(const t of data.X){
- assert(t.fullProfile,t.zh);
  for(const k of ['notes','history','harvest','region','western','brewBasis','flavourBasis','historyBasis','process','storage']) assert(t[k]?.length,t.zh+':'+k);
  assert(t.hb?.length,t.zh+': health');
  assert(t.pair.length>=4);
