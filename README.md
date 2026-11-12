@@ -136,13 +136,13 @@ For a local build with ratings, create `config.json` (git-ignored) with `{"supab
 
 The Tea house tab seats the visitor at the counter of Master Lin (林清泉, 林师傅), a Wuyi tea master, in a room that follows the visitor's season and time of day (`img/teahouse-<season>[-night].webp`).
 His frames are in `img/master-lin/` (900×900 WebP): `idle`, `blink`, `listen`, two mouth shapes for talking (`talk-a`,
-`talk-b`), `pour` (pot into the fairness pitcher), `serve` (pitcher into the cups), `brew` (kettle over the pot),
+`talk-b`), `pour-low` (pot into the fairness pitcher, held low), `serve` and `serve-b` (pitcher into the first cup, then the last), `brew` (kettle over the closed pot),
 `offer` (a cup in both hands), `smell` (a cup at his nose, used when he drinks himself), `laugh` and `welcome`.
 Round 3 adds `talk-c` (talking with hands resting), `reach-pot` (hand on the teapot, played just before `pour`) and
 `smell-lid` (smelling the teapot lid, 闻盖香, which is how a tea master judges the aroma). Between gestures he talks
 with his hands down (`talk-c`/`idle`) and raises a hand to explain (`talk-a`/`talk-b`) on every other sentence.
-Each tea action starts with a reach: `reach-pot` before `pour`, `reach-pitcher` before `serve`, `reach-kettle` before
-`brew` and `reach-cup` before `offer`. `thinking` (hand at his chin) plays while he waits for his answer, `nod` on a
+Each tea action starts with a reach and ends with the vessel set back down (the same frame): `reach-pot` round the
+decant, `reach-pitcher` round `serve`, `reach-kettle` round the water, and `reach-cup` before `offer`. `thinking` (hand at his chin) plays while he waits for his answer, `nod` on a
 "yes"/对 and `point` (an open hand towards the window) when he talks about the mountain or the weather. Every frame shares the idle frame's still pixels (tray,
 lower jacket, the hand he isn't using), so the tray never "swims". Exactly one frame is drawn at a time and poses
 change with a cut: a crossfade would let the frame being left show through where an arm has moved away. The artist's raw frames were composited onto idle this way before export; to add a frame, do the same.
@@ -152,12 +152,21 @@ He has two brewing vessels and picks one by the tea in his reply (`vesselFor` in
 green, white, yellow, jasmine and light oolong teas, the Yixing teapot for rock tea, black tea and pu'er. The teapot is
 drawn into every frame. For the gaiwan, `gaiwan.webp` (a small patch of the gaiwan on its saucer) is laid over the
 teapot in frames where his hands are away from it, and `pour-gaiwan`, `brew-gaiwan`, `smell-gaiwan-lid`,
-`serve-gaiwan`, `offer-gaiwan` and `reach-pitcher-gaiwan` are frames of their own. `reach-gaiwan` and
-`reach-kettle-gaiwan` are not drawn yet: he skips the reach before a gaiwan pour, and reaches for the kettle with the
-gaiwan lid still on.
+`reach-gaiwan` and every frame named `<name>-gaiwan` are frames of their own (`frameFor` resolves them).
+The round of tea is tracked in `tea` (index.html) so his hands follow the real order of gongfu tea: `warm-cups`
+(kettle over the cups), `show-leaf` (the dry leaf held out, 赏茶), `load-leaf` (leaf into the vessel), `fill-pot` /
+`brew-gaiwan` (water in), then `brew` (water over the closed teapot, 淋壶) or `skim-gaiwan` (the lid skimming the foam,
+刮沫), the decant, `serve`, `offer` and `sip`. A step whose prerequisite is missing plays that prerequisite first, or
+falls back to the next step of the round (`need`, `next`, `chain`), so he never pours from an empty pot. Served cups
+show tea through three small patches (`cup-0/1/2.webp`, `CUPS` says which cups each frame leaves on the tray); the
+guest's cup empties when they next write, his own when he sips. A pot of leaf gives four infusions.
+He opens the round during his greeting, nods (or laughs along) when he hears a message, does what the guest asks
+for in their own words (`WANTS`: more tea, cheers, show me the leaf), and when the guest is quiet he carries the
+round on by himself, decanting a steeped pot within seconds (`alone`, three steps at most).
 With the ambience on, his tea gestures make their sounds as his hands move (`linTea` in index.html, built from the
 ambience's own gongfu-tea sounds): the clay lid under his finger, the pour into the pitcher, the pitcher round the cups,
-the kettle lifted and its water, a cup picked up, the lid lifted and set back when he smells it. The speaker button
+the kettle lifted and its water, the splash over the cups, dry leaf off the scoop, the gaiwan lid skimming, a cup
+picked up and set down, the lid lifted and set back when he smells it. The speaker button
 switches them off with the ambience, and the background round of tea stays quiet while the tea house is open.
 `img/tea-master*.webp`, `img/teahouse.webp` and `img/teahouse-night.webp` are earlier artwork and are no longer
 used (see `img/ART-DIRECTION.md`).
@@ -167,10 +176,14 @@ so the page can't use the key for anything else. The page sends the last 16 turn
 time zone, named in Chinese) and the scene on the mountain (season, solar-term moment, time of day, festival). Without
 `PAIR_PROXY_URL` the tab shows the room and his greeting but says the tea master isn't available.
 His gestures come from his words, not from the AI: `/chat` returns plain text, and `GESTURES` in index.html maps
-phrases (English and Chinese) to frames: "pour you a cup"/倒/续 serve, "decant"/出汤 pour, "brew"/"kettle"/泡 brew,
-"taste this"/尝 offer, "aroma"/闻 the lid, "let me have a sip"/我喝一口 the cup at his nose, "haha"/哈哈 laugh, "welcome"/请坐 welcome, "Yes,"/"Exactly."/对 at the start of a sentence nod, "the mountains"/"the mist"/山上/外面 point. Each starts just before its words,
-at most three per reply, each once, held about two seconds with a beat of talking between. If two replies in a row
-had no tea action, he tops up the guest's cup while he talks.
+phrases (English and Chinese) to gestures: "warm the cups"/温杯 warm, "look at the dry leaf"/赏茶 show, "add the
+leaves"/投茶 load, "let me brew"/"hot water"/"another infusion"/注水 brew, "decant"/"it's ready"/出汤 pour, "pour you
+a cup"/"more tea"/倒/续 serve, "taste this"/"while it's hot"/尝尝/趁热 offer, "let me have a sip"/"cheers"/干杯 sip,
+"aroma"/闻 the lid, "haha"/哈哈 laugh, "welcome"/"take care"/请坐/慢走 welcome, "Yes,"/"You're right."/对 at the
+start of a sentence nod, "Hmm,"/"Good question."/让我想想 think, "the mountains"/"the mist"/山上/外面 point. The words
+are kept to what he says while doing the thing, so "an infusion of ten seconds" or "enjoy the view" trigger nothing.
+Each starts just before its words, at most three per reply, each once, with a beat of talking between. When a reply
+has no tea action in it, his hands carry the round on by one step while he talks (short replies every other time).
 Failures are logged in the Worker (`npx wrangler tail`) and in the browser console.
 After changing the Worker, redeploy it: `cd worker && npx wrangler deploy`. Pushing to `main` only rebuilds the page;
 the Worker is not deployed by the Pages workflow.
