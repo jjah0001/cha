@@ -151,9 +151,10 @@ mouth shapes while his words appear, and acts out what he says (see "His gesture
 He has two brewing vessels and picks one by the tea in his reply (`vesselFor` in index.html): a white gaiwan for
 green, white, yellow, jasmine and light oolong teas, the Yixing teapot for rock tea, black tea and pu'er. The teapot is
 drawn into every frame. For the gaiwan, `gaiwan.webp` (a small patch of the gaiwan on its saucer) is laid over the
-teapot in frames where his hands are away from it, and `pour-gaiwan`, `smell-gaiwan-lid`, `serve-gaiwan`,
-`offer-gaiwan` and `reach-pitcher-gaiwan` are frames of their own. `reach-gaiwan`, `reach-kettle-gaiwan` and
-`brew-gaiwan` are not drawn yet: until they are, he skips the reach and only takes hold of the kettle for hot water.
+teapot in frames where his hands are away from it, and `pour-gaiwan`, `brew-gaiwan`, `smell-gaiwan-lid`,
+`serve-gaiwan`, `offer-gaiwan` and `reach-pitcher-gaiwan` are frames of their own. `reach-gaiwan` and
+`reach-kettle-gaiwan` are not drawn yet: he skips the reach before a gaiwan pour, and reaches for the kettle with the
+gaiwan lid still on.
 With the ambience on, his tea gestures make their sounds as his hands move (`linTea` in index.html, built from the
 ambience's own gongfu-tea sounds): the clay lid under his finger, the pour into the pitcher, the pitcher round the cups,
 the kettle lifted and its water, a cup picked up, the lid lifted and set back when he smells it. The speaker button

@@ -1121,6 +1121,7 @@ nav.chap{background:var(--page-top)}
           <img class="th-serve-gaiwan" data-pose="serve-gaiwan" src="img/master-lin/serve-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-offer-gaiwan" data-pose="offer-gaiwan" src="img/master-lin/offer-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-reach-pitcher-gaiwan" data-pose="reach-pitcher-gaiwan" src="img/master-lin/reach-pitcher-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-brew-gaiwan" data-pose="brew-gaiwan" src="img/master-lin/brew-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-gaiwan" id="thGaiwan" src="img/master-lin/gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
         </div>
         <div class="th-steam" aria-hidden="true"><i></i><i></i></div>
@@ -3677,9 +3678,9 @@ initReviews();
     if(i.complete&&i.naturalWidth) go(); else i.addEventListener("load",go,{once:true});}
   /* His two brewing vessels. The Yixing teapot is drawn into every frame. For the gaiwan, frames where his hands are
      away from the vessel get a small patch laid over the teapot (the white gaiwan on its saucer), and frames where
-     he handles it, or reaches past it, have a gaiwan drawing of their own. Two poses have no gaiwan drawing yet:
-     reaching for it is skipped, and for hot water he only takes hold of the kettle (see plan). */
-  const GW={pour:"pour-gaiwan","smell-lid":"smell-gaiwan-lid",serve:"serve-gaiwan",offer:"offer-gaiwan","reach-pitcher":"reach-pitcher-gaiwan"},
+     he handles it, or reaches past it, have a gaiwan drawing of their own. Reaching for the gaiwan has no drawing
+     yet, so that reach is skipped (see plan). */
+  const GW={pour:"pour-gaiwan",brew:"brew-gaiwan","smell-lid":"smell-gaiwan-lid",serve:"serve-gaiwan",offer:"offer-gaiwan","reach-pitcher":"reach-pitcher-gaiwan"},
     PATCHED=new Set(["","blink","listen","talk-a","talk-b","talk-c","laugh","welcome","thinking","nod","point","smell","reach-cup","reach-kettle"]),
     patch=$("thGaiwan");
   let gw=false, asked="", patchReady=false;
@@ -3823,7 +3824,6 @@ initReviews();
   const plan=(cues,dur)=>{const out=[]; let n=0;
     for(const c of cues){const last=out[out.length-1]; if(out.some(o=>o.gesture===c.gesture)) continue;
       let start=Math.max(c.at*dur,last?last.end+450:0); if(start>dur+400||n>=3) break; n++;
-      if(gw&&c.gesture==="brew"){out.push({g:"reach-kettle",gesture:"brew",start,end:start+900}); continue;}
       const reach=gw&&c.gesture==="pour"?null:REACH[c.gesture]; if(reach){out.push({g:reach,gesture:"reach",start,end:start+REACH_MS}); start+=REACH_MS;}
       out.push({g:FRAME[c.gesture]||c.gesture,gesture:c.gesture,start,end:start+HOLD[c.gesture]});}
     return out;};
