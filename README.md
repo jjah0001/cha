@@ -166,7 +166,13 @@ round on by himself, decanting a steeped pot within seconds (`alone`, three step
 With the ambience on, his tea gestures make their sounds as his hands move (`linTea` in index.html, built from the
 ambience's own gongfu-tea sounds): the clay lid under his finger, the pour into the pitcher, the pitcher round the cups,
 the kettle lifted and its water, the splash over the cups, dry leaf off the scoop, the gaiwan lid skimming, a cup
-picked up and set down, the lid lifted and set back when he smells it. The speaker button
+picked up and set down, the lid lifted and set back when he smells it.
+Water is modelled as a dense patter of bubble tones over a soft, treble-free splash, with the vessel's ring climbing
+as it fills (`pour` in `teaKit`): a low, thick stream into the clay teapot, a brighter one into the gaiwan, thin
+streams into the cups, and water over the closed pot (淋壶) with no filling note. Each pour lasts as long as its
+frame. The sound follows the drawing on stage (`linTea(shown,…)`), so the gaiwan has its own porcelain lid ticks, and
+putting a vessel down (`/down` in `FX`) sounds different from picking it up. His tray is close and dry: it gets only
+a trace of the valley reverb. The speaker button
 switches them off with the ambience, and the background round of tea stays quiet while the tea house is open.
 `img/tea-master*.webp`, `img/teahouse.webp` and `img/teahouse-night.webp` are earlier artwork and are no longer
 used (see `img/ART-DIRECTION.md`).
