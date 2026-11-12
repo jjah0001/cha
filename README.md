@@ -184,6 +184,9 @@ start of a sentence nod, "Hmm,"/"Good question."/让我想想 think, "the mounta
 are kept to what he says while doing the thing, so "an infusion of ten seconds" or "enjoy the view" trigger nothing.
 Each starts just before its words, at most three per reply, each once, with a beat of talking between. When a reply
 has no tea action in it, his hands carry the round on by one step while he talks (short replies every other time).
+When the guest asks what to drink, he recommends by their hour and season: `teaMasterPrompt` adds a short "按时辰和时令选茶"
+block built from the guest's local time (seven slots from early morning to late night), their season and the weather
+(`BY_SLOT`, `BY_SEASON`, `BY_WEATHER` in `worker/worker.js`). The guest's stated taste or food always comes first.
 Failures are logged in the Worker (`npx wrangler tail`) and in the browser console.
 After changing the Worker, redeploy it: `cd worker && npx wrangler deploy`. Pushing to `main` only rebuilds the page;
 the Worker is not deployed by the Pages workflow.
