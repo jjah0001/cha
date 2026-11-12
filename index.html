@@ -1116,6 +1116,12 @@ nav.chap{background:var(--page-top)}
           <img class="th-thinking" data-pose="thinking" src="img/master-lin/thinking.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-nod" data-pose="nod" src="img/master-lin/nod.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-point" data-pose="point" src="img/master-lin/point.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-pour-gaiwan" data-pose="pour-gaiwan" src="img/master-lin/pour-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-smell-gaiwan-lid" data-pose="smell-gaiwan-lid" src="img/master-lin/smell-gaiwan-lid.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-serve-gaiwan" data-pose="serve-gaiwan" src="img/master-lin/serve-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-offer-gaiwan" data-pose="offer-gaiwan" src="img/master-lin/offer-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-reach-pitcher-gaiwan" data-pose="reach-pitcher-gaiwan" src="img/master-lin/reach-pitcher-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-gaiwan" id="thGaiwan" src="img/master-lin/gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
         </div>
         <div class="th-steam" aria-hidden="true"><i></i><i></i></div>
       </figure>
@@ -3653,8 +3659,26 @@ initReviews();
   for(const k in frames){const i=frames[k]; if(!k) continue;
     const go=()=>i.decode().then(()=>ready.add(k),()=>{if(i.naturalWidth) ready.add(k);});
     if(i.complete&&i.naturalWidth) go(); else i.addEventListener("load",go,{once:true});}
-  const show=name=>{if(quiet()||!frames[name]||!ready.has(name)) name=""; if(name===shown) return;
+  /* His two brewing vessels. The Yixing teapot is drawn into every frame. For the gaiwan, frames where his hands are
+     away from the vessel get a small patch laid over the teapot (the white gaiwan on its saucer), and frames where
+     he handles it, or reaches past it, have a gaiwan drawing of their own. Two poses have no gaiwan drawing yet:
+     reaching for it is skipped, and for hot water he only takes hold of the kettle (see plan). */
+  const GW={pour:"pour-gaiwan","smell-lid":"smell-gaiwan-lid",serve:"serve-gaiwan",offer:"offer-gaiwan","reach-pitcher":"reach-pitcher-gaiwan"},
+    PATCHED=new Set(["","blink","listen","talk-a","talk-b","talk-c","laugh","welcome","thinking","nod","point","smell","reach-cup","reach-kettle"]),
+    patch=$("thGaiwan");
+  let gw=false, asked="", patchReady=false;
+  {const go=()=>patch.decode().then(()=>{patchReady=true;},()=>{patchReady=!!patch.naturalWidth;});
+    if(patch.complete&&patch.naturalWidth) go(); else patch.addEventListener("load",go,{once:true});}
+  const frameFor=name=>gw?(GW[name]||(PATCHED.has(name)?name:"")):name;
+  const show=name=>{asked=name; if(quiet()||!frames[name]) name=""; name=frameFor(name); if(!ready.has(name)) name="";
+    patch.classList.toggle("on",gw&&PATCHED.has(name)); if(name===shown) return;
     frames[shown].classList.remove("on"); frames[name].classList.add("on"); shown=name;};
+  /* the vessel changes between replies, and only once every gaiwan drawing has loaded */
+  const setVessel=on=>{on=!!on&&patchReady&&Object.values(GW).every(n=>ready.has(n)); if(on===gw) return; gw=on; show(asked);};
+  /* which vessel suits the tea he is talking about; null leaves the one on the tray */
+  const GW_TEA=/gaiwan|盖碗|蓋碗|green tea|white tea|yellow tea|jasmine|long ?jing|dragon ?well|bi ?luo ?chun|silver needle|white peony|bai ?mu ?dan|shou ?mei|tie ?guan ?yin|dan ?cong|mao ?feng|mao ?jian|绿茶|綠茶|白茶|黄茶|黃茶|茉莉|龙井|龍井|碧螺春|银针|銀針|白牡丹|寿眉|壽眉|铁观音|鐵觀音|单丛|單叢|毛峰|毛尖/gi,
+    POT_TEA=/teapot|yixing|zisha|clay pot|rock tea|yancha|da ?hong ?pao|big red robe|rou ?gui|shui ?xian|pu.?er|black tea|red tea|lapsang|liu ?bao|dark tea|紫砂|茶壶|茶壺|小壶|小壺|岩茶|大红袍|大紅袍|肉桂|水仙|普洱|红茶|紅茶|正山小种|正山小種|六堡|黑茶/gi;
+  const vesselFor=text=>{const g=(text.match(GW_TEA)||[]).length, p=(text.match(POT_TEA)||[]).length; return g>p?true:p>g?false:null;};
   /* between replies he either rests or, while the guest is typing or he is thinking, listens */
   const rest=()=>{if(!acting) show(resting);};
   const listen=on=>{resting=on?"listen":""; rest();};
@@ -3783,7 +3807,8 @@ initReviews();
   const plan=(cues,dur)=>{const out=[]; let n=0;
     for(const c of cues){const last=out[out.length-1]; if(out.some(o=>o.gesture===c.gesture)) continue;
       let start=Math.max(c.at*dur,last?last.end+450:0); if(start>dur+400||n>=3) break; n++;
-      const reach=REACH[c.gesture]; if(reach){out.push({g:reach,gesture:"reach",start,end:start+REACH_MS}); start+=REACH_MS;}
+      if(gw&&c.gesture==="brew"){out.push({g:"reach-kettle",gesture:"brew",start,end:start+900}); continue;}
+      const reach=gw&&c.gesture==="pour"?null:REACH[c.gesture]; if(reach){out.push({g:reach,gesture:"reach",start,end:start+REACH_MS}); start+=REACH_MS;}
       out.push({g:FRAME[c.gesture]||c.gesture,gesture:c.gesture,start,end:start+HOLD[c.gesture]});}
     return out;};
   /* He talks while the words appear, his mouth swapping between two shapes, and acts out each cue in turn;
@@ -3798,7 +3823,7 @@ initReviews();
     let mouth=0, flip=0, done=false, heard=null;
     const step=now=>{if(run!==acting){if(!done){done=true; el.innerHTML=para(text); follow(el.parentElement); res();} return;}
       const t=now-t0, k=Math.min(1,t/dur), g=tl.find(c=>t>=c.start&&t<c.end);
-      if(g){show(g.g); if(g!==heard&&shown===g.g){heard=g; linTea(g.g,g.end-g.start);}}
+      if(g){show(g.g); if(g!==heard&&shown===frameFor(g.g)){heard=g; linTea(g.g,g.end-g.start);}}
       else if(t<dur){if(now>=flip){mouth^=1; flip=now+(mouth?260+Math.random()*420:380+Math.random()*640);}
         const up=breaks.filter(b=>b<=k).length%2===1; show(mouth?(up?"talk-a":"talk-c"):(up?"talk-b":""));}
       else show("");
@@ -3867,6 +3892,8 @@ initReviews();
       const cues=cuesFor(reply);
       if(cues.some(c=>c.gesture==="serve"||c.gesture==="pour"||c.gesture==="brew"||c.gesture==="offer")) plainRun=0;
       else if(++plainRun>=2){cues.push({gesture:"serve",at:.45}); cues.sort((a,b)=>a.at-b.at); plainRun=0;}
+      /* he brews in the vessel that suits the tea he is talking about */
+      {const v=vesselFor(reply); if(v!==null) setVessel(v);}
       clearTimeout(ponder); resting=""; await speak(say,reply,cues);
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?T("Master Lin is busy pouring for other guests. Wait a minute, then ask again.","林师傅正忙着给别的客人倒茶，请等一分钟再问。","林師傅正忙著給別的客人倒茶，請等一分鐘再問。"):T("Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.","抱歉，现在联系不上林师傅，请稍后再试。","抱歉，現在聯繫不上林師傅，請稍後再試。"));}

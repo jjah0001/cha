@@ -148,6 +148,12 @@ lower jacket, the hand he isn't using), so the tray never "swims". Exactly one f
 change with a cut: a crossfade would let the frame being left show through where an arm has moved away. The artist's raw frames were composited onto idle this way before export; to add a frame, do the same.
 He welcomes you with open hands, blinks every few seconds, listens while you type, sits back to think while his answer comes, alternates
 mouth shapes while his words appear, and acts out what he says (see "His gestures" below).
+He has two brewing vessels and picks one by the tea in his reply (`vesselFor` in index.html): a white gaiwan for
+green, white, yellow, jasmine and light oolong teas, the Yixing teapot for rock tea, black tea and pu'er. The teapot is
+drawn into every frame. For the gaiwan, `gaiwan.webp` (a small patch of the gaiwan on its saucer) is laid over the
+teapot in frames where his hands are away from it, and `pour-gaiwan`, `smell-gaiwan-lid`, `serve-gaiwan`,
+`offer-gaiwan` and `reach-pitcher-gaiwan` are frames of their own. `reach-gaiwan`, `reach-kettle-gaiwan` and
+`brew-gaiwan` are not drawn yet: until they are, he skips the reach and only takes hold of the kettle for hot water.
 With the ambience on, his tea gestures make their sounds as his hands move (`linTea` in index.html, built from the
 ambience's own gongfu-tea sounds): the clay lid under his finger, the pour into the pitcher, the pitcher round the cups,
 the kettle lifted and its water, a cup picked up, the lid lifted and set back when he smells it. The speaker button
