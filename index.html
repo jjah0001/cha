@@ -3117,14 +3117,30 @@ const SEASON={
  summer:{zh:"夏",line:"It's summer where you are. Light, cooling cups suit the heat.",pool:t=>(t.type==="green")||(t.type==="white"&&t.id!=="shoumei")||(t.type==="oolong"&&t.f.roast<2)},
  autumn:{zh:"秋",line:"It's autumn where you are, when oolongs come into their own and roasted teas start to feel right.",pool:t=>t.type==="oolong"||(t.type==="red"&&t.f.roast>=2)||t.id==="shoumei"},
  winter:{zh:"冬",line:"It's winter where you are. Warming red, roasted and aged dark teas are the classic choice.",pool:t=>t.type==="red"||t.type==="dark"||(t.type==="oolong"&&t.f.roast>=3.5)||t.id==="shoumei"}};
-function dayKey(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+/* each season walks its pool in a shuffled order: every tea in the pool shows once before any tea comes back.
+   The order is seeded by (season, the year it started, hemisphere), so every visitor sees the same tea that day.
+   Seasons are ~90 days and pools 55–71 teas, so a season loops once; the loop's first GAP days skip the teas
+   that ended the last pass, and a new season's first GAP days skip what the old season showed in its last GAP days. */
+const TOTD_GAP=14;
+function seasonStart(d){const y=d.getFullYear(),m=d.getMonth(); return m<2?new Date(y-1,11,1):new Date(y,m-(m+1)%3,1)}
+function dayNo(d){return Math.round(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5)}
+function shuffled(pool,key){return pool.map(t=>[rng(key+"|"+t.id)(),t]).sort((a,b)=>a[0]-b[0]||(a[1].id<b[1].id?-1:1)).map(x=>x[1])}
+/* move any tea in `avoid` out of the first `k` places by swapping with the first safe tea after them; swaps stay
+   well before the end of the pass, so the pass's tail (what the next pass and next season look back at) never moves */
+function keepApart(seq,avoid,k){k=Math.min(k,Math.floor(seq.length/3));
+  for(let p=0,q=k;p<k;p++){ if(!avoid.has(seq[p].id)) continue; while(q<seq.length-k&&avoid.has(seq[q].id)) q++; if(q>=seq.length-k) break; [seq[p],seq[q]]=[seq[q],seq[p]]; q++; }
+  return seq}
+function seasonSeq(start,h,len,first){
+  const season=seasonOf(start,h), pool=T.filter(SEASON[season].pool), key=start.getFullYear()+"-"+season+"|"+h;
+  const seq=shuffled(pool,key);
+  if(first){ const prev=new Date(start.getFullYear(),start.getMonth()-3,1), pd=dayNo(start)-dayNo(prev);
+    const tail=seasonSeq(prev,h,pd,false).slice(-TOTD_GAP); keepApart(seq,new Set(tail.map(t=>t.id)),TOTD_GAP); }
+  for(let c=1;seq.length<len;c++){ const next=keepApart(shuffled(pool,key+"|"+c),new Set(seq.slice(-TOTD_GAP).map(t=>t.id)),TOTD_GAP); seq.push(...next); }
+  return seq.slice(0,len)}
 function teaOfDay(){
   const now=new Date(), h=hemisphere(), season=seasonOf(now,h), term=solarTerm(now);
-  // shared pick: each tea gets its own score from (date, hemisphere, tea id), so the result
-  // is the same for every visitor that day and doesn't depend on their shelf or list order
-  const day=dayKey(now)+"|"+h;
-  const order=T.filter(SEASON[season].pool).map(t=>[rng(day+"|"+t.id)(),t]).sort((a,b)=>a[0]-b[0]||(a[1].id<b[1].id?-1:1)).map(x=>x[1]);
-  return {t:order[0],season,h,term};
+  const start=seasonStart(now), i=dayNo(now)-dayNo(start);
+  return {t:seasonSeq(start,h,i+1,true)[i],season,h,term};
 }
 function paintTOTD(){
   const {t,season,h,term}=teaOfDay(), ty=DATA.types[t.type], S=SEASON[season];
