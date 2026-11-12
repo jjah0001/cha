@@ -3995,6 +3995,8 @@ initReviews();
       zhongyuan:"It's the Ghost Festival today, a quiet day for remembering the dead. ",hanshan:"Today we called the mountain to wake the tea bushes. Did you hear the drums? ",
       doucha:"You've come on the day of the tea contest! ",chabo:"The tea expo is on in town this week, so it's been busy. "})[f]||"";
     const up=late&&!fl&&m!=="picking"?"You're up late! ":"";
+    /* at night he offers a gentle cup, unless his weather line has already said so */
+    const gentle=dark&&m!=="storms";
     /* "the United States", "the United Kingdom", "the Netherlands"… read better with "the" */
     const the=/^(United|Netherlands|Philippines|Czech)/.test(country.en)?"the ":"";
     const from=country.en&&country.en!=="China"?`All the way from ${the}${country.en}? `:"";
@@ -4011,8 +4013,8 @@ initReviews();
         qingming:"今天清明，大家都上山扫墓去了。",zhongyuan:"今天是中元节，纪念先人的日子。",hanshan:"今天喊山了，你听到锣鼓声了吗？",
         doucha:"你来得正好，今天斗茶赛！",chabo:"这几天城里在办茶博会，忙得很。"})[f]||"";
       const zup=up?"这么晚还没睡啊！":"", zfrom=country.zh&&!["CN","HK","MO","TW"].includes(country.cc)?`大老远从${country.zh}来的吧？`:"";
-      return `欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！我姓林，叫我林师傅就行。水刚烧开。想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom?"很少有客人从这么远的地方来。":""}`;}
-    return `欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled. Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
+      return `欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！我姓林，叫我林师傅就行。水刚烧开。${gentle?"这么晚了，我给你泡杯淡一点的，不耽误你睡觉。":""}想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom?"很少有客人从这么远的地方来。":""}`;}
+    return `欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled.${gentle?" It’s late, so I’ll make yours a gentle one that won’t keep you up.":""} Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
   const CHIPS=ZH?["我第一次喝中国茶，该从哪里开始？","现在这个时候喝什么茶好？","武夷岩茶有什么特别？","中国其他地方有什么茶值得一试？","在家怎么泡工夫茶？","山上的日子是什么样的？"]:["I'm new to Chinese tea. Where should I start?","What tea suits this time of day?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
   let chipText=CHIPS;
   if(ZH==="hant"&&window.chaToHant) Promise.all(CHIPS.map(q=>window.chaToHant(q))).then(c=>{chipText=c; if(chips.children.length) showChips();}).catch(()=>{});
