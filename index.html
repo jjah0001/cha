@@ -2518,13 +2518,26 @@ function startSeasonalAudio(season,opts={}){
      a short steep, then the tea poured off into the pitcher and round the little cups, cups set down on the wooden tray.
      Not in the small hours, unless the house is up making tea anyway (做青 in the harvest, 炭焙 in autumn) */
   const teaKit=dest=>{
-    const pour=(t,dur,f0,f1,amp)=>{const s=AC.createBufferSource(), bp=F("bandpass",f0,3.5), g=AC.createGain(), bp2=F("bandpass",f0*2.1,5), g2=AC.createGain();
-      s.buffer=noiseBuf("white"); s.loop=true; bp.frequency.setValueAtTime(f0,t); bp.frequency.exponentialRampToValueAtTime(f1,t+dur);
-      bp2.frequency.setValueAtTime(f0*2.1,t); bp2.frequency.exponentialRampToValueAtTime(f1*2.1,t+dur);
-      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(amp,t+0.06); g.gain.setValueAtTime(amp,t+dur-0.12); g.gain.linearRampToValueAtTime(0,t+dur);
-      g2.gain.value=0.35; s.connect(bp).connect(g).connect(dest); s.connect(bp2).connect(g2).connect(g);
-      s.start(t,R(0,5)); s.stop(t+dur+0.05);
-      for(let x=t+0.1;x<t+dur-0.1;x+=R(0.05,0.16)) bubble(x,dest,R(f0*0.8,f1*1.2),R(0.02,0.04),R(0.002,0.006),R(1.2,1.6));};
+    /* A stream of water into a vessel. What the ear takes for water is not hiss but bubbles: a dense patter of tiny
+       tones (each a bubble ringing as it is trapped, its pitch rising as it closes) over a soft splash, with the
+       ring of the vessel's air space climbing from f0 to f1 as it fills. Nothing above `lp`: a pour has no
+       treble hiss. o.lp: brightness · o.ring: how much the vessel rings (0 for water over a closed pot)
+       o.size: bubble pitch (below 1 for a thick stream) · o.drips: drops off the spout after it stops */
+    const pour=(t,dur,f0,f1,amp,o={})=>{const lp=o.lp||3600, ring=o.ring==null?1:o.ring, size=o.size||1, end=t+dur;
+      const s=AC.createBufferSource(), g=AC.createGain(), body=F("lowpass",lp,0.5), band=F("bandpass",Math.sqrt(f0*f1),0.6),
+        res=F("bandpass",f0,6), gb=AC.createGain(), gr=AC.createGain(), lfo=AC.createOscillator(), lg=AC.createGain();
+      s.buffer=noiseBuf("pink"); s.loop=true; res.frequency.setValueAtTime(f0,t); res.frequency.exponentialRampToValueAtTime(f1,end);
+      gb.gain.value=0.55; gr.gain.value=1.6*ring;
+      g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(amp,t+0.035); g.gain.setValueAtTime(amp,end-0.09); g.gain.linearRampToValueAtTime(0,end);
+      /* the stream is never quite steady: a slow wobble in its strength */
+      lfo.frequency.value=R(5,9); lg.gain.value=amp*0.22; lfo.connect(lg).connect(g.gain);
+      s.connect(body).connect(band).connect(gb).connect(g); s.connect(res).connect(gr).connect(g); g.connect(dest);
+      s.start(t,R(0,5)); s.stop(end+0.05); lfo.start(t); lfo.stop(end+0.05);
+      /* the first water hitting the bottom */
+      burst(t,dest,0.07,"lowpass",lp*0.7,0.7,amp*1.1,0.004);
+      for(let x=t+0.01;x<end-0.03;x+=R(0.007,0.022)){const k=(x-t)/dur, fc=f0*Math.pow(f1/f0,k)*size;
+        bubble(x,dest,fc*R(0.9,2.4),R(0.012,0.04),amp*R(0.06,0.2),R(1.15,1.5));}
+      for(let i=0,n=o.drips==null?2:o.drips;i<n;i++) bubble(end+R(0.06,0.45),dest,f1*R(0.9,1.6),R(0.025,0.045),amp*R(0.15,0.3),R(1.2,1.4));};
     const tick=(t,f,amp)=>{bubble(t,dest,f,0.18,amp,1.0); bubble(t,dest,f*2.76,0.08,amp*0.4,1.0); burst(t,dest,0.006,"highpass",5000,0.7,amp*0.5);};
     const knock=(t,amp)=>{bubble(t,dest,R(240,340),0.06,amp,0.9); burst(t,dest,0.01,"bandpass",R(900,1400),2,amp*0.4);};
     return {pour,tick,knock};};
@@ -2541,40 +2554,57 @@ function startSeasonalAudio(season,opts={}){
   if(!late||mo==="picking"||mo==="osmanthus"||mo==="frost") gongfu(place(0.12,0.07));
   /* Master Lin's own tea, across the counter from you: each gesture of his makes its sound as his hands move
      (see linTea). In the tea house he is the one making tea, so the round of tea next door above stays quiet. */
-  {const d=place(0.05,0.03), {pour,tick,knock}=teaKit(d), x=now;
+  {/* his tray is an arm's length away indoors: close, almost dry, and none of the valley's echo */
+    const d=keep(G(1)); d.connect(keep(G(0.9))).connect(out); d.connect(keep(G(0.035))).connect(verb);
+    const {pour,tick,knock}=teaKit(d), x=now;
     /* dry leaf sliding off the bamboo scoop: a handful of short, bright, papery rustles */
     const rustle=(t,n,amp)=>{for(let i=0,at=t;i<n;i++,at+=R(0.04,0.11)) burst(at,d,R(0.03,0.07),"bandpass",R(2600,5200),1.3,amp*R(0.5,1));};
+    /* the water lasts as long as the drawing of it: from just after the frame cuts in to just before it cuts away */
+    const span=hold=>Math.max(0.3,hold-0.22);
+    /* a clay lid or pot: a dull, short knock · a porcelain lid or cup: a bright tick */
+    const clay=(t,amp)=>{bubble(t,d,R(700,950),0.05,amp,0.92); burst(t,d,0.012,"bandpass",R(1500,2100),1.5,amp*0.5);};
     const FX={
-      /* hand on the teapot or the gaiwan, and the vessel set back on the tray: the lid settles */
-      "reach-pot":t=>knock(t+0.1,0.016),
-      /* the vessel into the glass fairness pitcher, the note climbing as it fills */
-      "pour-low":(t,hold)=>pour(t+0.1,Math.max(1.2,hold-0.7),R(800,950),R(1900,2200),0.036),
+      /* hand on the teapot (the clay lid settles under his finger), and the pot set back on the tray */
+      "reach-pot":t=>clay(t+0.1,0.006), "reach-pot/down":t=>knock(t+0.06,0.009),
+      /* the gaiwan: the porcelain lid touched, and the gaiwan set back on its saucer */
+      "reach-gaiwan":t=>tick(t+0.1,R(3300,3700),0.005), "reach-gaiwan/down":t=>{tick(t+0.05,R(2500,2900),0.008); clay(t+0.06,0.004);},
+      /* teapot into the glass fairness pitcher through the mesh strainer, the note climbing as the pitcher fills */
+      "pour-low":(t,hold)=>pour(t+0.12,span(hold),700,1700,0.03,{lp:4200,size:1.1}),
+      /* the gaiwan tipped with its lid held ajar: a quicker, fuller gush, the lid ticking on the rim as it tips */
+      "pour-gaiwan":(t,hold)=>{tick(t+0.06,R(3000,3400),0.006); pour(t+0.12,span(hold)*0.85,650,1800,0.034,{lp:4600,size:1});},
       /* pitcher lifted off the tray, and set back down */
-      "reach-pitcher":t=>tick(t+0.12,R(3000,3500),0.012),
+      "reach-pitcher":t=>tick(t+0.12,R(3000,3500),0.006), "reach-pitcher/down":t=>{tick(t+0.05,R(2400,2800),0.009); knock(t+0.06,0.004);},
       /* pitcher round the three little cups: the first with the first drawing, the other two with the second */
-      serve:t=>pour(t+0.15,R(0.5,0.6),R(1800,2200),R(3000,3500),0.026),
-      "serve-b":t=>{for(let i=0,at=t+0.05;i<2;i++,at+=R(0.58,0.66)) pour(at,R(0.38,0.48),R(1800,2200),R(3000,3500),0.026);},
-      /* the iron kettle lifted off its trivet, and set back on it */
-      "reach-kettle":t=>knock(t+0.08,0.022),
-      /* hot water over the three cups to warm them, a short splash in each */
-      "warm-cups":t=>{for(let i=0,at=t+0.15;i<3;i++,at+=R(0.66,0.76)) pour(at,R(0.4,0.52),R(1100,1300),R(1700,2000),0.024);},
-      /* hot water from the kettle into the open vessel, a lower and fuller stream */
-      "fill-pot":(t,hold)=>pour(t+0.1,Math.max(1.2,hold-0.7),R(650,750),R(1400,1700),0.034),
-      /* a last splash over the closed teapot */
-      brew:t=>pour(t+0.05,R(0.7,0.85),R(1000,1150),R(1250,1400),0.02),
+      serve:t=>pour(t+0.18,R(0.5,0.6),1500,2700,0.024,{lp:5200,size:1.3,drips:1}),
+      "serve-b":t=>{for(let i=0,at=t+0.06;i<2;i++,at+=R(0.6,0.66)) pour(at,R(0.4,0.48),1500,2700,0.024,{lp:5200,size:1.3,drips:1});},
+      /* the iron kettle lifted off its trivet (quietly), and set back on it */
+      "reach-kettle":t=>knock(t+0.08,0.005), "reach-kettle/down":t=>knock(t+0.05,0.011),
+      /* hot water over the three cups to warm them, a short pour into each */
+      "warm-cups":t=>{for(let i=0,at=t+0.2;i<3;i++,at+=R(0.7,0.76)) pour(at,R(0.42,0.5),1100,2200,0.026,{lp:4400,size:1.15,drips:1});},
+      /* hot water from the kettle into the open teapot: a thick, low stream, the pot's small belly ringing up */
+      "fill-pot":(t,hold)=>pour(t+0.12,span(hold),380,1050,0.034,{lp:3000,size:0.75}),
+      /* into the open gaiwan: the white porcelain bowl is brighter and fills higher */
+      "brew-gaiwan":(t,hold)=>pour(t+0.12,span(hold),520,1500,0.032,{lp:4200,size:0.9}),
+      /* hot water over the closed teapot (淋壶): water on clay and running off into the tray, no vessel filling */
+      brew:(t,hold)=>{pour(t+0.08,span(hold),900,1000,0.026,{lp:2300,ring:0.15,size:1,drips:0});
+        for(let i=0;i<7;i++) bubble(t+hold-0.1+R(0,0.7),d,R(1400,2600),0.03,R(0.004,0.008),1.3);},
       /* the gaiwan lid drawn across the rim to skim the foam: porcelain on porcelain, then the lid set down */
-      "skim-gaiwan":(t,hold)=>{burst(t+0.15,d,0.22,"highpass",6000,0.7,0.006,0.05); burst(t+0.5,d,0.2,"highpass",6500,0.7,0.005,0.05); tick(t+Math.max(0.75,hold-0.25),R(2800,3200),0.012);},
+      "skim-gaiwan":(t,hold)=>{burst(t+0.15,d,0.22,"bandpass",4200,2,0.006,0.05); burst(t+0.5,d,0.2,"bandpass",4600,2,0.005,0.05); tick(t+Math.max(0.75,hold-0.25),R(2800,3200),0.008);},
       /* the dry leaf shown on its scoop, then tipped into the vessel */
       "show-leaf":t=>rustle(t+0.2,4,0.006),
       "load-leaf":t=>{rustle(t+0.25,9,0.011); rustle(t+1.1,5,0.007);},
       /* a cup picked up off the wooden tray */
-      "reach-cup":t=>tick(t+0.1,R(3200,3800),0.01),
-      /* the lid lifted off the vessel to smell it, then set back with a porcelain tick */
-      "smell-lid":(t,hold)=>{tick(t+0.08,R(2600,3000),0.012); tick(t+Math.max(0.6,hold-0.15),R(2600,3000),0.014);},
+      "reach-cup":t=>tick(t+0.1,R(3200,3800),0.006),
+      /* the teapot's clay lid lifted to smell it and set back: a soft knock each way */
+      "smell-lid":(t,hold)=>{clay(t+0.1,0.006); clay(t+Math.max(0.6,hold-0.15),0.008);},
+      /* the gaiwan lid: porcelain, so a bright tick each way */
+      "smell-gaiwan-lid":(t,hold)=>{tick(t+0.08,R(2600,3000),0.007); tick(t+Math.max(0.6,hold-0.15),R(2600,3000),0.009);},
       /* a cup set back down, after he has smelled it or drunk from it */
-      smell:(t,hold)=>{tick(t+Math.max(0.6,hold-0.1),R(3200,3800),0.01); knock(t+Math.max(0.62,hold-0.08),0.012);},
-      sip:(t,hold)=>{tick(t+Math.max(0.6,hold-0.1),R(3200,3800),0.01); knock(t+Math.max(0.62,hold-0.08),0.012);}};
-    me.tea=(frame,hold)=>{const f=FX[frame]; if(f) f(x()+0.02,hold||0);};}
+      smell:(t,hold)=>{tick(t+Math.max(0.6,hold-0.1),R(3200,3800),0.007); knock(t+Math.max(0.62,hold-0.08),0.006);},
+      sip:(t,hold)=>{tick(t+Math.max(0.6,hold-0.1),R(3200,3800),0.007); knock(t+Math.max(0.62,hold-0.08),0.006);}};
+    /* the drawing actually on stage decides the sound: a gaiwan frame has its own when there is one */
+    me.tea=(frame,hold,down)=>{const k=down?"/down":"", base=frame.replace(/-gaiwan$/,""), f=FX[frame+k]||FX[base+k]||(down?null:FX[base]);
+      if(f) f(x()+0.02,hold||0);};}
   /* the village below: roosters from before first light, the odd crow through the morning; dogs in the dark */
   const village=spots(3,[-1,1],[0.82,0.95]);
   if(dawn){recur(14,40,t=>rooster(t,any(village),0.022),R(1,6));}
@@ -2688,7 +2718,7 @@ function startSeasonalAudio(season,opts={}){
 /* the tea house tab is on screen */
 function teaHouseOpen(){const t=document.getElementById("teahouse"); return !!t&&!t.hidden&&!document.hidden;}
 /* Master Lin's tea sounds: only with the ambience on and playing, so the speaker button switches them off too */
-function linTea(frame,ms){if(!SA||!SA.tea||!AC||AC.state!=="running") return; try{SA.tea(frame,(ms||0)/1000);}catch(e){}}
+function linTea(frame,ms,down){if(!SA||!SA.tea||!AC||AC.state!=="running") return; try{SA.tea(frame,(ms||0)/1000,!!down);}catch(e){}}
 /* fade: 0.4 s when switched off; a few seconds when the scene moves on (dusk into night, the rain setting in),
    so the old scene crossfades into the new one instead of cutting */
 function stopSeasonalAudio(fade=0.4){
@@ -3908,12 +3938,12 @@ initReviews();
       let start=Math.max(c.at*dur,last?last.end+450:0); if(start>dur+(TEA.has(c.gesture)?2600:400)||n>=most) break;
       const steps=chain(s,c.gesture).filter(a=>!seen.has(a)); if(!steps.length) continue; n++; seen.add(c.gesture);
       for(const a of steps){seen.add(a);
-        for(const [f,ms,main] of (ACTS[a]?ACTS[a](s):[[a==="think"?"thinking":a,HOLD[a]]])){out.push({g:f,gesture:a,start,end:start+ms,act:main?a:""}); start+=ms;}
+        for(const [f,ms,main] of (ACTS[a]?ACTS[a](s):[[a==="think"?"thinking":a,HOLD[a]]])){out.push({g:f,gesture:a,start,end:start+ms,act:main?a:"",down:ms===DOWN}); start+=ms;}
         apply(s,a); start+=250;}}
     return out;};
   /* one frame of a timeline on stage: the step takes effect, the drawing changes, and its sound plays once */
   const act=g=>{if(g.act&&!g.done){g.done=true; apply(tea,g.act);} show(g.g);
-    if(!g.heard&&shown===frameFor(g.g)){g.heard=true; linTea(g.g,g.end-g.start);}};
+    if(!g.heard&&shown===frameFor(g.g)){g.heard=true; linTea(shown,g.end-g.start,g.down);}};
   /* He talks while the words appear, his mouth swapping between two shapes, and acts out each cue in turn;
      a gesture that starts near the end is finished after the last word. Between gestures he talks with his hands
      resting (talk C and idle) and raises his hand to explain (talk A and B) on every other sentence. */
