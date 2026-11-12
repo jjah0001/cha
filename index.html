@@ -1100,7 +1100,6 @@ nav.chap{background:var(--page-top)}
           <img class="th-listen" data-pose="listen" src="img/master-lin/listen.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-talk-a" data-pose="talk-a" src="img/master-lin/talk-a.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-talk-b" data-pose="talk-b" src="img/master-lin/talk-b.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
-          <img class="th-pour" data-pose="pour" src="img/master-lin/pour.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-serve" data-pose="serve" src="img/master-lin/serve.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-brew" data-pose="brew" src="img/master-lin/brew.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-offer" data-pose="offer" src="img/master-lin/offer.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
@@ -1122,7 +1121,24 @@ nav.chap{background:var(--page-top)}
           <img class="th-offer-gaiwan" data-pose="offer-gaiwan" src="img/master-lin/offer-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-reach-pitcher-gaiwan" data-pose="reach-pitcher-gaiwan" src="img/master-lin/reach-pitcher-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-brew-gaiwan" data-pose="brew-gaiwan" src="img/master-lin/brew-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-pour-low" data-pose="pour-low" src="img/master-lin/pour-low.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-fill-pot" data-pose="fill-pot" src="img/master-lin/fill-pot.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-load-leaf" data-pose="load-leaf" src="img/master-lin/load-leaf.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-show-leaf" data-pose="show-leaf" src="img/master-lin/show-leaf.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-warm-cups" data-pose="warm-cups" src="img/master-lin/warm-cups.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-serve-b" data-pose="serve-b" src="img/master-lin/serve-b.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-sip" data-pose="sip" src="img/master-lin/sip.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-reach-gaiwan" data-pose="reach-gaiwan" src="img/master-lin/reach-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-reach-kettle-gaiwan" data-pose="reach-kettle-gaiwan" src="img/master-lin/reach-kettle-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-load-leaf-gaiwan" data-pose="load-leaf-gaiwan" src="img/master-lin/load-leaf-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-show-leaf-gaiwan" data-pose="show-leaf-gaiwan" src="img/master-lin/show-leaf-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-warm-cups-gaiwan" data-pose="warm-cups-gaiwan" src="img/master-lin/warm-cups-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-serve-b-gaiwan" data-pose="serve-b-gaiwan" src="img/master-lin/serve-b-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-skim-gaiwan" data-pose="skim-gaiwan" src="img/master-lin/skim-gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-gaiwan" id="thGaiwan" src="img/master-lin/gaiwan.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-cup" id="thCup0" src="img/master-lin/cup-0.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-cup" id="thCup1" src="img/master-lin/cup-1.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
+          <img class="th-cup" id="thCup2" src="img/master-lin/cup-2.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
         </div>
         <div class="th-steam" aria-hidden="true"><i></i><i></i></div>
       </figure>
@@ -2525,26 +2541,39 @@ function startSeasonalAudio(season,opts={}){
   if(!late||mo==="picking"||mo==="osmanthus"||mo==="frost") gongfu(place(0.12,0.07));
   /* Master Lin's own tea, across the counter from you: each gesture of his makes its sound as his hands move
      (see linTea). In the tea house he is the one making tea, so the round of tea next door above stays quiet. */
-  {const {pour,tick,knock}=teaKit(place(0.05,0.03)), x=now;
+  {const d=place(0.05,0.03), {pour,tick,knock}=teaKit(d), x=now;
+    /* dry leaf sliding off the bamboo scoop: a handful of short, bright, papery rustles */
+    const rustle=(t,n,amp)=>{for(let i=0,at=t;i<n;i++,at+=R(0.04,0.11)) burst(at,d,R(0.03,0.07),"bandpass",R(2600,5200),1.3,amp*R(0.5,1));};
     const FX={
-      /* hand on the teapot: the clay lid settles under his finger */
+      /* hand on the teapot or the gaiwan, and the vessel set back on the tray: the lid settles */
       "reach-pot":t=>knock(t+0.1,0.016),
-      /* teapot into the glass fairness pitcher, the note climbing as it fills */
-      pour:t=>pour(t+0.1,R(1.5,1.8),R(800,950),R(1900,2200),0.036),
-      /* pitcher lifted off the tray */
+      /* the vessel into the glass fairness pitcher, the note climbing as it fills */
+      "pour-low":(t,hold)=>pour(t+0.1,Math.max(1.2,hold-0.7),R(800,950),R(1900,2200),0.036),
+      /* pitcher lifted off the tray, and set back down */
       "reach-pitcher":t=>tick(t+0.12,R(3000,3500),0.012),
-      /* pitcher round the three little cups */
-      serve:t=>{for(let i=0,at=t+0.15;i<3;i++,at+=R(0.62,0.7)) pour(at,R(0.38,0.5),R(1800,2200),R(3000,3500),0.026);},
-      /* the iron kettle lifted off its trivet */
+      /* pitcher round the three little cups: the first with the first drawing, the other two with the second */
+      serve:t=>pour(t+0.15,R(0.5,0.6),R(1800,2200),R(3000,3500),0.026),
+      "serve-b":t=>{for(let i=0,at=t+0.05;i<2;i++,at+=R(0.58,0.66)) pour(at,R(0.38,0.48),R(1800,2200),R(3000,3500),0.026);},
+      /* the iron kettle lifted off its trivet, and set back on it */
       "reach-kettle":t=>knock(t+0.08,0.022),
-      /* hot water from the kettle, a lower and fuller stream */
-      brew:t=>pour(t+0.1,R(1.5,1.8),R(650,750),R(1400,1700),0.034),
+      /* hot water over the three cups to warm them, a short splash in each */
+      "warm-cups":t=>{for(let i=0,at=t+0.15;i<3;i++,at+=R(0.66,0.76)) pour(at,R(0.4,0.52),R(1100,1300),R(1700,2000),0.024);},
+      /* hot water from the kettle into the open vessel, a lower and fuller stream */
+      "fill-pot":(t,hold)=>pour(t+0.1,Math.max(1.2,hold-0.7),R(650,750),R(1400,1700),0.034),
+      /* a last splash over the closed teapot */
+      brew:t=>pour(t+0.05,R(0.7,0.85),R(1000,1150),R(1250,1400),0.02),
+      /* the gaiwan lid drawn across the rim to skim the foam: porcelain on porcelain, then the lid set down */
+      "skim-gaiwan":(t,hold)=>{burst(t+0.15,d,0.22,"highpass",6000,0.7,0.006,0.05); burst(t+0.5,d,0.2,"highpass",6500,0.7,0.005,0.05); tick(t+Math.max(0.75,hold-0.25),R(2800,3200),0.012);},
+      /* the dry leaf shown on its scoop, then tipped into the vessel */
+      "show-leaf":t=>rustle(t+0.2,4,0.006),
+      "load-leaf":t=>{rustle(t+0.25,9,0.011); rustle(t+1.1,5,0.007);},
       /* a cup picked up off the wooden tray */
       "reach-cup":t=>tick(t+0.1,R(3200,3800),0.01),
-      /* the lid lifted off the pot to smell it, then set back with a porcelain tick */
+      /* the lid lifted off the vessel to smell it, then set back with a porcelain tick */
       "smell-lid":(t,hold)=>{tick(t+0.08,R(2600,3000),0.012); tick(t+Math.max(0.6,hold-0.15),R(2600,3000),0.014);},
-      /* his own cup set back down after the sip */
-      smell:(t,hold)=>{tick(t+Math.max(0.6,hold-0.1),R(3200,3800),0.01); knock(t+Math.max(0.62,hold-0.08),0.012);}};
+      /* a cup set back down, after he has smelled it or drunk from it */
+      smell:(t,hold)=>{tick(t+Math.max(0.6,hold-0.1),R(3200,3800),0.01); knock(t+Math.max(0.62,hold-0.08),0.012);},
+      sip:(t,hold)=>{tick(t+Math.max(0.6,hold-0.1),R(3200,3800),0.01); knock(t+Math.max(0.62,hold-0.08),0.012);}};
     me.tea=(frame,hold)=>{const f=FX[frame]; if(f) f(x()+0.02,hold||0);};}
   /* the village below: roosters from before first light, the odd crow through the morning; dogs in the dark */
   const village=spots(3,[-1,1],[0.82,0.95]);
@@ -3678,20 +3707,32 @@ initReviews();
     if(i.complete&&i.naturalWidth) go(); else i.addEventListener("load",go,{once:true});}
   /* His two brewing vessels. The Yixing teapot is drawn into every frame. For the gaiwan, frames where his hands are
      away from the vessel get a small patch laid over the teapot (the white gaiwan on its saucer), and frames where
-     he handles it, or reaches past it, have a gaiwan drawing of their own. Reaching for the gaiwan has no drawing
-     yet, so that reach is skipped (see plan). */
-  const GW={pour:"pour-gaiwan",brew:"brew-gaiwan","smell-lid":"smell-gaiwan-lid",serve:"serve-gaiwan",offer:"offer-gaiwan","reach-pitcher":"reach-pitcher-gaiwan"},
-    PATCHED=new Set(["","blink","listen","talk-a","talk-b","talk-c","laugh","welcome","thinking","nod","point","smell","reach-cup","reach-kettle"]),
-    patch=$("thGaiwan");
-  let gw=false, asked="", patchReady=false;
-  {const go=()=>patch.decode().then(()=>{patchReady=true;},()=>{patchReady=!!patch.naturalWidth;});
-    if(patch.complete&&patch.naturalWidth) go(); else patch.addEventListener("load",go,{once:true});}
-  const frameFor=name=>gw?(GW[name]||(PATCHED.has(name)?name:"")):name;
+     he handles it, or reaches past it, have a gaiwan drawing of their own: a different name (ALIAS) or the same
+     name with "-gaiwan" after it. */
+  const ALIAS={"reach-pot":"reach-gaiwan","smell-lid":"smell-gaiwan-lid","pour-low":"pour-gaiwan","fill-pot":"brew-gaiwan"},
+    PATCHED=new Set(["","blink","listen","talk-a","talk-b","talk-c","laugh","welcome","thinking","nod","point","smell","reach-cup","sip"]),
+    patch=$("thGaiwan"), cupEls=[0,1,2].map(i=>$("thCup"+i));
+  /* The three cups are drawn empty. Once he has served, a small patch of tea is laid in each cup that still has
+     tea in it (tea.cups: bit 0 the left cup, bit 1 the middle, bit 2 the right one, the guest's). CUPS says which
+     cups a frame leaves on the tray untouched: a cup in his hand, or one the frame draws being filled, gets none. */
+  const CUPS={offer:3,"offer-gaiwan":3,"reach-cup":3,smell:3,sip:6,serve:0,"serve-b":0,"serve-gaiwan":0,"serve-b-gaiwan":0,"warm-cups":0,"warm-cups-gaiwan":0};
+  /* Where the round of tea stands, so that his hands follow the real order of gongfu tea: warm the cups, leaf in,
+     water on, decant into the pitcher, share it round the cups, offer one, drink. */
+  const tea={warmed:false,leaf:false,steeped:false,n:0,pitcher:false,cups:0,offered:false,sat:0};
+  let gw=false, asked="";
+  [[patch,"+gaiwan"],...cupEls.map((c,i)=>[c,"+cup"+i])].forEach(([i,k])=>{
+    const go=()=>i.decode().then(()=>ready.add(k),()=>{if(i.naturalWidth) ready.add(k);});
+    if(i.complete&&i.naturalWidth) go(); else i.addEventListener("load",go,{once:true});});
+  const frameFor=name=>{if(!gw||/gaiwan/.test(name)) return name; const a=ALIAS[name]||name+"-gaiwan"; return frames[a]?a:PATCHED.has(name)?name:"";};
   const show=name=>{asked=name; if(quiet()||!frames[name]) name=""; name=frameFor(name); if(!ready.has(name)) name="";
-    patch.classList.toggle("on",gw&&PATCHED.has(name)); if(name===shown) return;
+    patch.classList.toggle("on",gw&&PATCHED.has(name));
+    const full=tea.cups&(name in CUPS?CUPS[name]:7); cupEls.forEach((c,i)=>c.classList.toggle("on",!!(full>>i&1)&&ready.has("+cup"+i)));
+    if(name===shown) return;
     frames[shown].classList.remove("on"); frames[name].classList.add("on"); shown=name;};
-  /* the vessel changes between replies, and only once every gaiwan drawing has loaded */
-  const setVessel=on=>{on=!!on&&patchReady&&Object.values(GW).every(n=>ready.has(n)); if(on===gw) return; gw=on; show(asked);};
+  /* the vessel changes between replies, and only once every gaiwan drawing has loaded. A change of vessel is a
+     change of tea, so the new vessel starts dry and empty; what is already in the pitcher and the cups stays. */
+  const setVessel=on=>{on=!!on&&ready.has("+gaiwan")&&Object.keys(frames).every(n=>!/gaiwan/.test(n)||ready.has(n)); if(on===gw) return;
+    gw=on; tea.leaf=tea.steeped=false; tea.n=0; show(asked);};
   /* which vessel suits the tea he is talking about; null leaves the one on the tray */
   const GW_TEA=/gaiwan|盖碗|蓋碗|green tea|white tea|yellow tea|jasmine|long ?jing|dragon ?well|bi ?luo ?chun|silver needle|white peony|bai ?mu ?dan|shou ?mei|tie ?guan ?yin|dan ?cong|mao ?feng|mao ?jian|绿茶|綠茶|白茶|黄茶|黃茶|茉莉|龙井|龍井|碧螺春|银针|銀針|白牡丹|寿眉|壽眉|铁观音|鐵觀音|单丛|單叢|毛峰|毛尖/gi,
     POT_TEA=/teapot|yixing|zisha|clay pot|rock tea|yancha|da ?hong ?pao|big red robe|rou ?gui|shui ?xian|pu.?er|black tea|red tea|lapsang|liu ?bao|dark tea|紫砂|茶壶|茶壺|小壶|小壺|岩茶|大红袍|大紅袍|肉桂|水仙|普洱|红茶|紅茶|正山小种|正山小種|六堡|黑茶/gi;
@@ -3789,65 +3830,124 @@ initReviews();
     d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/master-lin/idle.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
     log.appendChild(d); follow(d); return d.querySelector(".say");};
   /* His gestures follow his words, not the AI: each one starts just before he says the words it belongs to.
-     serve: pitcher into the guest's cup · pour: pot into the fairness pitcher · brew: kettle over the pot
-     offer: a cup held out in both hands · smell: the lid at his nose · laugh · welcome: open palms
-     nod: "yes", "exactly", 对 at the start of a sentence · point: an open hand out towards the mountain and the weather */
+     The tea ones, in the order of a round of gongfu tea:
+     warm: kettle over the cups · show: the dry leaf held out on the scoop · load: leaf into the pot or gaiwan
+     brew: kettle into the open vessel · pour: the vessel decanted into the fairness pitcher
+     serve: pitcher round the three cups · offer: a cup held out in both hands · sip: his own cup · smell: the lid at his nose
+     And the ones that are just him: laugh · welcome: open palms · nod: "yes", "exactly", 对 at the start of a sentence
+     think: hand at his chin on "hmm", "good question", 让我想想 · point: an open hand out towards the mountain and the weather.
+     The words are kept to what he says when he is doing the thing: "an infusion of ten seconds" or "enjoy the view"
+     should not send his hand to the kettle or a cup across the table. */
   const GESTURES=[
-    ["serve",/\b(pour (you|yours?|us|a|another|some|more)|refill(s|ed|ing)?|top (you |it |that )?up|another cup|fresh cup|a cup for you|fill (your|the|our) cups?)\b|倒(一|杯|茶|上|满|点|给)|斟|续(杯|茶|上|一)|添(茶|一|点|上)|再来一杯|分茶/gi],
-    ["pour",/\b(decant(s|ed|ing)?|pour(s|ed|ing)? (it |the tea )?off|fairness pitcher|into the pitcher)\b|出汤|公道杯/gi],
-    ["brew",/\b(brew(s|ed|ing)?|steep(s|ed|ing)?|infusions?|fresh pot|new pot|hot water|kettle|boil(s|ed|ing)?|rinse|warm (up )?the (pot|cups))\b|泡(茶|一|上|杯|壶|了|好)|冲(泡|一|了)|烧水|开水|温杯|洗茶|醒茶|换一泡|新的一泡/gi],
-    ["sip",/\b(I'll|I will|let me|I) (have|take) a sip|\bI('ll| will)? drink\b|我(也|先)?(喝|尝)一?口|我先(喝|尝)/gi],
-    ["offer",/\b(taste (this|it|that|some)|have a taste|try (this|it|some|one)|(take|have) a sip|here you (go|are)|have some|enjoy|this cup|drink up)\b|尝|喝一口|喝口|请(喝|用|品)|你试试|品一品|这杯/gi],
-    ["smell",/\b(smell(s|ed|ing)?|aromas?|fragran(t|ce)|scents?|sniff)\b|闻|香气|香味|茶香/gi],
-    ["laugh",/\b(ha(ha)+|he(he)+|lol|laugh(s|ed|ing)?|funny|joking)\b|\bha!|哈哈|呵呵|嘿嘿|[😄😂😆]/giu],
-    ["nod",/(?:^|[.!?]\s+)(yes|yeah|exactly|indeed|of course|certainly|absolutely|that's right|quite right|good question)\b|(?:^|[。！？])\s*(对|是的|没错|当然|好问题)/gi],
-    ["point",/\b(the mountains?|these mountains|the peaks?|the cliffs?|the valley|the river|Nine.?Bend|out there|over there|outside|the mist|the fog|the rain|the snow|the weather)\b|山上|山里|山间|那边|外面|九曲|岩壁|峡谷|雾|下雨|下雪|天气/gi],
-    ["welcome",/\b(welcome|come in|take a seat|sit,? sit|nice to meet you|goodbye|see you|come back (any ?time|soon)|safe travels)\b|欢迎|请坐|坐坐|慢走|再见|下次再来/gi]];
+    ["warm",/\b(warm(s|ed|ing)? (up )?(the |your |our |these )?(cups?|pot|teapot|gaiwan|pitcher)|(rinse|scald)(s|d|ing)? (the |your |our )?cups?)\b|温杯|烫杯|温壶|烫壶|温一下|洁具/gi],
+    ["show",/\b(look at (the|this|these) (dry |dried )?(leaf|leaves|tea)|see (the|this|these|how the) (dry |dried )?(leaf|leaves)|(the|these|this) (dry|dried) (leaf|leaves)|here (is|are) the (leaf|leaves|tea)|this is the (tea|leaf))\b|赏茶|看看(这|茶|干)|你看这|干茶|条索/gi],
+    ["load",/\b((add|put|scoop|measure|drop)(s|ped|ed|d|ping|ing)? (in |out )?(the |some |a little |more |fresh )?(leaf|leaves|tea leaves)|(leaf|leaves) (goes?|go) in(to)?|(fresh|new) (leaf|leaves)|grams? (of (leaf|tea)|in(to)? the)|a different tea|change the tea)\b|投茶|置茶|放茶|换(一款|个|一种|款)?茶|抓一把|克茶|茶叶放/gi],
+    ["brew",/\b(let me (brew|steep|make)|I('ll| will|'m| am) (brew|steep|mak)(ing)?|(another|next|second|third|one more|a fresh|a new) (infusion|steep|brew|pot|round)|brew(ing)? (you|us|this|it|some|a|one)|hot water|boiling water|add(ing)? (the |more )?water|fill(ing)? the (pot|teapot|gaiwan)|rinse the (leaf|leaves|tea)|wake the (leaf|leaves|tea))\b|泡(一|上|壶|给|点|了|好|着)|冲(泡|一|水|了)|注水|加水|烧水|开水|洗茶|醒茶|润茶|换一泡|下一泡|再来一泡|这一泡|新的一泡/gi],
+    ["pour",/\b(decant(s|ed|ing)?|pour(s|ed|ing)? (it |the tea )?(off|out)|fairness (pitcher|cup)|(into|in) the pitcher|it('s| is) ready|(that('s| is)|long) enough|don't let it (stew|sit))\b|出汤|公道杯|倒出来|茶好了|泡好了|沥干/gi],
+    ["serve",/\b(pour(ing)? (you|yours?|us|another|some more|a cup|out a)|refill(s|ed|ing)?|top(ping)? (you |it |that |your cup )?up|another cup|a fresh cup|a cup for you|fill(ing)? (your|the|our) cups?|more tea|share (it|the tea) (out|round))\b|倒(一杯|杯|茶|上|满|点|给)|斟|续(杯|茶|上|一)|添(茶|一|点|上)|再来一杯|分茶|满上/gi],
+    ["sip",/\b(I'll|I will|let me|I) (have|take) a sip|\blet me (taste|try) (it|this|that|some)\b|\bI('ll| will) (drink|join you|have (a cup|one|some))\b|\bcheers\b|我(也|先)?(喝|尝)一?口|我先(喝|尝)|我也(来|喝)一杯|干杯|陪你喝/gi],
+    ["offer",/\b(taste (this|it|that|some)|have a taste|try (this|it|some|a cup|a sip)|(take|have) a sip|here you (go|are)|have some|enjoy (it|this|your)|this cup|your cup|drink (up|it|this)|while it('s| is) (still )?(hot|warm)|careful,? it('s| is) hot)\b|尝尝|尝一|你尝|请尝|喝一口|喝口|请(喝|用|品|茶)|你试试|试试看|品一品|这杯|趁热|慢用|慢慢喝|小心烫/gi],
+    ["smell",/\b(smell(s|ed|ing)?|aromas?|fragran(t|ce)|scents?|sniff|(lift|under) the lid)\b|闻|香气|香味|茶香|盖香/gi],
+    ["laugh",/\b(ha(ha)+|he(he)+|lol|laugh(s|ed|ing)?|funny|joking|teasing)\b|\bha!|哈哈|呵呵|嘿嘿|好笑|开玩笑|[😄😂😆]/giu],
+    ["nod",/(?:^|[.!?]\s+)(yes|yeah|exactly|indeed|of course|certainly|absolutely|precisely|correct|that's (right|true)|quite right|you('re| are) right|I agree|well said|very good|ah,? yes)\b|(?:^|[。！？])\s*(对|是的|是啊|没错|当然|正是|说得对|说得好|可不是|好的|好啊)/gi],
+    ["think",/(?:^|[.!?]\s+)(hmm+|well,|let me think|good question|that's a (good|hard|difficult|tricky|interesting) (one|question)|how (shall|should|do|can) I (put|say|explain)|it depends|honestly|to be honest)|(?:^|[。！？])\s*(嗯|这个嘛|让我想想|我想想|好问题|怎么说呢|说实话|不好说|看情况)/gi],
+    ["point",/\b(the mountains?|these mountains|the peaks?|the cliffs?|the valley|the river|Nine.?Bend|out there|over there|outside|up the slope|the tea (garden|bushes|rows)|the mist|the fog|the rain|the snow|the weather)\b|山上|山里|山间|那边|外面|九曲|岩壁|峡谷|茶园|茶山|雾|下雨|下雪|天气/gi],
+    ["welcome",/\b(welcome|come in|take a seat|sit,? sit|make yourself at home|nice to meet you|good to see you|my pleasure|goodbye|good ?night|see you|come back (any ?time|soon|again)|safe travels|take care)\b|欢迎|请坐|坐坐|随便坐|不客气|别客气|慢走|再见|晚安|下次再来|一路平安/gi]];
   /* he answers Hong Kong, Macau and Taiwan guests in Traditional characters, so each cue also matches its Traditional form */
   const TRAD={冲:"沖衝",壶:"壺",对:"對",尝:"嘗",岩:"巖",峡:"峽",开:"開",当:"當",换:"換",来:"來",欢:"歡",气:"氣",汤:"湯",没:"沒",温:"溫",满:"滿",点:"點",
-    烧:"燒",给:"給",续:"續",见:"見",试:"試",请:"請",边:"邊",这:"這",里:"裏裡",错:"錯",问:"問",间:"間",闻:"聞",雾:"霧",题:"題"};
-  for(const g of GESTURES) g[1]=new RegExp(g[1].source.replace(/[\u4e00-\u9fff]/g,c=>TRAD[c]?"["+c+TRAD[c]+"]":c),g[1].flags);
-  const HOLD={serve:2100,pour:2100,brew:2000,offer:1900,smell:1800,sip:1800,laugh:1300,welcome:1700,nod:900,point:1600};
-  /* the frame each gesture plays: a tea master smells the lid and the wet leaves (闻盖香), and only lifts a cup to
-     his nose when he is about to drink it himself; a reach frame, where there is one, plays first: his hand on the
-     teapot before it pours, on the pitcher before he serves, on the kettle handle before the water, on a cup before
-     he holds it out */
-  const FRAME={smell:"smell-lid",sip:"smell"}, REACH={pour:"reach-pot",serve:"reach-pitcher",brew:"reach-kettle",offer:"reach-cup"}, REACH_MS=380;
+    烧:"燒",给:"給",续:"續",见:"見",试:"試",请:"請",边:"邊",这:"這",里:"裏裡",错:"錯",问:"問",间:"間",闻:"聞",雾:"霧",题:"題",
+    赏:"賞",条:"條",干:"乾幹",种:"種",个:"個",叶:"葉",润:"潤",沥:"瀝",烫:"燙",洁:"潔",热:"熱",说:"說",让:"讓",实:"實",话:"話",况:"況",别:"別",随:"隨",园:"園",盖:"蓋",着:"著",么:"麼"};
+  for(const g of GESTURES) g[1]=new RegExp(g[1].source.replace(/[一-鿿]/g,c=>TRAD[c]?"["+c+TRAD[c]+"]":c),g[1].flags);
+  /* What the guest says moves him too. HEARD: he laughs with a guest who is laughing, the moment he hears it.
+     WANTS: a guest who asks for more tea, raises a cup or asks to see the leaf gets exactly that as he answers. */
+  const HEARD=/\b(ha(ha)+|he(he)+|lol|lmao|rofl)\b|哈哈|嘿嘿|笑死|[😄😂🤣😆]/iu,
+    WANTS=[["serve",/\b(more tea|another (cup|one|round)|refill|top (me|it|my cup) up|pour me|i('m| am) thirsty|my cup is empty)\b|再[来來]一杯|[续續]杯|添茶|渴了|倒一杯|[来來]一杯|[满滿]上/i],
+      ["sip",/\b(cheers|drink with me|join me|to your health)\b|[干乾]杯|一起喝|敬你|敬您/i],
+      ["show",/\b(see|show me|look at) the (dry |dried )?(leaf|leaves|tea)\b|看看茶[叶葉]|看看[干乾]茶|看一下茶/i]];
+  /* The round of tea. need(): what must have happened before a step makes sense; next(): the step the round is
+     waiting for; apply(): what a step changes. A pot of leaf gives four infusions before he puts in fresh leaf. */
+  const TEA=new Set(["warm","show","load","brew","pour","serve","offer","sip","smell"]);
+  const need=(s,g)=>g==="offer"?(s.cups&4?null:"serve"):g==="sip"?(s.cups&3?null:"serve"):g==="serve"?(s.pitcher?null:"pour")
+    :g==="pour"?(s.steeped?null:"brew"):g==="brew"?(s.steeped?"pour":!s.leaf||s.n>=4?"load":null):null;
+  const idle=(s,g)=>g==="load"?s.steeped||(s.leaf&&!s.n):g==="warm"?!!s.cups||s.steeped:g==="smell"?!s.leaf&&!(s.cups&4):false;
+  const next=s=>s.pitcher?(s.cups===7?(s.offered?"sip":"offer"):"serve"):s.steeped?"pour":(s.cups&4)&&!s.offered?"offer"
+    :!s.leaf||s.n>=4?(s.warmed||s.cups?"load":"warm"):"brew";
+  const apply=(s,g)=>{if(g==="warm") s.warmed=true; else if(g==="load"){s.leaf=true; s.steeped=false; s.n=0;}
+    else if(g==="brew"){s.steeped=true; s.n++;} else if(g==="pour"){s.steeped=false; s.pitcher=true;}
+    else if(g==="serve"){s.cups=7; s.pitcher=false; s.offered=false; s.sat=0;} else if(g==="offer") s.offered=true;
+    else if(g==="sip") s.cups&=s.cups&1?~1:~2;};
+  /* what he actually does for a cue: the step itself; the one step missing before it and then the step ("try this"
+     with the cups empty: he shares the pitcher round, then holds a cup out); or, when more than one step is
+     missing, simply the next step of the round, so he never pours from an empty pot or offers an empty cup */
+  const chain=(s,g)=>{if(!TEA.has(g)) return [g]; if(idle(s,g)) return [];
+    const p=need(s,g); if(!p) return [g]; if(need(s,p)) return [next(s)];
+    const t={...s}; apply(t,p); return need(t,g)?[p]:[p,g];};
+  /* The frames of each step, in order, with how long each is held; the 1 marks the frame where the step takes
+     effect. A hand goes to a vessel before it lifts it and sets it back down afterwards. Filling the teapot ends
+     with hot water poured over the closed pot (淋壶) to keep the heat in; filling the gaiwan ends with the lid
+     skimming the foam off (刮沫). He smells the lid of the vessel, or the guest's cup when there is no leaf in yet. */
+  const UP=380, DOWN=300, HOLD={laugh:1300,welcome:1700,nod:900,point:1600,think:1300};
+  const ACTS={warm:()=>[["reach-kettle",UP],["warm-cups",2400,1],["reach-kettle",DOWN]],
+    show:()=>[["show-leaf",1800,1]], load:()=>[["load-leaf",2200,1]],
+    brew:()=>gw?[["reach-kettle",UP],["fill-pot",2500,1],["reach-kettle",DOWN],["skim-gaiwan",1200]]:[["reach-kettle",UP],["fill-pot",2400,1],["brew",1100],["reach-kettle",DOWN]],
+    pour:()=>[["reach-pot",UP],["pour-low",2600,1],["reach-pot",DOWN]],
+    serve:()=>[["reach-pitcher",UP],["serve",1200],["serve-b",1300,1],["reach-pitcher",DOWN]],
+    offer:()=>[["reach-cup",UP],["offer",2000,1]], sip:()=>[["sip",1900,1]],
+    smell:s=>[[s.leaf?"smell-lid":"smell",1800,1]]};
   const cuesFor=text=>{const L=Math.max(1,text.length), hits=[];
     for(const [g,re] of GESTURES){re.lastIndex=0; let m; while((m=re.exec(text))) hits.push({gesture:g,at:Math.max(0,m.index/L-0.04),i:m.index});}
     /* "let me have a sip" is him drinking, not an offer to the guest */
     const sips=hits.filter(h=>h.gesture==="sip");
     return hits.filter(h=>h.gesture!=="offer"||!sips.some(x=>h.i>=x.i&&h.i-x.i<16)).sort((a,b)=>a.at-b.at);};
-  /* fractions of the typing time become a timeline: at most three gestures, each once and held long enough to
-     read, with a beat of talking between them so he never jumps straight from one action to the next; the last
-     one may land just after his final words ("Here, taste this." ends with the cup held out) */
-  const plan=(cues,dur)=>{const out=[]; let n=0;
-    for(const c of cues){const last=out[out.length-1]; if(out.some(o=>o.gesture===c.gesture)) continue;
-      let start=Math.max(c.at*dur,last?last.end+450:0); if(start>dur+400||n>=3) break; n++;
-      const reach=gw&&c.gesture==="pour"?null:REACH[c.gesture]; if(reach){out.push({g:reach,gesture:"reach",start,end:start+REACH_MS}); start+=REACH_MS;}
-      out.push({g:FRAME[c.gesture]||c.gesture,gesture:c.gesture,start,end:start+HOLD[c.gesture]});}
+  /* fractions of the typing time become a timeline: at most `most` cues, each gesture once and held long enough
+     to read, with a beat of talking between them so he never jumps straight from one action to the next; the last
+     one may land just after his final words ("Here, taste this." ends with the cup held out). The round is
+     worked out ahead on a copy of the tea state; the real state changes as each step is played (see act). */
+  const plan=(cues,dur,most=3)=>{const out=[], s={...tea}, seen=new Set(); let n=0;
+    for(const c of cues){if(seen.has(c.gesture)) continue; const last=out[out.length-1];
+      let start=Math.max(c.at*dur,last?last.end+450:0); if(start>dur+(TEA.has(c.gesture)?2600:400)||n>=most) break;
+      const steps=chain(s,c.gesture).filter(a=>!seen.has(a)); if(!steps.length) continue; n++; seen.add(c.gesture);
+      for(const a of steps){seen.add(a);
+        for(const [f,ms,main] of (ACTS[a]?ACTS[a](s):[[a==="think"?"thinking":a,HOLD[a]]])){out.push({g:f,gesture:a,start,end:start+ms,act:main?a:""}); start+=ms;}
+        apply(s,a); start+=250;}}
     return out;};
+  /* one frame of a timeline on stage: the step takes effect, the drawing changes, and its sound plays once */
+  const act=g=>{if(g.act&&!g.done){g.done=true; apply(tea,g.act);} show(g.g);
+    if(!g.heard&&shown===frameFor(g.g)){g.heard=true; linTea(g.g,g.end-g.start);}};
   /* He talks while the words appear, his mouth swapping between two shapes, and acts out each cue in turn;
      a gesture that starts near the end is finished after the last word. Between gestures he talks with his hands
      resting (talk C and idle) and raises his hand to explain (talk A and B) on every other sentence. */
-  const speak=(el,text,cues)=>new Promise(res=>{
+  const speak=(el,text,cues,most)=>new Promise(res=>{
     const sequence=cues||cuesFor(text);
     if(still()){stop();el.innerHTML=para(text);res();return;}
-    const dur=Math.min(12000,Math.max(2400,text.length*35)), t0=performance.now(), tl=plan(sequence,dur),
+    const dur=Math.min(12000,Math.max(2400,text.length*35)), t0=performance.now(), tl=plan(sequence,dur,most),
       end=Math.max(dur,tl.length?tl[tl.length-1].end:0), run=++acting,
       breaks=[...text.matchAll(/[.!?。！？]+\s*/g)].map(m=>(m.index+m[0].length)/Math.max(1,text.length)).filter(f=>f<0.98);
-    let mouth=0, flip=0, done=false, heard=null;
+    let mouth=0, flip=0, done=false;
     const step=now=>{if(run!==acting){if(!done){done=true; el.innerHTML=para(text); follow(el.parentElement); res();} return;}
       const t=now-t0, k=Math.min(1,t/dur), g=tl.find(c=>t>=c.start&&t<c.end);
-      if(g){show(g.g); if(g!==heard&&shown===frameFor(g.g)){heard=g; linTea(g.g,g.end-g.start);}}
+      if(g) act(g);
       else if(t<dur){if(now>=flip){mouth^=1; flip=now+(mouth?260+Math.random()*420:380+Math.random()*640);}
         const up=breaks.filter(b=>b<=k).length%2===1; show(mouth?(up?"talk-a":"talk-c"):(up?"talk-b":""));}
-      else show("");
+      else show(resting);
       if(!done){el.innerHTML=para(text.slice(0,Math.ceil(text.length*k))); log.scrollTop=log.scrollHeight;
         if(k>=1){done=true; follow(el.parentElement); res();}}
-      if(t<end) requestAnimationFrame(step); else stop();};
+      if(t<end) requestAnimationFrame(step); else if(run===acting) stop();};
     requestAnimationFrame(step);
   });
+  /* A host does not sit frozen while his guest is quiet. Left alone he carries the round on by a step: a steeped
+     pot is decanted within seconds, as it must be, and after that, every half minute or so, he shares the tea
+     round, holds a cup out, drinks his own, starts the next infusion. Three steps at most, then he waits. */
+  let quietT=0, quietN=0;
+  const alone=()=>{clearTimeout(quietT); if(quietN>=3) return;
+    quietT=setTimeout(()=>{
+      if(busy||acting||quiet()||inp.value.trim()) return alone();
+      const tl=plan([{gesture:next(tea),at:0}],0); if(!tl.length) return;
+      quietN++; const run=++acting, t0=performance.now(), end=tl[tl.length-1].end;
+      const step=now=>{if(run!==acting) return; const t=now-t0, g=tl.find(c=>t>=c.start&&t<c.end);
+        if(g) act(g); else show(resting);
+        if(t<end) requestAnimationFrame(step); else{stop(); alone();}};
+      requestAnimationFrame(step);},tea.steeped?5000+Math.random()*3000:22000+Math.random()*18000);};
   /* his greeting, for this moment on the mountain */
   const greet=()=>{const S=scene(), m=S.moment, f=S.fest, fd=S.festDay, wx=S.weather, late=S.tod==="late", dark=late||S.tod==="night";
     const line={jingzhe:"Come in out of the drizzle, and mind the step.",qingming:"Come in out of the drizzle, and mind the step.",
@@ -3890,11 +3990,16 @@ initReviews();
     chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
   const setBusy=b=>{busy=b; inp.disabled=b||!chatUrl; send.disabled=b||!chatUrl; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
   async function ask(q){q=String(q||"").trim().slice(0,500); if(!q||busy) return;
-    stop(); listen(true);
+    clearTimeout(quietT); quietN=0; stop(); listen(true);
+    /* the guest has had time to drink: a cup he held out to them comes back empty, and so does one left standing a while */
+    if(tea.cups&4&&(tea.offered||++tea.sat>=2)){tea.cups&=~4; tea.offered=false; tea.sat=0; show(asked);}
     chips.innerHTML=""; add("me",para(q)); msgs.push({role:"user",content:q}); inp.value="";
     if(!chatUrl){add("him",T("Master Lin isn’t available on this copy of the site.","这个版本的网站没有接通林师傅。","這個版本的網站沒有接通林師傅。"),"err"); return}
-    /* he hears the question, then a moment later sits back to think, hand at his chin, until his answer comes */
-    const ponder=setTimeout(()=>{if(resting==="listen"){resting="thinking"; rest();}},700);
+    /* he hears the guest out, nods that he has understood (or laughs along with a guest who is laughing), then
+       sits back to think, hand at his chin, until his answer comes */
+    let waiting=true; const funny=HEARD.test(q);
+    const heardT=setTimeout(()=>{if(waiting){resting=funny?"laugh":"nod"; rest();}},420),
+      ponder=setTimeout(()=>{if(waiting){resting="thinking"; rest();}},funny?1650:1150);
     setBusy(true); const say=add("him",`<span class="th-dots" aria-label="Master Lin is thinking"><span></span><span></span><span></span></span>`);
     try{const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),45000);
       const r=await fetch(chatUrl,{method:"POST",headers:{"content-type":"application/json"},signal:ctl.signal,
@@ -3904,27 +4009,32 @@ initReviews();
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
       const T=tidy(raw), reply=T.text;
       msgs.push({role:"assistant",content:reply});
-      /* if two replies in a row had no pouring or tasting in them, he tops up the guest's cup while he talks */
-      const cues=cuesFor(reply);
-      if(cues.some(c=>c.gesture==="serve"||c.gesture==="pour"||c.gesture==="brew"||c.gesture==="offer")) plainRun=0;
-      else if(++plainRun>=2){cues.push({gesture:"serve",at:.45}); cues.sort((a,b)=>a.at-b.at); plainRun=0;}
       /* he brews in the vessel that suits the tea he is talking about */
       {const v=vesselFor(reply); if(v!==null) setVessel(v);}
-      clearTimeout(ponder); resting=""; await speak(say,reply,cues);
+      const cues=cuesFor(reply), has=g=>cues.some(c=>c.gesture===g);
+      /* what the guest asked for with their own words, or what he wrote as a stage direction, he does as he starts to answer */
+      for(const [g,re] of WANTS) if(re.test(q)&&!has(g)) cues.push({gesture:g,at:.06});
+      if(T.pours&&!has("serve")) cues.push({gesture:"serve",at:.1});
+      /* and when nothing he says touches the tea, his hands carry the round on by one step while he talks; a
+         short answer only every other time, so that a quick back-and-forth is not all kettle and pitcher */
+      if(!cues.some(c=>TEA.has(c.gesture)&&c.gesture!=="smell"&&c.gesture!=="show")&&(reply.length>110||++plainRun>=2)){cues.push({gesture:next(tea),at:.4}); plainRun=0;}
+      cues.sort((a,b)=>a.at-b.at);
+      waiting=false; clearTimeout(heardT); clearTimeout(ponder); resting=""; await speak(say,reply,cues);
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
       say.innerHTML=para(e&&e.code==="rate"?T("Master Lin is busy pouring for other guests. Wait a minute, then ask again.","林师傅正忙着给别的客人倒茶，请等一分钟再问。","林師傅正忙著給別的客人倒茶，請等一分鐘再問。"):T("Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.","抱歉，现在联系不上林师傅，请稍后再试。","抱歉，現在聯繫不上林師傅，請稍後再試。"));}
-    clearTimeout(ponder); listen(false); setBusy(false); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
+    waiting=false; clearTimeout(heardT); clearTimeout(ponder); listen(false); setBusy(false); alone(); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
   /* he looks up and listens while the guest is typing */
   inp.addEventListener("input",()=>{if(!busy) listen(inp.value.trim()!=="");});
   inp.addEventListener("blur",()=>{if(!busy) listen(false);});
   /* greet the first time the tea house is opened */
   let greeted=false;
-  /* He welcomes the guest with open hands, then acts out whatever his greeting mentions (the kettle, a cup). */
+  /* He welcomes the guest with open hands and opens the round while he greets them: hot water over the cups, the
+     dry leaf held out for the guest to see, leaf into the pot, and the first water on. */
   const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; setBusy(true); const el=add("him",`<span class="th-dots" aria-hidden="true"><span></span><span></span><span></span></span>`);
     const t0=greet();
     (ZH==="hant"&&window.chaToHant?window.chaToHant(t0).catch(()=>t0):Promise.resolve(t0))
-      .then(t=>speak(el,t,[{gesture:"welcome",at:0},...cuesFor(t)])).then(()=>{setBusy(false); showChips();});};
+      .then(t=>speak(el,t,[{gesture:"welcome",at:0},{gesture:"warm",at:.2},{gesture:"show",at:.5},{gesture:"load",at:.66},{gesture:"brew",at:.86}],5)).then(()=>{setBusy(false); showChips(); alone();});};
   new MutationObserver(open).observe($("teahouse"),{attributes:true,attributeFilter:["hidden"]}); open();
   if(ZH){inp.placeholder=T("","问问林师傅…","問問林師傅…"); inp.setAttribute("aria-label",T("","你想对林师傅说的话","你想對林師傅說的話")); if(send.textContent.trim()==="Ask") send.textContent=T("","问","問");}
   if(!chatUrl){inp.placeholder=T("Master Lin isn’t available on this copy of the site","这个版本的网站没有接通林师傅","這個版本的網站沒有接通林師傅"); inp.disabled=true; send.disabled=true;}
