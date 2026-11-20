@@ -1,5 +1,6 @@
 // Tea pairing proxy for the GitHub Pages build.
 // POST /pair { food, catalogue } -> { picks:[{id,why}], tip } | { error }
+// POST /where {} -> { province, provinceEn } for mainland China visitors (approximate, from Cloudflare IP location), else {}
 // POST /chat { messages:[{role,content}], country, season, moment, tod, weather, fest, festDay, date, weekday, moon, around[], next, calendar[], lang, guest* } -> { reply } | { error }
 //   The tea master (茶师) in the Tea house tab. The persona prompt lives here, not in the page, so the key can't be
 //   used for anything else; the page only sends the conversation and a few short scene words.
@@ -25,12 +26,14 @@ export default {
     const okOrigin = allowed.length === 0 ? origin || "*" : allowed.includes(origin) ? origin : allowed[0];
 
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: cors(okOrigin) });
-    if (req.method !== "POST" || (url.pathname !== "/pair" && url.pathname !== "/chat")) return json({ error: "not_found" }, 404, okOrigin);
+    if (req.method !== "POST" || !["/pair", "/chat", "/where"].includes(url.pathname)) return json({ error: "not_found" }, 404, okOrigin);
     if (allowed.length && !allowed.includes(origin)) return json({ error: "origin_not_allowed" }, 403, okOrigin);
 
     let body = null;
     try { body = await req.json(); } catch { return json({ error: "bad_json" }, 400, okOrigin); }
     if (url.pathname === "/chat") return chat(req, env, body, okOrigin);
+    /* the province only (nothing is stored), so his greeting can name it */
+    if (url.pathname === "/where") { const p = province(req); return json(p ? { province: p.zh, provinceEn: p.en } : {}, 200, okOrigin); }
     const food = String(body?.food || "").slice(0, 200).trim();
     const catalogue = String(body?.catalogue || "").slice(0, 40000);
     if (!food || !catalogue) return json({ error: "food_and_catalogue_required" }, 400, okOrigin);
@@ -78,6 +81,30 @@ If the input is not a food or drink, reply {"picks":[],"tip":"Name a dish or ing
 };
 
 /* ── 茶师 · the tea master ── */
+/* Mainland provinces by Cloudflare's IP-geolocation region (English name, or ISO 3166-2 code), with a tea each
+   is known for, so Master Lin can say where in China the guest probably is and talk about their own tea. */
+const PROVINCES = [
+  ["Fujian", "FJ", "福建", "武夷岩茶、安溪铁观音、福鼎白茶、正山小种"], ["Guangdong", "GD", "广东", "潮汕的凤凰单丛和工夫茶、英德红茶、早茶"],
+  ["Zhejiang", "ZJ", "浙江", "西湖龙井、安吉白茶"], ["Jiangsu", "JS", "江苏", "洞庭碧螺春"], ["Anhui", "AH", "安徽", "祁门红茶、黄山毛峰、太平猴魁、六安瓜片"],
+  ["Yunnan", "YN", "云南", "普洱、滇红"], ["Sichuan", "SC", "四川", "蒙顶甘露、竹叶青、成都的老茶馆"], ["Chongqing", "CQ", "重庆", "沱茶和老茶馆"],
+  ["Hunan", "HN", "湖南", "安化黑茶、君山银针"], ["Hubei", "HB", "湖北", "恩施玉露、青砖茶"], ["Guizhou", "GZ", "贵州", "都匀毛尖、湄潭翠芽"],
+  ["Guangxi", "GX", "广西", "梧州六堡茶、横县茉莉花茶"], ["Henan", "HA", "河南", "信阳毛尖"], ["Jiangxi", "JX", "江西", "庐山云雾"],
+  ["Shaanxi", "SN", "陕西", "泾阳茯茶、汉中仙毫"], ["Shandong", "SD", "山东", "日照绿茶"], ["Hainan", "HI", "海南", "五指山红茶"],
+  ["Beijing", "BJ", "北京", "茉莉花茶、老舍茶馆的大碗茶"], ["Tianjin", "TJ", "天津", "茉莉花茶"], ["Shanghai", "SH", "上海", ""],
+  ["Hebei", "HE", "河北", ""], ["Shanxi", "SX", "山西", ""], ["Liaoning", "LN", "辽宁", ""], ["Jilin", "JL", "吉林", ""],
+  ["Heilongjiang", "HL", "黑龙江", ""], ["Inner Mongolia", "NM", "内蒙古", "奶茶"], ["Ningxia", "NX", "宁夏", "八宝茶"],
+  ["Gansu", "GS", "甘肃", "三炮台盖碗茶"], ["Qinghai", "QH", "青海", ""], ["Xinjiang", "XJ", "新疆", "奶茶"], ["Tibet", "XZ", "西藏", "酥油茶"],
+];
+/* where in mainland China the request comes from, or null: approximate, and wrong behind a VPN */
+function province(req) {
+  const cf = req?.cf;
+  if (!cf || cf.country !== "CN") return null;
+  const name = String(cf.region || "").toLowerCase().replace(/ (province|municipality|autonomous region)$/, "").replace(/ zhuang| hui| uygur| uyghur/g, "");
+  const code = String(cf.regionCode || "").toUpperCase();
+  const p = PROVINCES.find(([en, c]) => en.toLowerCase() === name || c === code || (name === "xizang" && c === "XZ"));
+  return p ? { en: p[0], zh: p[2], tea: p[3] } : null;
+}
+
 const clip = (v, n) => String(v || "").replace(/[\u0000-\u001f]/g, " ").slice(0, n).trim();
 const SEASON = { spring: "春天", summer: "夏天", autumn: "秋天", winter: "冬天" };
 const MOMENT = { jingzhe: "惊蛰前后，山里刚响过春雷，细雨蒙蒙", qingming: "清明时节，细雨和山雾", picking: "正是开山采岩茶的季节，白天采茶，晚上通宵做青",
@@ -247,7 +274,7 @@ function nightNote(b) {
   return `\n\n（旁白，旅客看不到，也不要提起这段话：现在旅客那边是${slot === "late" ? "深夜" : "晚上"}${t ? t : ""}，林师傅是体贴的长辈，顾着他的睡眠。这一轮回答里：不要推荐，也不要夸绿茶、白茶芽茶、红茶、岩茶、单丛、乌龙这些茶“适合晚上”；不要说任何茶能助眠、让人平静或放松。他自己想喝这类茶，就照实说它有咖啡因，建议留到明天上午，或者今晚只泡得很淡、喝一小杯。你主动给的，只能是很淡的寿眉、陈年乌龙、淡熟普，或者菊花、大麦茶、陈皮水、白开水。）`;
 }
 
-function teaMasterPrompt(b) {
+function teaMasterPrompt(b, where) {
   const country = clip(b.country, 40) || "远方";
   const head = SEASON[b.season] && TOD[b.tod] ? SEASON[b.season] + "的" + TOD[b.tod] : SEASON[b.season] || TOD[b.tod] || "";
   const day = Number.isInteger(b.festDay) ? b.festDay : null;
@@ -304,7 +331,9 @@ function teaMasterPrompt(b) {
   /* visitors from mainland China, Hong Kong, Macau and Taiwan (or with a Chinese browser) were greeted in Chinese */
   const lang = b.lang === "hant" ? "繁体字" : b.lang === "hans" ? "简体字" : "";
   const zh = lang ? `\n这位旅客来自华语地区（或者用的是中文浏览器），你已经用中文（${lang}）跟他打过招呼。他写中文，你就用中文、用${lang}回答${b.lang === "hant" ? "，用词也照港澳台的习惯" : ""}；他写英文或别的语言，就用他写的那种语言回答。跟中文旅客说中文时，茶名不用再附拼音。` : "";
-  return `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，还在上海、香港和澳门的高级中餐厅做过多年茶艺师，为客人选茶、泡茶、以茶配菜，熟悉高端餐饮里的茶事：茶怎么配粤菜、本帮菜和点心，席间怎么侍茶；后来才回到武夷山接手家里的茶店。师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}${advice}${care}${zh}
+  /* where in mainland China the guest probably is, from their connection (approximate) */
+  const prov = where && where.zh ? `\n\n从网络位置看，这位旅客多半在${where.zh}${where.zh === "福建" ? "，和你是福建老乡" : ""}（只是大概：用了VPN、出差或者在外地上学的人会不准）。聊天时说到他那边，就具体说${where.zh}，不要笼统地说“中国”或“你那边”，例如他那边的天气、吃的、方言和喝茶的习惯${where.tea ? `，${where.zh}有名的茶有${where.tea}` : ""}，自然地提一两次就好，不要每句都提，也不要编造当地你不确定的细节。他说自己在别的地方，就以他说的为准，不要坚持。他问你怎么知道的，就老实说网站能大概看出他在哪个省，只是猜的。` : "";
+  return `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，还在上海、香港和澳门的高级中餐厅做过多年茶艺师，为客人选茶、泡茶、以茶配菜，熟悉高端餐饮里的茶事：茶怎么配粤菜、本帮菜和点心，席间怎么侍茶；后来才回到武夷山接手家里的茶店。师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}${advice}${care}${zh}${prov}
 
 你怎么说话：
 - 用旅客使用的语言回答：他写英文你就用英文，写中文就用中文，写别的语言也一样。
@@ -353,7 +382,7 @@ async function chat(req, env, body, okOrigin) {
     headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 600,
     /* the fixed knowledge goes first so it can be cached; the guest-specific part changes every visit */
-    system: [{ type: "text", text: TEA_KNOWLEDGE, cache_control: { type: "ephemeral" } }, { type: "text", text: teaMasterPrompt(body) }],
+    system: [{ type: "text", text: TEA_KNOWLEDGE, cache_control: { type: "ephemeral" } }, { type: "text", text: teaMasterPrompt(body, province(req)) }],
     messages }),
   });
   if (!upstream.ok) {

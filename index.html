@@ -3979,6 +3979,12 @@ initReviews();
         if(t<end) requestAnimationFrame(step); else{stop(); alone();}};
       requestAnimationFrame(step);},tea.steeped?5000+Math.random()*3000:22000+Math.random()*18000);};
   /* his greeting, for this moment on the mountain */
+  /* Guests in mainland China: the Worker can tell roughly which province from their connection (nothing is stored),
+     so he can guess it by name. A slow or failed lookup just leaves it out. */
+  let where=null;
+  const whereNow=()=>!chatUrl||!(country.cc==="CN"||ZH)?Promise.resolve(null):Promise.race([
+    fetch(chatUrl.replace(/\/chat$/,"/where"),{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.ok?r.json():null).catch(()=>null),
+    new Promise(r=>setTimeout(()=>r(null),1500))]).then(w=>where=w&&w.province?w:null);
   const greet=()=>{const S=scene(), m=S.moment, f=S.fest, fd=S.festDay, wx=S.weather, late=S.tod==="late", dark=late||S.tod==="night";
     const line={jingzhe:"Come in out of the drizzle, and mind the step.",qingming:"Come in out of the drizzle, and mind the step.",
       picking:"Forgive the smell of fresh leaves everywhere: it's harvest time, and we work through the night.",meiyu:"Come in out of the rain, it hasn't stopped for days.",
@@ -3999,8 +4005,8 @@ initReviews();
     const gentle=dark&&m!=="storms";
     /* "the United States", "the United Kingdom", "the Netherlands"… read better with "the" */
     const the=/^(United|Netherlands|Philippines|Czech)/.test(country.en)?"the ":"";
-    const from=country.en&&country.en!=="China"?`All the way from ${the}${country.en}? `:"";
-    const far=from?" I don’t often get guests from so far away.":"";
+    const from=where?(where.province==="福建"?`Are you here in Fujian too? Then we’re practically neighbours! `:`Are you over in ${where.provinceEn}? `):country.en&&country.en!=="China"?`All the way from ${the}${country.en}? `:"";
+    const far=from&&!where?" I don’t often get guests from so far away.":"";
     if(ZH){
       const zline={jingzhe:"外面下着毛毛雨，快进来，小心台阶。",qingming:"外面下着毛毛雨，快进来，小心台阶。",
         picking:"到处都是鲜叶的味道，别介意：现在是采茶季，我们晚上还要通宵做青。",meiyu:"快进来躲躲雨，这雨已经下了好几天了。",
@@ -4012,8 +4018,8 @@ initReviews();
         dongzhi:fd<0?"明天冬至，今晚我们在搓汤圆。":"今天冬至，一年里夜最长的一天。",laba:"今天腊八，炉子上熬着腊八粥呢。",chongyang:"今天重阳，好多人登高去了。",
         qingming:"今天清明，大家都上山扫墓去了。",zhongyuan:"今天是中元节，纪念先人的日子。",hanshan:"今天喊山了，你听到锣鼓声了吗？",
         doucha:"你来得正好，今天斗茶赛！",chabo:"这几天城里在办茶博会，忙得很。"})[f]||"";
-      const zup=up?"这么晚还没睡啊！":"", zfrom=country.zh&&!["CN","HK","MO","TW"].includes(country.cc)?`大老远从${country.zh}来的吧？`:"";
-      return `欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！我姓林，叫我林师傅就行。水刚烧开。${gentle?"这么晚了，我给你泡杯淡一点的，不耽误你睡觉。":""}想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom?"很少有客人从这么远的地方来。":""}`;}
+      const zup=up?"这么晚还没睡啊！":"", zfrom=where?(where.province==="福建"?"看样子你也在福建？那咱们是老乡啊！":`你是在${where.province}吧？`):country.zh&&!["CN","HK","MO","TW"].includes(country.cc)?`大老远从${country.zh}来的吧？`:"";
+      return `欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！我姓林，叫我林师傅就行。水刚烧开。${gentle?"这么晚了，我给你泡杯淡一点的，不耽误你睡觉。":""}想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom&&!where?"很少有客人从这么远的地方来。":""}`;}
     return `欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled.${gentle?" It’s late, so I’ll make yours a gentle one that won’t keep you up.":""} Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
   const CHIPS=ZH?["我第一次喝中国茶，该从哪里开始？","现在这个时候喝什么茶好？","武夷岩茶有什么特别？","中国其他地方有什么茶值得一试？","在家怎么泡工夫茶？","山上的日子是什么样的？"]:["I'm new to Chinese tea. Where should I start?","What tea suits this time of day?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
   let chipText=CHIPS;
@@ -4064,8 +4070,7 @@ initReviews();
   /* He welcomes the guest with open hands and opens the round while he greets them: hot water over the cups, the
      dry leaf held out for the guest to see, leaf into the pot, and the first water on. */
   const open=()=>{if(greeted||$("teahouse").hidden) return; greeted=true; setBusy(true); const el=add("him",`<span class="th-dots" aria-hidden="true"><span></span><span></span><span></span></span>`);
-    const t0=greet();
-    (ZH==="hant"&&window.chaToHant?window.chaToHant(t0).catch(()=>t0):Promise.resolve(t0))
+    whereNow().then(()=>{const t0=greet(); return ZH==="hant"&&window.chaToHant?window.chaToHant(t0).catch(()=>t0):t0;})
       .then(t=>speak(el,t,[{gesture:"welcome",at:0},{gesture:"warm",at:.2},{gesture:"show",at:.5},{gesture:"load",at:.66},{gesture:"brew",at:.86}],5)).then(()=>{setBusy(false); showChips(); alone();});};
   new MutationObserver(open).observe($("teahouse"),{attributes:true,attributeFilter:["hidden"]}); open();
   if(ZH){inp.placeholder=T("","问问林师傅…","問問林師傅…"); inp.setAttribute("aria-label",T("","你想对林师傅说的话","你想對林師傅說的話")); if(send.textContent.trim()==="Ask") send.textContent=T("","问","問");}
