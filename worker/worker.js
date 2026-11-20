@@ -231,6 +231,22 @@ const TEA_KNOWLEDGE = `以下是林师傅心里有数的茶知识。聊天时自
 - 不对台湾或任何地方的政治地位、主权、统独发表看法，也不替任何一方下结论。旅客追问或想争论，就笑着说自己只是个泡茶的，不谈政治，然后把话题带回茶上，例如“这个我不懂，不过阿里山的高山茶我可以跟你聊一下午”。
 - 其他政治、领土、民族之类的争议话题也一样，温和地岔开，不评论任何国家和人群。`;
 
+/* the guest's hour of day as a slot: early, morning, noon, afternoon, evening, night (20:00-23:59) or late (0:00-4:59) */
+function guestSlot(b) {
+  const gTime = clip(b?.guestTime, 20);
+  const hour = /^\d{1,2}:\d{2}$/.test(gTime) ? Number(gTime.split(":")[0]) : ({ late: 1, dawn: 6, day: 10, noon: 12, dusk: 18, night: 21 })[b?.tod];
+  return !Number.isInteger(hour) || hour > 23 ? "" : hour < 5 ? "late" : hour < 9 ? "early" : hour < 12 ? "morning" : hour < 14 ? "noon" : hour < 17 ? "afternoon" : hour < 20 ? "evening" : "night";
+}
+
+/* At night a short reminder rides on the guest's newest message: a rule buried in a long system prompt was ignored
+   ("Ah, green tea! Good choice for the evening"), one sitting next to the question is not. */
+function nightNote(b) {
+  const slot = guestSlot(b);
+  if (slot !== "night" && slot !== "late") return "";
+  const t = clip(b?.guestTime, 20);
+  return `\n\n（旁白，旅客看不到，也不要提起这段话：现在旅客那边是${slot === "late" ? "深夜" : "晚上"}${t ? t : ""}，林师傅是体贴的长辈，顾着他的睡眠。这一轮回答里：不要推荐，也不要夸绿茶、白茶芽茶、红茶、岩茶、单丛、乌龙这些茶“适合晚上”；不要说任何茶能助眠、让人平静或放松。他自己想喝这类茶，就照实说它有咖啡因，建议留到明天上午，或者今晚只泡得很淡、喝一小杯。你主动给的，只能是很淡的寿眉、陈年乌龙、淡熟普，或者菊花、大麦茶、陈皮水、白开水。）`;
+}
+
 function teaMasterPrompt(b) {
   const country = clip(b.country, 40) || "远方";
   const head = SEASON[b.season] && TOD[b.tod] ? SEASON[b.season] + "的" + TOD[b.tod] : SEASON[b.season] || TOD[b.tod] || "";
@@ -256,8 +272,7 @@ function teaMasterPrompt(b) {
   const gTime = clip(b.guestTime, 20);
   const guest = gSeason ? `旅客住在${gHemi}，他家乡那边现在也是${gSeason}${gTime ? `，当地时间${gTime}` : ""}。在你的茶店里，季节总是和旅客家乡一样：他那边是${gSeason}，你这里也是${gSeason}。说到他那边的季节、天气或时间时，以这个为准；不要自己用南北半球去推算季节相反，也不要说中国和他那边季节不同。` : "";
   /* what suits this hour and this season, for when the guest asks him what to drink */
-  const hour = /^\d{1,2}:\d{2}$/.test(gTime) ? Number(gTime.split(":")[0]) : ({ late: 1, dawn: 6, day: 10, noon: 12, dusk: 18, night: 21 })[b.tod];
-  const slot = !Number.isInteger(hour) || hour > 23 ? "" : hour < 5 ? "late" : hour < 9 ? "early" : hour < 12 ? "morning" : hour < 14 ? "noon" : hour < 17 ? "afternoon" : hour < 20 ? "evening" : "night";
+  const slot = guestSlot(b);
   const season = SEASON[b.guestSeason] ? b.guestSeason : SEASON[b.season] ? b.season : "";
   const BY_SLOT = {
     early: "清晨刚起，肚子还空着：宜温和、不刮胃的茶，例如滇红、祁红、熟普、老白茶；空腹不宜喝浓的绿茶和生普",
@@ -285,7 +300,7 @@ function teaMasterPrompt(b) {
 - 不要主动推荐、也不要主动给他泡咖啡因高的茶：任何绿茶（龙井、碧螺春、毛峰、安吉白茶、猴魁等）、白毫银针、生普、红茶、新焙的岩茶（包括你自己最拿手的大红袍、肉桂、水仙）、单丛、铁观音、台湾高山茶、茉莉花茶。他问“晚上喝什么”或请你推荐时，只从淡的寿眉、陈年乌龙、淡熟普，和菊花、大麦茶、陈皮水、白开水里挑。聊到这些茶可以照常聊，但要顺口说一句“这个留到明天上午再喝”。
 - 你手上给他泡的、添的，都换成很淡的：少放茶、快出汤，例如淡淡的寿眉或陈年乌龙；${slot === "late" ? "更好的是给他倒一杯白开水，或者泡菊花、大麦茶、陈皮水（它们不是茶，没有咖啡因），而且要劝他少喝一点、早点休息" : "也可以给他泡菊花、大麦茶或陈皮水（它们不是茶，没有咖啡因）"}。
 - 平时那句“我再给你添一杯”“换一泡新茶”，晚上要改成“给你换杯淡的”“喝口热水润润喉”这类话，不要一泡接一泡地劝茶。
-- 他自己坚持要喝浓茶，就尊重他，给他泡，但泡淡一点，温和地提醒一次就够了，不要说教。` : "";
+- 他点名要绿茶、红茶、岩茶这类茶时，不要说“好选择”“适合晚上”，更不要说它能让人平静或助眠（这不是真的）。照实告诉他它有咖啡因，建议明天上午再喝；他还是想喝，就尊重他，泡得很淡、只倒一小杯，温和地提醒一次就够了，不要说教。` : "";
   /* visitors from mainland China, Hong Kong, Macau and Taiwan (or with a Chinese browser) were greeted in Chinese */
   const lang = b.lang === "hant" ? "繁体字" : b.lang === "hans" ? "简体字" : "";
   const zh = lang ? `\n这位旅客来自华语地区（或者用的是中文浏览器），你已经用中文（${lang}）跟他打过招呼。他写中文，你就用中文、用${lang}回答${b.lang === "hant" ? "，用词也照港澳台的习惯" : ""}；他写英文或别的语言，就用他写的那种语言回答。跟中文旅客说中文时，茶名不用再附拼音。` : "";
@@ -320,6 +335,10 @@ async function chat(req, env, body, okOrigin) {
     .filter((m) => m.content);
   while (messages.length && messages[0].role !== "user") messages.shift();
   if (!messages.length || messages[messages.length - 1].role !== "user") return json({ error: "message_required" }, 400, okOrigin);
+  /* the guest's own words, before the night reminder is added (used to answer in their language) */
+  const asked = messages[messages.length - 1].content;
+  const note = nightNote(body);
+  if (note) messages[messages.length - 1] = { role: "user", content: asked + note };
 
   const rl = env.CHAT_RL || env.PAIR_RL;
   if (rl) {
@@ -343,7 +362,7 @@ async function chat(req, env, body, okOrigin) {
     return json({ error: "upstream", status: upstream.status }, 502, okOrigin);
   }
   const data = await upstream.json();
-  const zh = /[\u4e00-\u9fff]/.test(messages[messages.length - 1].content);
+  const zh = /[\u4e00-\u9fff]/.test(asked);
   /* If Claude declines (e.g. a threat or abuse), he stays in character and steers back to tea instead of an error. */
   if (data?.stop_reason === "refusal") {
     return json({ reply: zh ? "哎，这话我就不接了。来，先喝口茶，消消气，我们聊点别的吧。" : "Ah, I'll leave that one alone. Here, have some tea and let's talk about something else." }, 200, okOrigin);
