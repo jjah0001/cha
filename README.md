@@ -193,6 +193,10 @@ has no tea action in it, his hands carry the round on by one step while he talks
 When the guest asks what to drink, he recommends by their hour and season: `teaMasterPrompt` adds a short "按时辰和时令选茶"
 block built from the guest's local time (seven slots from early morning to late night), their season and the weather
 (`BY_SLOT`, `BY_SEASON`, `BY_WEATHER` in `worker/worker.js`). The guest's stated taste or food always comes first.
+For guests in mainland China he names their province: the Worker reads Cloudflare's approximate IP location
+(`request.cf.region`, `province()` and `PROVINCES` in `worker/worker.js`), the page asks `POST /where` before his
+greeting ("你是在广东吧？", "老乡" for Fujian) and `/chat` adds the province and its well-known teas to his prompt.
+Nothing is stored; behind a VPN there is simply no province.
 Failures are logged in the Worker (`npx wrangler tail`) and in the browser console.
 After changing the Worker, redeploy it: `cd worker && npx wrangler deploy`. Pushing to `main` only rebuilds the page;
 the Worker is not deployed by the Pages workflow.
