@@ -1140,6 +1140,12 @@ nav.chap{background:var(--page-top)}
           <img class="th-cup" id="thCup1" src="img/master-lin/cup-1.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
           <img class="th-cup" id="thCup2" src="img/master-lin/cup-2.webp" alt="" width="900" height="900" decoding="async" loading="lazy" aria-hidden="true">
         </div>
+        <script>/* who is at the table: picked here, before the page is first painted, so the other host never flashes up.
+           A fresh coin toss on every visit and every reload; ?host=lin or ?host=su previews one. */
+        (()=>{let h=""; try{h=(new URLSearchParams(location.search).get("host")||"").toLowerCase()}catch(e){}
+          if(h!=="lin"&&h!=="su") h=Math.random()<.5?"lin":"su"; window.chaHost=h; if(h!=="su") return;
+          document.querySelectorAll("#thMan img[data-pose]").forEach(i=>{i.src="img/master-su/"+(i.dataset.pose||"idle")+".webp";});
+          document.getElementById("thGaiwan").src="img/master-su/gaiwan.webp";})();</script>
         <div class="th-steam" aria-hidden="true"><i></i><i></i></div>
       </figure>
       <div class="th-chat">
@@ -3728,19 +3734,12 @@ initReviews();
   const stage=$("thScene");
   const quiet=()=>still()||document.hidden||$("teahouse").hidden;
   /* Two tea masters keep this table, Master Lin (林师傅) and Master Su (苏师傅), and either may be the one on duty:
-     chosen at random for each visit and kept for the rest of it (?host=lin or ?host=su previews one). Master Su is
+     chosen at random on each visit by the small script after the tea table (?host=lin or ?host=su previews one). Master Su is
      drawn in every pose he is, on the same tray, so her frames simply take the place of his. */
-  const HOST=(()=>{let h=""; try{h=(new URLSearchParams(location.search).get("host")||"").toLowerCase()}catch(e){}
-    if(h==="lin"||h==="su") return h;
-    try{h=sessionStorage.getItem("cha.host")||""}catch(e){}
-    if(h!=="lin"&&h!=="su") h=Math.random()<.5?"lin":"su";
-    try{sessionStorage.setItem("cha.host",h)}catch(e){}
-    return h;})(), SU=HOST==="su";
+  const HOST=window.chaHost==="su"?"su":"lin", SU=HOST==="su";
   const WHO=SU?{en:"Master Su",zh:"苏师傅",zht:"蘇師傅",img:"img/master-su/idle.webp"}:{en:"Master Lin",zh:"林师傅",zht:"林師傅",img:"img/master-lin/idle.webp"};
   if(SU){man.querySelectorAll("img[data-pose]").forEach(i=>{const k=i.dataset.pose;
-      i.src="img/master-su/"+(k||"idle")+".webp";
       if(!k) i.alt="Master Su at a complete gongfu tea tray: Yixing teapot, fairness pitcher and strainer, three celadon cups, kettle, tea tools and cloth";});
-    $("thGaiwan").src="img/master-su/gaiwan.webp";
     log.setAttribute("aria-label","Conversation with Master Su"); inp.placeholder="Ask Master Su…"; inp.setAttribute("aria-label","Your message to Master Su");
     const note=$("thNote"); if(note) note.textContent="Master Su is an AI character. She knows a lot about tea but can still be wrong, so check anything important. She answers in the language you write in. Your conversation isn’t saved.";}
   /* His frames: the idle drawing is always there; show() puts at most one pose over it ("" shows plain idle). */
