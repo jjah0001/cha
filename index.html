@@ -3729,7 +3729,7 @@ initReviews();
   const quiet=()=>still()||document.hidden||$("teahouse").hidden;
   /* Two tea masters keep this table, Master Lin (林师傅) and Master Su (苏师傅), and either may be the one on duty:
      chosen at random for each visit and kept for the rest of it (?host=lin or ?host=su previews one). Master Su is
-     only partly drawn so far: idle, the two low pours and the offered cup. For any other gesture she stays at rest. */
+     drawn in every pose he is, on the same tray, so her frames simply take the place of his. */
   const HOST=(()=>{let h=""; try{h=(new URLSearchParams(location.search).get("host")||"").toLowerCase()}catch(e){}
     if(h==="lin"||h==="su") return h;
     try{h=sessionStorage.getItem("cha.host")||""}catch(e){}
@@ -3737,9 +3737,7 @@ initReviews();
     try{sessionStorage.setItem("cha.host",h)}catch(e){}
     return h;})(), SU=HOST==="su";
   const WHO=SU?{en:"Master Su",zh:"苏师傅",zht:"蘇師傅",img:"img/master-su/idle.webp"}:{en:"Master Lin",zh:"林师傅",zht:"林師傅",img:"img/master-lin/idle.webp"};
-  if(SU){const DRAWN=new Set(["","pour-low","pour-gaiwan","offer"]);
-    man.querySelectorAll("img[data-pose]").forEach(i=>{const k=i.dataset.pose;
-      if(!DRAWN.has(k)){i.remove(); return}
+  if(SU){man.querySelectorAll("img[data-pose]").forEach(i=>{const k=i.dataset.pose;
       i.src="img/master-su/"+(k||"idle")+".webp";
       if(!k) i.alt="Master Su at a complete gongfu tea tray: Yixing teapot, fairness pitcher and strainer, three celadon cups, kettle, tea tools and cloth";});
     $("thGaiwan").src="img/master-su/gaiwan.webp";
@@ -3761,7 +3759,6 @@ initReviews();
   const ALIAS={"reach-pot":"reach-gaiwan","smell-lid":"smell-gaiwan-lid","pour-low":"pour-gaiwan","fill-pot":"brew-gaiwan"},
     PATCHED=new Set(["","blink","listen","talk-a","talk-b","talk-c","laugh","welcome","thinking","nod","point","smell","reach-cup","sip"]),
     patch=$("thGaiwan"), cupEls=[0,1,2].map(i=>$("thCup"+i));
-  if(SU) PATCHED.add("offer");
   /* The three cups are drawn empty. Once he has served, a small patch of tea is laid in each cup that still has
      tea in it (tea.cups: bit 0 the left cup, bit 1 the middle, bit 2 the right one, the guest's). CUPS says which
      cups a frame leaves on the tray untouched: a cup in his hand, or one the frame draws being filled, gets none. */
@@ -3899,8 +3896,8 @@ initReviews();
     ["offer",/\b(taste (this|it|that|some)|have a taste|try (this|it|some|a cup|a sip)|(take|have) a sip|here you (go|are)|have some|enjoy (it|this|your)|this cup|your cup|drink (up|it|this)|while it('s| is) (still )?(hot|warm)|careful,? it('s| is) hot)\b|尝尝|尝一|你尝|请尝|喝一口|喝口|请(喝|用|品|茶)|你试试|试试看|品一品|这杯|趁热|慢用|慢慢喝|小心烫/gi],
     ["smell",/\b(smell(s|ed|ing)?|aromas?|fragran(t|ce)|scents?|sniff|(lift|under) the lid)\b|闻|香气|香味|茶香|盖香/gi],
     ["laugh",/\b(ha(ha)+|he(he)+|lol|laugh(s|ed|ing)?|funny|joking|teasing)\b|\bha!|哈哈|呵呵|嘿嘿|好笑|开玩笑|[😄😂😆]/giu],
-    ["nod",/(?:^|[.!?]\s+)(yes|yeah|exactly|indeed|of course|certainly|absolutely|precisely|correct|that's (right|true)|quite right|you('re| are) right|I agree|well said|very good|ah,? yes)\b|(?:^|[。！？])\s*(对|是的|是啊|没错|当然|正是|说得对|说得好|可不是|好的|好啊)/gi],
-    ["think",/(?:^|[.!?]\s+)(hmm+|well,|let me think|good question|that's a (good|hard|difficult|tricky|interesting) (one|question)|how (shall|should|do|can) I (put|say|explain)|it depends|honestly|to be honest)|(?:^|[。！？])\s*(嗯|这个嘛|让我想想|我想想|好问题|怎么说呢|说实话|不好说|看情况)/gi],
+    ["nod",/(?:^|[.!?]\s+)(yes|yeah|exactly|indeed|of course|certainly|absolutely|precisely|correct|that's (right|true)|quite right|you('re| are) right|I agree|well said|very good|ah,? yes)\b|(?:^|[。！？])\s*(对|是的|是啊|是呀|对呀|没错|当然|正是|说得对|说得好|说得也是|可不是|好的|好啊|好呀)/gi],
+    ["think",/(?:^|[.!?]\s+)(hmm+|well,|let me think|good question|that's a (good|hard|difficult|tricky|interesting) (one|question)|how (shall|should|do|can) I (put|say|explain)|it depends|honestly|to be honest)|(?:^|[。！？])\s*(嗯|这个嘛|这个呀|让我想想|我想想|好问题|怎么说呢|说实话|不好说|看情况)/gi],
     ["point",/\b(the mountains?|these mountains|the peaks?|the cliffs?|the valley|the river|Nine.?Bend|out there|over there|outside|up the slope|the tea (garden|bushes|rows)|the mist|the fog|the rain|the snow|the weather)\b|山上|山里|山间|那边|外面|九曲|岩壁|峡谷|茶园|茶山|雾|下雨|下雪|天气/gi],
     ["welcome",/\b(welcome|come in|take a seat|sit,? sit|make yourself at home|nice to meet you|good to see you|my pleasure|goodbye|good ?night|see you|come back (any ?time|soon|again)|safe travels|take care)\b|欢迎|请坐|坐坐|随便坐|不客气|别客气|慢走|再见|晚安|下次再来|一路平安/gi]];
   /* he answers Hong Kong, Macau and Taiwan guests in Traditional characters, so each cue also matches its Traditional form */
@@ -4039,8 +4036,8 @@ initReviews();
         qingming:"今天清明，大家都上山扫墓去了。",zhongyuan:"今天是中元节，纪念先人的日子。",hanshan:"今天喊山了，你听到锣鼓声了吗？",
         doucha:"你来得正好，今天斗茶赛！",chabo:"这几天城里在办茶博会，忙得很。"})[f]||"";
       const zup=up?"这么晚还没睡啊！":"", zfrom=where?(where.province==="福建"?"看样子你也在福建？那咱们是老乡啊！":`你是在${where.province}吧？`):country.zh&&!["CN","HK","MO","TW"].includes(country.cc)?`大老远从${country.zh}来的吧？`:"";
-      return `欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！${SU?"我姓苏，叫我苏师傅就行。":"我姓林，叫我林师傅就行。"}水刚烧开。${gentle?"这么晚了，我给你泡杯淡一点的，不耽误你睡觉。":""}想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom&&!where?"很少有客人从这么远的地方来。":""}`;}
-    return `欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! ${SU?"My family name is Su, so just call me Master Su (苏师傅).":"My family name is Lin, so just call me Master Lin (林师傅)."} The kettle has just boiled.${gentle?" It’s late, so I’ll make yours a gentle one that won’t keep you up.":""} Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
+      return SU?`欢迎光临～${zfrom}${zup}${zfl}${zline}快请坐。我姓苏，叫我苏师傅就好。水刚烧开呢。${gentle?"这么晚了，我给你泡杯淡一点的，不耽误你休息哦。":""}想问什么茶都可以问我呀，中国哪里的茶都行，也可以跟我说说你自己。${zfrom&&!where?"难得有客人从这么远的地方来呢。":""}`:`欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！我姓林，叫我林师傅就行。水刚烧开。${gentle?"这么晚了，我给你泡杯淡一点的，不耽误你睡觉。":""}想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom&&!where?"很少有客人从这么远的地方来。":""}`;}
+    return SU?`欢迎光临！Welcome. ${from}${up}${fl}${line} Please, come and sit down. My family name is Su, so do call me Master Su (苏师傅). The kettle has just boiled.${gentle?" It’s late, so I’ll make you a gentle cup that won’t keep you awake.":""} Ask me anything you like about tea, from any part of China, or tell me a little about yourself.${far}`:`欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled.${gentle?" It’s late, so I’ll make yours a gentle one that won’t keep you up.":""} Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
   const CHIPS=ZH?["我第一次喝中国茶，该从哪里开始？","现在这个时候喝什么茶好？","武夷岩茶有什么特别？","中国其他地方有什么茶值得一试？","在家怎么泡工夫茶？","山上的日子是什么样的？"]:["I'm new to Chinese tea. Where should I start?","What tea suits this time of day?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
   let chipText=CHIPS;
   if(ZH==="hant"&&window.chaToHant) Promise.all(CHIPS.map(q=>window.chaToHant(q))).then(c=>{chipText=c; if(chips.children.length) showChips();}).catch(()=>{});
