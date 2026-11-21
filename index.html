@@ -1089,7 +1089,7 @@ nav.chap{background:var(--page-top)}
 
   <section id="teahouse" class="teahouse" hidden>
     <div class="sec-head"><h2>Tea house</h2><span class="han">茶馆</span>
-      <p>Step into a family tea house in the Wuyi Mountains and take a seat at the tea table. Ask the tea master, Master Lin (林师傅), anything about tea, or simply chat with him over a cup: he is curious about where you come from.</p></div>
+      <p>Step into a family tea house in the Wuyi Mountains and take a seat at the tea table. One of its two tea masters, Master Lin (林师傅) or Master Su (苏师傅), will be at the table. Ask them anything about tea, or simply chat over a cup: they are curious about where you come from.</p></div>
     <div class="th-wrap">
       <figure class="th-scene" id="thScene">
         <img class="th-room is-visible" src="img/teahouse-spring.webp" alt="" width="1536" height="1024" decoding="async">
@@ -1149,7 +1149,7 @@ nav.chap{background:var(--page-top)}
           <input id="thIn" maxlength="500" placeholder="Ask Master Lin…" aria-label="Your message to Master Lin">
           <button class="btn" id="thSend" type="submit">Ask</button>
         </form>
-        <p class="th-note">Master Lin is an AI character. He knows a lot about tea but can still be wrong, so check anything important. He answers in the language you write in. Your conversation isn’t saved.</p>
+        <p class="th-note" id="thNote">Master Lin is an AI character. He knows a lot about tea but can still be wrong, so check anything important. He answers in the language you write in. Your conversation isn’t saved.</p>
       </div>
     </div>
   </section>
@@ -1163,19 +1163,20 @@ nav.chap{background:var(--page-top)}
       <li><b>Only real teas.</b> Every tea here is confirmed by published sources, listed under “Sources and notes” at the foot of each page. Nothing is invented to fill a gap.</li>
       <li><b>For everyone.</b> Everything is explained in English, with the Chinese names alongside for when you shop or order. Chinese is written in two styles: simplified characters, used in mainland China, and traditional characters, used in Taiwan and Hong Kong. The 简/繁 switch at the top changes between them.</li>
       <li><b>Yours to keep.</b> Your shelf of teas stays in your own browser. Anyone can give a tea a star rating, without signing up.</li>
-      <li><b>A tea master to talk to.</b> In the Tea house, Master Lin (林师傅), an AI tea master from the Wuyi Mountains, answers your questions about tea in your own language, or simply keeps you company over a cup and asks about where you come from.</li>
+      <li><b>A tea master to talk to.</b> In the Tea house, Master Lin (林师傅) or Master Su (苏师傅), AI tea masters from the Wuyi Mountains, answer your questions about tea in your own language, or simply keep you company over a cup and ask about where you come from.</li>
       <li><b>A tea for today.</b> Each day Cha suggests a tea that suits your season, and everyone in your half of the world gets the same one.</li>
     </ul>
 
-    <h3>Tea with Master Lin</h3>
+    <h3>Tea with Master Lin and Master Su</h3>
     <p>In the <a href="#teahouse">Tea house</a> you take a seat at the counter of a small family tea shop beside the Nine-Bend Stream. Its owner is Master Lin <span class="zh">林师傅 <i>Lín shīfu</i></span>: Lin is his family name, and <i>shīfu</i> is the respectful word Chinese people use for a master of a craft. He has made rock tea here for decades, and as a young man he travelled through China’s tea regions, so he knows teas of all six colours from every province and from Taiwan, not only the ones from his own mountain.</p>
+    <p>Some days you’ll find Master Su <span class="zh">苏师傅 <i>Sū shīfu</i></span> at the table instead. She grew up in a tea-making family in Xingcun, a village at the foot of the same mountain, has made and roasted rock tea since she was a child, and travelled all over China and Taiwan to study tea. The two are old friends, and each will tell you what the other is busy with today. Which of them greets you is chosen at random each visit; everything below is true of both.</p>
     <ul>
       <li><b>Ask him about tea.</b> What to try first, how to brew it, where a tea comes from, or what a Chinese word on the packet means.</li>
       <li><b>Or just chat.</b> He likes company and is curious about where you come from: now and then he’ll ask about your home, what people drink there and what season it is for you.</li>
       <li><b>In your language.</b> He answers in whatever language you write in, and explains Chinese words as he goes.</li>
       <li><b>He knows what’s outside his window.</b> The season, the weather, the time of day and any festival, the same as the mountain behind the page.</li>
     </ul>
-    <p class="note">Master Lin is a made-up character played by an AI. He can be wrong, so check anything important, especially about health, and he never sells anything. Your conversation isn’t saved: when you leave the page, it’s gone. To answer you, the page sends your messages, the country your device’s time zone points to, and the scene on the mountain to an AI service (Anthropic’s Claude) through Cha’s own server.</p>
+    <p class="note">Master Lin and Master Su are made-up characters played by an AI. They can be wrong, so check anything important, especially about health, and they never sell anything. Your conversation isn’t saved: when you leave the page, it’s gone. To answer you, the page sends your messages, the country your device’s time zone points to, and the scene on the mountain to an AI service (Anthropic’s Claude) through Cha’s own server.</p>
 
     <h3>The mountain behind the page</h3>
     <p>Behind every page is a tea mountain in the Wuyi Mountains <span class="zh">武夷山 <i>Wǔyí Shān</i></span> of Fujian province, in south-east China, a UNESCO World Heritage Site and the home of “rock tea” <span class="zh">岩茶 <i>yánchá</i></span>, oolongs grown among the cliffs. You can make out rust-red sandstone peaks, small stone-walled terraces of tea bushes tucked in among them, the family tea house where the leaves are processed, and the Nine-Bend Stream <span class="zh">九曲溪 <i>Jiǔqū Xī</i></span> winding below, where visitors float down on bamboo rafts.</p>
@@ -3726,6 +3727,24 @@ initReviews();
   const still=()=>{try{return matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){return false}};
   const stage=$("thScene");
   const quiet=()=>still()||document.hidden||$("teahouse").hidden;
+  /* Two tea masters keep this table, Master Lin (林师傅) and Master Su (苏师傅), and either may be the one on duty:
+     chosen at random for each visit and kept for the rest of it (?host=lin or ?host=su previews one). Master Su is
+     only partly drawn so far: idle, the two low pours and the offered cup. For any other gesture she stays at rest. */
+  const HOST=(()=>{let h=""; try{h=(new URLSearchParams(location.search).get("host")||"").toLowerCase()}catch(e){}
+    if(h==="lin"||h==="su") return h;
+    try{h=sessionStorage.getItem("cha.host")||""}catch(e){}
+    if(h!=="lin"&&h!=="su") h=Math.random()<.5?"lin":"su";
+    try{sessionStorage.setItem("cha.host",h)}catch(e){}
+    return h;})(), SU=HOST==="su";
+  const WHO=SU?{en:"Master Su",zh:"苏师傅",zht:"蘇師傅",img:"img/master-su/idle.webp"}:{en:"Master Lin",zh:"林师傅",zht:"林師傅",img:"img/master-lin/idle.webp"};
+  if(SU){const DRAWN=new Set(["","pour-low","pour-gaiwan","offer"]);
+    man.querySelectorAll("img[data-pose]").forEach(i=>{const k=i.dataset.pose;
+      if(!DRAWN.has(k)){i.remove(); return}
+      i.src="img/master-su/"+(k||"idle")+".webp";
+      if(!k) i.alt="Master Su at a complete gongfu tea tray: Yixing teapot, fairness pitcher and strainer, three celadon cups, kettle, tea tools and cloth";});
+    $("thGaiwan").src="img/master-su/gaiwan.webp";
+    log.setAttribute("aria-label","Conversation with Master Su"); inp.placeholder="Ask Master Su…"; inp.setAttribute("aria-label","Your message to Master Su");
+    const note=$("thNote"); if(note) note.textContent="Master Su is an AI character. She knows a lot about tea but can still be wrong, so check anything important. She answers in the language you write in. Your conversation isn’t saved.";}
   /* His frames: the idle drawing is always there; show() puts at most one pose over it ("" shows plain idle). */
   const frames={}; man.querySelectorAll("img[data-pose]").forEach(i=>{frames[i.dataset.pose]=i;});
   let shown="", resting="", acting=0;
@@ -3742,6 +3761,7 @@ initReviews();
   const ALIAS={"reach-pot":"reach-gaiwan","smell-lid":"smell-gaiwan-lid","pour-low":"pour-gaiwan","fill-pot":"brew-gaiwan"},
     PATCHED=new Set(["","blink","listen","talk-a","talk-b","talk-c","laugh","welcome","thinking","nod","point","smell","reach-cup","sip"]),
     patch=$("thGaiwan"), cupEls=[0,1,2].map(i=>$("thCup"+i));
+  if(SU) PATCHED.add("offer");
   /* The three cups are drawn empty. Once he has served, a small patch of tea is laid in each cup that still has
      tea in it (tea.cups: bit 0 the left cup, bit 1 the middle, bit 2 the right one, the guest's). CUPS says which
      cups a frame leaves on the tray untouched: a cup in his hand, or one the frame draws being filled, gets none. */
@@ -3857,7 +3877,7 @@ initReviews();
   const follow=el=>{log.scrollTop=log.scrollHeight; if(log.scrollHeight<=log.clientHeight+2&&el){const r=el.getBoundingClientRect();
       if(r.bottom>innerHeight-8) window.scrollBy({top:r.bottom-innerHeight+16,behavior:still()?"auto":"smooth"});}};
   const add=(who,html,cls="")=>{const d=document.createElement("div"); d.className="th-msg "+(who==="me"?"me":"him")+(cls?" "+cls:"");
-    d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="img/master-lin/idle.webp" alt=""></span>`)+`<div class="say">${html}</div>`;
+    d.innerHTML=(who==="me"?"":`<span class="who" aria-hidden="true"><img src="${WHO.img}" alt=""></span>`)+`<div class="say">${html}</div>`;
     log.appendChild(d); follow(d); return d.querySelector(".say");};
   /* His gestures follow his words, not the AI: each one starts just before he says the words it belongs to.
      The tea ones, in the order of a round of gongfu tea:
@@ -4019,8 +4039,8 @@ initReviews();
         qingming:"今天清明，大家都上山扫墓去了。",zhongyuan:"今天是中元节，纪念先人的日子。",hanshan:"今天喊山了，你听到锣鼓声了吗？",
         doucha:"你来得正好，今天斗茶赛！",chabo:"这几天城里在办茶博会，忙得很。"})[f]||"";
       const zup=up?"这么晚还没睡啊！":"", zfrom=where?(where.province==="福建"?"看样子你也在福建？那咱们是老乡啊！":`你是在${where.province}吧？`):country.zh&&!["CN","HK","MO","TW"].includes(country.cc)?`大老远从${country.zh}来的吧？`:"";
-      return `欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！我姓林，叫我林师傅就行。水刚烧开。${gentle?"这么晚了，我给你泡杯淡一点的，不耽误你睡觉。":""}想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom&&!where?"很少有客人从这么远的地方来。":""}`;}
-    return `欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! My family name is Lin, so just call me Master Lin (林师傅). The kettle has just boiled.${gentle?" It’s late, so I’ll make yours a gentle one that won’t keep you up.":""} Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
+      return `欢迎光临！${zfrom}${zup}${zfl}${zline}请坐，请坐！${SU?"我姓苏，叫我苏师傅就行。":"我姓林，叫我林师傅就行。"}水刚烧开。${gentle?"这么晚了，我给你泡杯淡一点的，不耽误你睡觉。":""}想问什么茶都可以问我，中国哪里的茶都行，也可以跟我聊聊你自己。${zfrom&&!where?"很少有客人从这么远的地方来。":""}`;}
+    return `欢迎光临！Welcome, welcome. ${from}${up}${fl}${line} Sit, sit! ${SU?"My family name is Su, so just call me Master Su (苏师傅).":"My family name is Lin, so just call me Master Lin (林师傅)."} The kettle has just boiled.${gentle?" It’s late, so I’ll make yours a gentle one that won’t keep you up.":""} Ask me anything you like about tea, from any part of China, or tell me a bit about yourself.${far}`;};
   const CHIPS=ZH?["我第一次喝中国茶，该从哪里开始？","现在这个时候喝什么茶好？","武夷岩茶有什么特别？","中国其他地方有什么茶值得一试？","在家怎么泡工夫茶？","山上的日子是什么样的？"]:["I'm new to Chinese tea. Where should I start?","What tea suits this time of day?","What makes Wuyi rock tea special?","Which tea from another part of China should I try?","How do I brew tea gongfu style at home?","What's life like up here on the mountain?"];
   let chipText=CHIPS;
   if(ZH==="hant"&&window.chaToHant) Promise.all(CHIPS.map(q=>window.chaToHant(q))).then(c=>{chipText=c; if(chips.children.length) showChips();}).catch(()=>{});
@@ -4032,16 +4052,16 @@ initReviews();
     /* the guest has had time to drink: a cup he held out to them comes back empty, and so does one left standing a while */
     if(tea.cups&4&&(tea.offered||++tea.sat>=2)){tea.cups&=~4; tea.offered=false; tea.sat=0; show(asked);}
     chips.innerHTML=""; add("me",para(q)); msgs.push({role:"user",content:q}); inp.value="";
-    if(!chatUrl){add("him",T("Master Lin isn’t available on this copy of the site.","这个版本的网站没有接通林师傅。","這個版本的網站沒有接通林師傅。"),"err"); return}
+    if(!chatUrl){add("him",T(WHO.en+" isn’t available on this copy of the site.","这个版本的网站没有接通"+WHO.zh+"。","這個版本的網站沒有接通"+WHO.zht+"。"),"err"); return}
     /* he hears the guest out, nods that he has understood (or laughs along with a guest who is laughing), then
        sits back to think, hand at his chin, until his answer comes */
     let waiting=true; const funny=HEARD.test(q);
     const heardT=setTimeout(()=>{if(waiting){resting=funny?"laugh":"nod"; rest();}},420),
       ponder=setTimeout(()=>{if(waiting){resting="thinking"; rest();}},funny?1650:1150);
-    setBusy(true); const say=add("him",`<span class="th-dots" aria-label="Master Lin is thinking"><span></span><span></span><span></span></span>`);
+    setBusy(true); const say=add("him",`<span class="th-dots" aria-label="${WHO.en} is thinking"><span></span><span></span><span></span></span>`);
     try{const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),45000);
       const r=await fetch(chatUrl,{method:"POST",headers:{"content-type":"application/json"},signal:ctl.signal,
-        body:JSON.stringify({messages:msgs.slice(-16),country:country.zh,lang:ZH,...scene(),...guest()})}); clearTimeout(to);
+        body:JSON.stringify({messages:msgs.slice(-16),country:country.zh,lang:ZH,host:HOST,...scene(),...guest()})}); clearTimeout(to);
       if(r.status===429) throw {code:"rate"};
       if(!r.ok){let why="";try{why=(await r.json()).error||""}catch(e){} console.warn("Master Lin: chat failed",r.status,why); throw {code:"up"};}
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
@@ -4059,7 +4079,7 @@ initReviews();
       cues.sort((a,b)=>a.at-b.at);
       waiting=false; clearTimeout(heardT); clearTimeout(ponder); resting=""; await speak(say,reply,cues);
     }catch(e){if(!(e&&e.code)) console.warn("Master Lin: chat failed",e); msgs.pop(); say.parentElement.classList.add("err");
-      say.innerHTML=para(e&&e.code==="rate"?T("Master Lin is busy pouring for other guests. Wait a minute, then ask again.","林师傅正忙着给别的客人倒茶，请等一分钟再问。","林師傅正忙著給別的客人倒茶，請等一分鐘再問。"):T("Sorry, Master Lin couldn’t be reached just now. Please try again in a moment.","抱歉，现在联系不上林师傅，请稍后再试。","抱歉，現在聯繫不上林師傅，請稍後再試。"));}
+      say.innerHTML=para(e&&e.code==="rate"?T(WHO.en+" is busy pouring for other guests. Wait a minute, then ask again.",WHO.zh+"正忙着给别的客人倒茶，请等一分钟再问。",WHO.zht+"正忙著給別的客人倒茶，請等一分鐘再問。"):T("Sorry, "+WHO.en+" couldn’t be reached just now. Please try again in a moment.","抱歉，现在联系不上"+WHO.zh+"，请稍后再试。","抱歉，現在聯繫不上"+WHO.zht+"，請稍後再試。"));}
     waiting=false; clearTimeout(heardT); clearTimeout(ponder); listen(false); setBusy(false); alone(); if(window.matchMedia("(hover:hover)").matches) inp.focus();}
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
   /* he looks up and listens while the guest is typing */
@@ -4073,7 +4093,7 @@ initReviews();
     whereNow().then(()=>{const t0=greet(); return ZH==="hant"&&window.chaToHant?window.chaToHant(t0).catch(()=>t0):t0;})
       .then(t=>speak(el,t,[{gesture:"welcome",at:0},{gesture:"warm",at:.2},{gesture:"show",at:.5},{gesture:"load",at:.66},{gesture:"brew",at:.86}],5)).then(()=>{setBusy(false); showChips(); alone();});};
   new MutationObserver(open).observe($("teahouse"),{attributes:true,attributeFilter:["hidden"]}); open();
-  if(ZH){inp.placeholder=T("","问问林师傅…","問問林師傅…"); inp.setAttribute("aria-label",T("","你想对林师傅说的话","你想對林師傅說的話")); if(send.textContent.trim()==="Ask") send.textContent=T("","问","問");}
-  if(!chatUrl){inp.placeholder=T("Master Lin isn’t available on this copy of the site","这个版本的网站没有接通林师傅","這個版本的網站沒有接通林師傅"); inp.disabled=true; send.disabled=true;}
+  if(ZH){inp.placeholder=T("","问问"+WHO.zh+"…","問問"+WHO.zht+"…"); inp.setAttribute("aria-label",T("","你想对"+WHO.zh+"说的话","你想對"+WHO.zht+"說的話")); if(send.textContent.trim()==="Ask") send.textContent=T("","问","問");}
+  if(!chatUrl){inp.placeholder=T(WHO.en+" isn’t available on this copy of the site","这个版本的网站没有接通"+WHO.zh,"這個版本的網站沒有接通"+WHO.zht); inp.disabled=true; send.disabled=true;}
 })();
 </script>
