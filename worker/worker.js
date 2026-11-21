@@ -265,12 +265,14 @@ function guestSlot(b) {
   return !Number.isInteger(hour) || hour > 23 ? "" : hour < 5 ? "late" : hour < 9 ? "early" : hour < 12 ? "morning" : hour < 14 ? "noon" : hour < 17 ? "afternoon" : hour < 20 ? "evening" : "night";
 }
 
-/* At night a short reminder rides on the guest's newest message: a rule buried in a long system prompt was ignored
+/* In the evening and at night a short reminder rides on the guest's newest message: a rule buried in a long system prompt was ignored
    ("Ah, green tea! Good choice for the evening"), one sitting next to the question is not. */
 function nightNote(b) {
   const slot = guestSlot(b);
-  if (slot !== "night" && slot !== "late") return "";
   const t = clip(b?.guestTime, 20);
+  /* in the evening (17:00-19:59) the same nudge, gentler: bedtime is a few hours off */
+  if (slot === "evening") return `\n\n（旁白，旅客看不到，也不要提起这段话：现在旅客那边是傍晚${t ? t : ""}，离睡觉不远了。这一轮如果要推荐茶或给他泡茶，优先选咖啡因偏低一些的：寿眉、熟普、六堡、安化黑茶、陈年乌龙，泡淡一点；不要说绿茶、白毫银针、红茶、生普、新焙的岩茶“适合晚上”，这些留到明天上午。不要说任何茶能助眠。）`;
+  if (slot !== "night" && slot !== "late") return "";
   return `\n\n（旁白，旅客看不到，也不要提起这段话：现在旅客那边是${slot === "late" ? "深夜" : "晚上"}${t ? t : ""}，${b?.host === "su" ? "苏师傅是体贴的主人" : "林师傅是体贴的长辈"}，顾着他的睡眠。这一轮回答里：不要推荐，也不要夸绿茶、白茶芽茶、红茶、岩茶、单丛、乌龙这些茶“适合晚上”；不要说任何茶能助眠、让人平静或放松。他自己想喝这类茶，就照实说它有咖啡因，建议留到明天上午，或者今晚只泡得很淡、喝一小杯。你主动给的，只能是很淡的寿眉、陈年乌龙、淡熟普，或者菊花、大麦茶、陈皮水、白开水。）`;
 }
 
@@ -324,7 +326,7 @@ function teaMasterPrompt(b, where) {
     morning: "上午精神最好，最能尝出细腻的香气，也不怕咖啡因：宜清鲜提神的茶，例如龙井、碧螺春、黄山毛峰等绿茶（嫩芽做的绿茶咖啡因偏高，正好提神），白毫银针，清香铁观音、台湾高山茶",
     noon: "中午饭后：宜解腻、有骨架的茶，例如武夷岩茶（水仙、肉桂）、凤凰单丛、生普、茉莉花茶",
     afternoon: "下午是慢慢喝工夫茶的时候：宜香气和层次丰富的乌龙，例如大红袍、肉桂、凤凰单丛、东方美人、冻顶乌龙；也可以配点茶点喝红茶",
-    evening: "傍晚饭后：宜醇和、解腻、暖胃的茶，例如熟普、六堡茶、陈年岩茶、正山小种、安化黑茶；这些茶也有咖啡因，怕睡不着的客人要提醒他泡淡一点、少喝几杯",
+    evening: "傍晚饭后，离睡觉不远了：宜醇和、解腻、暖胃、咖啡因偏低一些的茶，例如寿眉、熟普、六堡茶、安化黑茶、陈年乌龙，泡淡一点、少喝几杯；嫩芽做的绿茶、白毫银针、红茶（包括正山小种）、生普和新焙的岩茶咖啡因偏高，留到明天上午或下午再喝。这些茶也都有咖啡因，要照实说",
     night: "晚上要顾着睡眠，而所有的茶都有咖啡因：宜用成熟叶子做的、温润的茶，例如寿眉（可以煮着喝）、陈年乌龙，少放茶、泡淡一点、只喝一两小杯；不要推荐嫩芽做的绿茶、白毫银针、生普或浓的红茶。要老实告诉他这不是无咖啡因，对咖啡因敏感的话可以改喝菊花、大麦茶或陈皮水（它们不是茶）",
     late: "深夜了，所有的茶都有咖啡因：最多喝一小杯泡得很淡的寿眉，或者干脆喝菊花、大麦茶、陈皮水（它们不是茶，没有咖啡因）；要像长辈一样提醒他少喝一点、早点休息，想喝好茶留到明天上午",
   };

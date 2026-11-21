@@ -1170,7 +1170,7 @@ nav.chap{background:var(--page-top)}
       <li><b>For everyone.</b> Everything is explained in English, with the Chinese names alongside for when you shop or order. Chinese is written in two styles: simplified characters, used in mainland China, and traditional characters, used in Taiwan and Hong Kong. The 简/繁 switch at the top changes between them.</li>
       <li><b>Yours to keep.</b> Your shelf of teas stays in your own browser. Anyone can give a tea a star rating, without signing up.</li>
       <li><b>A tea master to talk to.</b> In the Tea house, Master Lin (林师傅) or Master Su (苏师傅), AI tea masters from the Wuyi Mountains, answer your questions about tea in your own language, or simply keep you company over a cup and ask about where you come from.</li>
-      <li><b>A tea for today.</b> Each day Cha suggests a tea that suits your season, and everyone in your half of the world gets the same one.</li>
+      <li><b>A tea for today.</b> Each day Cha suggests a tea that suits your season, and everyone in your half of the world gets the same one. After 6 pm it waits for morning, and the card offers a gentler evening cup instead.</li>
     </ul>
 
     <h3>Tea with Master Lin and Master Su</h3>
@@ -3209,20 +3209,40 @@ function teaOfDay(){
   const start=seasonStart(now), i=dayNo(now)-dayNo(start);
   return {t:seasonSeq(start,h,i+1,true)[i],season,h,term};
 }
+/* After dark the day's tea waits for morning: a spring day's tea is usually a bud-rich green, which is exactly what
+   should not be poured at 10 pm. From 6 pm to 5 am (the visitor's own clock, or ?time= in a preview) the card offers an
+   evening cup instead, from mature-leaf and aged teas, the same ones the tea house hosts pour at night. These tend to
+   carry less caffeine than bud and young-leaf teas, but none is caffeine-free, so the card says so and says brew light. */
+const EVENING_POOL=t=>t.id==="shoumei"||t.id==="shupu"||t.id==="liubao"||t.id==="laochatou"||(t.type==="dark"&&/\bmature\b|stems/i.test(t.harvest||""));
+function totdHour(){return TOD_FORCE?{late:2,dawn:6,day:10,noon:13,dusk:18,night:21}[TOD_FORCE]:new Date().getHours()}
+function eveningSlot(hr=totdHour()){return hr<5?"late":hr>=18?"evening":""}
+function eveningCup(day){
+  const now=new Date(), h=hemisphere(), pool=T.filter(EVENING_POOL);
+  /* the evening that began after 6 pm runs on past midnight, so the small hours keep the cup poured the night before */
+  const d=now.getHours()<5?new Date(now.getFullYear(),now.getMonth(),now.getDate()-1):now;
+  const seq=shuffled(pool,"evening|"+h+"|"+d.getFullYear()), n=dayNo(d);
+  let t=seq[n%seq.length]; if(t.id===day.id) t=seq[(n+1)%seq.length];
+  return t}
 function paintTOTD(){
-  const {t,season,h,term}=teaOfDay(), ty=DATA.types[t.type], S=SEASON[season];
-  const el=$("totd"); el.className="totd c-"+t.type; el.dataset.term=term[2];
+  const day=teaOfDay(), {season,h,term}=day, S=SEASON[season], slot=eveningSlot();
+  const t=slot?eveningCup(day.t):day.t, ty=DATA.types[t.type];
+  paintTOTD.slot=slot;
+  const why=!slot?S.line:slot==="late"?"It's the small hours where you are, so the day's tea can wait until morning. If you do want a cup, make it a mature-leaf or aged tea, brewed very light, and just one small cup. Hot water, chrysanthemum or barley tea won't keep you up at all.":"It's evening where you are, so the day's tea can wait until morning. Tonight's cup is a mature-leaf or aged tea: these tend to carry less caffeine than bud and young-leaf teas, though no tea is caffeine-free.";
+  const tn=!slot?`Brew at ${tempTxt(t)}, first steep ${esc(t.time)}.`:`${slot==="late"?"Brew it very light: a pinch of leaf, quick pours, one small cup.":"Brew it light tonight: about half the usual leaf, quick pours, a cup or two."} Today's tea, ${esc(day.t.en)}, will be here in the morning.`;
+  const el=$("totd"); el.className="totd c-"+t.type; el.dataset.term=term[2]; el.dataset.slot=slot||"day";
   el.innerHTML=`<div class="art">${art(t,"d")}</div>
-   <div><div class="tk"><span>Tea of the day</span><span class="term">${S.zh} · ${term[2]} ${esc(term[3])}</span></div>
+   <div><div class="tk"><span>${slot?"Tonight's cup":"Tea of the day"}</span><span class="term">${S.zh} · ${term[2]} ${esc(term[3])}</span></div>
     <div class="tz">${t.zh}</div><div class="te">${esc(t.en)} <span style="font-size:15px;color:var(--ink-2)">· ${esc(ty.en)} tea</span></div>
-    <p class="why">${esc(S.line)}</p>
-    <p class="tn">${esc(t.notes)}. Brew at ${tempTxt(t)}, first steep ${esc(t.time)}.</p>
+    <p class="why">${esc(why)}</p>
+    <p class="tn">${esc(t.notes)}. ${tn}</p>
     <div class="acts"><button class="btn" id="tdOpen">Open and brew</button><button class="btn ghost" id="tdAdd">${SHELF[t.id]?"On your shelf ✓":"Want to try"}</button></div>
-    <div class="hemi">Everyone in your hemisphere gets the same tea today. Season based on the ${h==="S"?"southern":"northern"} hemisphere, ${h!==tzHemi()?"as you chose":"from your device's time zone"}. In China it's ${term[2]} (${esc(term[3])}). <button id="tdHemi">Switch to ${h==="S"?"northern":"southern"}</button></div></div>`;
+    <div class="hemi">Everyone in your hemisphere gets the same ${slot?"cup tonight":"tea today"}. Season based on the ${h==="S"?"southern":"northern"} hemisphere, ${h!==tzHemi()?"as you chose":"from your device's time zone"}. In China it's ${term[2]} (${esc(term[3])}). <button id="tdHemi">Switch to ${h==="S"?"northern":"southern"}</button></div></div>`;
   $("tdOpen").onclick=()=>{prov=null;setFilter("all");select(t.id);go("atlas");setTimeout(()=>{const b=$("brewer");if(b)b.scrollIntoView({behavior:"smooth",block:"center"})},150)};
   $("tdAdd").onclick=()=>{if(!SHELF[t.id]){SHELF[t.id]={st:"wish",g:null,y:null,r:0,n:"",at:Date.now()};saveShelf();toast(`${t.en} · Want to try`)} paintTOTD()};
   $("tdHemi").onclick=()=>{const to=h==="S"?"N":"S"; setHemi(to===tzHemi()?null:to);};
 }
+/* a page left open across 6 pm, midnight or 5 am changes cups without a reload */
+setInterval(()=>{if(eveningSlot()!==paintTOTD.slot) paintTOTD();},60000);
 
 /* ── views ── */
 const VIEWS=["colours","atlas","pairing","test","shelf","teahouse","about"];
