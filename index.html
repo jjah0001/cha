@@ -3744,7 +3744,7 @@ initReviews();
     const note=$("thNote"); if(note) note.textContent="Master Su is an AI character. She knows a lot about tea but can still be wrong, so check anything important. She answers in the language you write in. Your conversation isn’t saved.";}
   /* His frames: the idle drawing is always there; show() puts at most one pose over it ("" shows plain idle). */
   const frames={}; man.querySelectorAll("img[data-pose]").forEach(i=>{frames[i.dataset.pose]=i;});
-  let shown="", resting="", acting=0;
+  let shown="", resting="", acting=0, shownAt=0;
   /* a cut: the old frame off and the new one on in the same paint. A frame that hasn't loaded and decoded yet is
      skipped and he stays as he is, so a cut never shows an empty stage. */
   const ready=new Set([""]);
@@ -3774,7 +3774,7 @@ initReviews();
     patch.classList.toggle("on",gw&&PATCHED.has(name));
     const full=tea.cups&(name in CUPS?CUPS[name]:7); cupEls.forEach((c,i)=>c.classList.toggle("on",!!(full>>i&1)&&ready.has("+cup"+i)));
     if(name===shown) return;
-    frames[shown].classList.remove("on"); frames[name].classList.add("on"); shown=name;};
+    frames[shown].classList.remove("on"); frames[name].classList.add("on"); shown=name; shownAt=performance.now();};
   /* the vessel changes between replies, and only once every gaiwan drawing has loaded. A change of vessel is a
      change of tea, so the new vessel starts dry and empty; what is already in the pitcher and the cups stays. */
   const setVessel=on=>{on=!!on&&ready.has("+gaiwan")&&Object.keys(frames).every(n=>!/gaiwan/.test(n)||ready.has(n)); if(on===gw) return;
@@ -3789,7 +3789,7 @@ initReviews();
   const stop=()=>{acting=0; rest();};
   /* he blinks every few seconds while resting, now and then twice; the blink frame only fits the idle head */
   const blink=()=>{setTimeout(()=>{
-      if(!acting&&shown===""&&!quiet()){show("blink");
+      if(!acting&&shown===""&&!quiet()&&performance.now()-shownAt>350){show("blink");
         setTimeout(()=>{if(shown==="blink") show("");
           if(Math.random()<.2) setTimeout(()=>{if(!acting&&shown===""){show("blink"); setTimeout(()=>{if(shown==="blink") show("")},110);}},150);},120);}
       blink();},2600+Math.random()*3800);};
@@ -3973,8 +3973,12 @@ initReviews();
     const step=now=>{if(run!==acting){if(!done){done=true; el.innerHTML=para(text); follow(el.parentElement); res();} return;}
       const t=now-t0, k=Math.min(1,t/dur), g=tl.find(c=>t>=c.start&&t<c.end);
       if(g) act(g);
-      else if(t<dur){if(now>=flip){mouth^=1; flip=now+(mouth?260+Math.random()*420:380+Math.random()*640);}
-        const up=breaks.filter(b=>b<=k).length%2===1; show(mouth?(up?"talk-a":"talk-c"):(up?"talk-b":""));}
+      else if(t<dur){
+        /* the mouth and hands only change when the last drawing has been up long enough to be seen, and not just
+           before a gesture begins: a drawing that is up for a frame or two reads as a flicker, not as speech */
+        const soon=tl.some(c=>c.start>t&&c.start-t<160), steady=now-shownAt>=130;
+        if(steady&&!soon){if(now>=flip){mouth^=1; flip=now+(mouth?260+Math.random()*420:380+Math.random()*640);}
+          const up=breaks.filter(b=>b<=k).length%2===1; show(mouth?(up?"talk-a":"talk-c"):(up?"talk-b":""));}}
       else show(resting);
       if(!done){el.innerHTML=para(text.slice(0,Math.ceil(text.length*k))); log.scrollTop=log.scrollHeight;
         if(k>=1){done=true; follow(el.parentElement); res();}}
@@ -3985,6 +3989,8 @@ initReviews();
      pot is decanted within seconds, as it must be, and after that, every half minute or so, he shares the tea
      round, holds a cup out, drinks his own, starts the next infusion. Three steps at most, then he waits. */
   let quietT=0, quietN=0;
+  /* resolves once whatever the hands are doing has been played to the end */
+  const settled=()=>new Promise(r=>{const f=()=>acting&&!still()?requestAnimationFrame(f):r(); f();});
   const alone=()=>{clearTimeout(quietT); if(quietN>=3) return;
     quietT=setTimeout(()=>{
       if(busy||acting||quiet()||inp.value.trim()) return alone();
@@ -3992,7 +3998,7 @@ initReviews();
       quietN++; const run=++acting, t0=performance.now(), end=tl[tl.length-1].end;
       const step=now=>{if(run!==acting) return; const t=now-t0, g=tl.find(c=>t>=c.start&&t<c.end);
         if(g) act(g); else show(resting);
-        if(t<end) requestAnimationFrame(step); else{stop(); alone();}};
+        if(t<end) requestAnimationFrame(step); else{stop(); if(!busy) alone();}};
       requestAnimationFrame(step);},tea.steeped?5000+Math.random()*3000:22000+Math.random()*18000);};
   /* his greeting, for this moment on the mountain */
   /* Guests in mainland China: the Worker can tell roughly which province from their connection (nothing is stored),
@@ -4044,7 +4050,8 @@ initReviews();
     chips.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>ask(b.textContent)));};
   const setBusy=b=>{busy=b; inp.disabled=b||!chatUrl; send.disabled=b||!chatUrl; chips.querySelectorAll("button").forEach(x=>x.disabled=b);};
   async function ask(q){q=String(q||"").trim().slice(0,500); if(!q||busy) return;
-    clearTimeout(quietT); quietN=0; stop(); listen(true);
+    /* a pour already under way is finished and the pot set down, as anyone would, before the host turns to the guest */
+    clearTimeout(quietT); quietN=0; if(!acting) stop(); listen(true);
     /* the guest has had time to drink: a cup he held out to them comes back empty, and so does one left standing a while */
     if(tea.cups&4&&(tea.offered||++tea.sat>=2)){tea.cups&=~4; tea.offered=false; tea.sat=0; show(asked);}
     chips.innerHTML=""; add("me",para(q)); msgs.push({role:"user",content:q}); inp.value="";
@@ -4063,7 +4070,8 @@ initReviews();
       const d=await r.json(); const raw=String(d.reply||"").trim(); if(!raw) throw {code:"up"};
       const T=tidy(raw), reply=T.text;
       msgs.push({role:"assistant",content:reply});
-      /* he brews in the vessel that suits the tea he is talking about */
+      /* he brews in the vessel that suits the tea he is talking about, once the step in his hands is finished */
+      await settled();
       {const v=vesselFor(reply); if(v!==null) setVessel(v);}
       const cues=cuesFor(reply), has=g=>cues.some(c=>c.gesture===g);
       /* what the guest asked for with their own words, or what he wrote as a stage direction, he does as he starts to answer */
@@ -4080,7 +4088,7 @@ initReviews();
   form.addEventListener("submit",e=>{e.preventDefault(); ask(inp.value)});
   /* he looks up and listens while the guest is typing */
   inp.addEventListener("input",()=>{if(!busy) listen(inp.value.trim()!=="");});
-  inp.addEventListener("blur",()=>{if(!busy) listen(false);});
+  inp.addEventListener("blur",()=>setTimeout(()=>{if(!busy&&document.activeElement!==inp) listen(false);},150));
   /* greet the first time the tea house is opened */
   let greeted=false;
   /* He welcomes the guest with open hands and opens the round while he greets them: hot water over the cups, the
