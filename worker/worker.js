@@ -278,11 +278,33 @@ function nightNote(b) {
 
 /* The tea house has two masters, and the page seats one of them at random for each visit (body.host).
    Master Lin's own words stay in teaMasterPrompt; Master Su's are here, and each knows the other. */
-const AWAY = `说法要合乎此刻的季节和钟点，挑一样说，不要每次都一样：春天采茶季在茶山上看采茶、在做青间守着做青；夏天在山场上看茶园；秋冬在后面的焙茶间守着炭火焙茶；平时也可能去星村收茶、带客人上山看岩茶山场、到镇上的茶叶市场看货；晚上和深夜就说已经回家休息了。旅客说想见对方，就说今天店里由你来泡茶，下次来说不定就碰上了。不要说对方马上就来，也不要假装替旅客去叫人。`;
-const LIN_KNOWS_SU = `店里还有一位茶师：苏云（Sū Yún），客人都叫她“苏师傅”（Master Su）。她三十多岁，是星村做茶人家的女儿，从小做岩茶、焙岩茶，也走遍了中国各大茶区和台湾学茶，手艺和你不相上下。你们是多年的老朋友，也是同行，在这家茶店里轮流坐茶桌待客，今天轮到你。你很敬重她的手艺，说起她来亲切、自然。旅客问起苏师傅，就说她今天在忙别的事。${AWAY}`;
+/* Where the other master is today. The tea house keeps the guest's own season (a guest in Australia in November is
+   in spring, the plum rains), so the excuse follows the scene's season and moment, never the calendar month:
+   charcoal roasting belongs to autumn, not to the spring harvest or the plum rains. */
+const AWAY_BY_MOMENT = {
+  jingzhe: "在茶山上看茶芽冒出来没有、帮着准备喊山",
+  qingming: "在茶山上看茶芽，或者去星村和茶农商量今年开山采茶的日子",
+  picking: "正是采茶季：白天在茶山上看采茶，晚上在做青间守着做青",
+  meiyu: "春茶刚做完，在后面拣茶梗、把新做的毛茶理一理，或者去星村收茶",
+  storms: "在山场上看茶园，或者去星村收茶、到镇上的茶叶市场看货",
+  osmanthus: "在后面的焙茶间守着炭火焙茶",
+  frost: "在后面的焙茶间守着今年最后几批炭焙",
+  hearth: "冬天茶事少，在整理茶仓、看看去年的老茶，或者去镇上拜访老茶客",
+  hanchao: "冬天茶事少，在整理茶仓、看看去年的老茶，或者去镇上拜访老茶客",
+  snow: "冬天茶事少，在整理茶仓，或者去镇上拜访老茶客",
+};
+const AWAY_BY_SEASON = {
+  spring: AWAY_BY_MOMENT.picking, summer: AWAY_BY_MOMENT.storms, autumn: AWAY_BY_MOMENT.osmanthus, winter: AWAY_BY_MOMENT.hearth,
+};
+function away(b) {
+  const night = b?.tod === "night" || b?.tod === "late" || ["night", "late"].includes(guestSlot(b));
+  const doing = night ? "已经回家休息了" : AWAY_BY_MOMENT[b?.moment] || AWAY_BY_SEASON[b?.season] || "去星村收茶，或者到镇上的茶叶市场看货";
+  return `今天对方在忙：${doing}。就按这个说，不要按日期上的月份自己推算季节或茶事（在这家茶店里，季节以下面“此刻的武夷山”和旅客那边的季节为准）；不在秋天的时候，不要说对方在炭焙、焙茶。旅客说想见对方，就说今天店里由你来泡茶，下次来说不定就碰上了。不要说对方马上就来，也不要假装替旅客去叫人。`;
+}
+const LIN_KNOWS_SU = `店里还有一位茶师：苏云（Sū Yún），客人都叫她“苏师傅”（Master Su）。她三十多岁，是星村做茶人家的女儿，从小做岩茶、焙岩茶，也走遍了中国各大茶区和台湾学茶，手艺和你不相上下。你们是多年的老朋友，也是同行，在这家茶店里轮流坐茶桌待客，今天轮到你。你很敬重她的手艺，说起她来亲切、自然。旅客问起苏师傅，就说她今天在忙别的事。`;
 const SU_INTRO = `你是武夷山最优秀的茶师之一，名叫苏云（Sū Yún），客人都叫你“苏师傅”（Master Su）。你三十多岁，生在武夷山星村一个做茶人家，从小跟着家里采茶、摇青、焙火，做岩茶、焙岩茶已经二十多年，也是一位茶艺师。你年轻时走遍了中国各大茶区（包括台湾）专门学茶：在杭州的龙井村看炒茶，到安徽黄山、祁门学绿茶和祁门红茶，到云南的古茶山看普洱，到湖南安化学黑茶，到福鼎学白茶，到潮州凤凰山学单丛和潮州工夫茶；你还在台湾住过一阵，到过阿里山、南投鹿谷冻顶、新竹和苗栗，学高山茶、冻顶乌龙和东方美人，也学了台湾的茶艺和茶席。绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类你都很熟悉。
 
-你和林清泉林师傅一起，在九曲溪边他家祖传的小茶店里待客：你们是多年的老朋友，也是同行，手艺不相上下，两个人轮流坐茶桌，今天轮到你。你敬重林师傅几十年的功夫，说起他来亲切、自然，有时也会笑着说他两句。旅客问起林师傅，就说他今天在忙别的事。${AWAY}
+你和林清泉林师傅一起，在九曲溪边他家祖传的小茶店里待客：你们是多年的老朋友，也是同行，手艺不相上下，两个人轮流坐茶桌，今天轮到你。你敬重林师傅几十年的功夫，说起他来亲切、自然，有时也会笑着说他两句。旅客问起林师傅，就说他今天在忙别的事。
 
 你的性子：沉静、细致、温和，带一点不动声色的幽默。你最爱聊香气、叶底、焙火、水和时间，教客人怎么闻、怎么品。
 
@@ -355,7 +377,8 @@ function teaMasterPrompt(b, where) {
   const prov = where && where.zh ? `\n\n从网络位置看，这位旅客多半在${where.zh}${where.zh === "福建" ? "，和你是福建老乡" : ""}（只是大概：用了VPN、出差或者在外地上学的人会不准）。聊天时说到他那边，就具体说${where.zh}，不要笼统地说“中国”或“你那边”，例如他那边的天气、吃的、方言和喝茶的习惯${where.tea ? `，${where.zh}有名的茶有${where.tea}` : ""}，自然地提一两次就好，不要每句都提，也不要编造当地你不确定的细节。他说自己在别的地方，就以他说的为准，不要坚持。他问你怎么知道的，就老实说网站能大概看出他在哪个省，只是猜的。` : "";
   const su = b.host === "su";
   const intro = su ? SU_INTRO : `你是武夷山最优秀的茶师之一，名叫林清泉（Lín Qīngquán），客人都叫你“林师傅”（Master Lin）。你在九曲溪边经营一家祖传的小茶店，做岩茶已经几十年。你年轻时走遍了中国各大茶区（包括台湾），从浙江的龙井、安徽的祁红、云南的普洱、湖南的黑茶，到福建的白茶和台湾的高山乌龙，绿茶、白茶、黄茶、乌龙、红茶、黑茶六大茶类都很熟悉。除了大陆和台湾，师傅也去过了香港和澳门为了了解那边的茶道，也学到茶在高端餐饮的角色，还在上海、香港和澳门的高级中餐厅做过多年茶艺师，为客人选茶、泡茶、以茶配菜，熟悉高端餐饮里的茶事：茶怎么配粤菜、本帮菜和点心，席间怎么侍茶；后来才回到武夷山接手家里的茶店。师傅也去过了马来西亚和新加坡为了了解华裔对中国茶的看法。师傅也去过泰国，到过泰北的美斯乐（Mae Salong），看过当地云南人后代在山上种的乌龙茶，也了解曼谷的华人怎么喝中国茶。师傅也去过越南，喝过河内的莲花茶和太原（Thái Nguyên）的绿茶，也去过胡志明市堤岸（Chợ Lớn）的华人茶馆。` + (b.host === "lin" ? LIN_KNOWS_SU : "");
-  const text = `${intro}今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}${advice}${care}${zh}${prov}
+  const other = su || b.host === "lin" ? `\n\n${away(b)}` : "";
+  const text = `${intro}${other}\n\n今天有一位来自${country}的旅客来拜访你的茶店。你请他在茶桌前坐下，一边泡茶，一边和他聊天。${scene}${guest ? `\n${guest}` : ""}${advice}${care}${zh}${prov}
 
 你怎么说话：
 - 用旅客使用的语言回答：他写英文你就用英文，写中文就用中文，写别的语言也一样。
@@ -376,9 +399,34 @@ ${su ? "- 旅客问起你的经历，可以聊你小时候在星村跟着家里�
 - 如果旅客看起来心情低落或遇到难处，先体贴地听他说、安慰他；严重的事情，温和地建议他找身边信任的人或专业人士帮忙。不要假装能代替医生、律师或心理咨询师。
 - 你不在网上卖东西，不报价，不推销。
 - 介绍自己时像普通中国人那样先说姓，例如${su ? "“我姓苏，叫我苏师傅就好”" : "“我姓林，叫我林师傅就行”"}；旅客问起才说全名。不要编造关于你家人的具体名字或你生平中可以查证的“真实”经历。
-- 你是网站 Cha 里一位虚构的茶师，由 AI 扮演。如果旅客真诚地问你是不是真人或 AI，要如实说你是 AI。`;
+- 你是网站 Cha 里一位虚构的茶师，由 AI 扮演。如果旅客真诚地问你是不是真人或 AI，要如实说你是 AI。
+
+LANGUAGE (most important rule): these instructions are written in Chinese, but that says nothing about the language of your reply. Always reply in the language of the guest's latest message. If the guest writes in English, your whole reply is in English (a Chinese tea name or a short greeting with pinyin is fine); never answer an English message in Chinese.`;
   /* she is a younger host than Master Lin, so at night she looks after the guest as a caring host, not as an elder */
   return su ? text.replace(/一位长辈一样/g, "一位体贴的主人一样").replace(/像长辈一样/g, "像体贴的主人一样") : text;
+}
+
+/* The language the guest wrote in, said again right next to their words, where it outweighs the Chinese prompt */
+function langNote(text) {
+  if (/[\u4e00-\u9fff]/.test(text)) return "";
+  if (!/\p{L}/u.test(text)) return "";
+  return "\n\n(Note, not shown to the guest and not to be mentioned: the guest wrote this in their own language, not Chinese. Reply only in that same language, e.g. in English if they wrote English.)";
+}
+/* true when more than a third of the reply's letters are Chinese characters */
+function mostlyChinese(text) {
+  const han = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+  const letters = (text.match(/\p{L}/gu) || []).length;
+  return letters > 0 && han / letters > 0.35;
+}
+/* the fixed knowledge goes first so it can be cached; the guest-specific part changes every visit */
+function anthropic(env, body, req, messages) {
+  return fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
+    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 600,
+      system: [{ type: "text", text: TEA_KNOWLEDGE, cache_control: { type: "ephemeral" } }, { type: "text", text: teaMasterPrompt(body, province(req)) }],
+      messages }),
+  });
 }
 
 async function chat(req, env, body, okOrigin) {
@@ -390,7 +438,7 @@ async function chat(req, env, body, okOrigin) {
   if (!messages.length || messages[messages.length - 1].role !== "user") return json({ error: "message_required" }, 400, okOrigin);
   /* the guest's own words, before the night reminder is added (used to answer in their language) */
   const asked = messages[messages.length - 1].content;
-  const note = nightNote(body);
+  const note = nightNote(body) + langNote(asked);
   if (note) messages[messages.length - 1] = { role: "user", content: asked + note };
 
   const rl = env.CHAT_RL || env.PAIR_RL;
@@ -401,14 +449,7 @@ async function chat(req, env, body, okOrigin) {
   }
 
   /* Plain text only: Claude writes what Master Lin says, and the page picks his gestures from those words. */
-  const upstream = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model: env.ANTHROPIC_MODEL || "claude-haiku-4-5", max_tokens: 600,
-    /* the fixed knowledge goes first so it can be cached; the guest-specific part changes every visit */
-    system: [{ type: "text", text: TEA_KNOWLEDGE, cache_control: { type: "ephemeral" } }, { type: "text", text: teaMasterPrompt(body, province(req)) }],
-    messages }),
-  });
+  const upstream = await anthropic(env, body, req, messages);
   if (!upstream.ok) {
     const detail = (await upstream.text()).slice(0, 500);
     console.log("chat upstream error", upstream.status, detail);
@@ -422,7 +463,16 @@ async function chat(req, env, body, okOrigin) {
     return json({ reply: su ? (zh ? "这个话题我们就不聊了吧。来，先喝口茶，我们说点别的呀。" : "Let's leave that one, shall we? Here, have some tea, and we'll talk about something else.")
       : zh ? "哎，这话我就不接了。来，先喝口茶，消消气，我们聊点别的吧。" : "Ah, I'll leave that one alone. Here, have some tea and let's talk about something else." }, 200, okOrigin);
   }
-  const reply = (data?.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
+  let reply = (data?.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
+  /* The prompt is in Chinese, and on a short English question the model sometimes slips into Chinese. If the guest
+     wrote no Chinese but the reply is mostly Chinese, ask once more, firmly, for the guest's language. */
+  if (reply && !zh && mostlyChinese(reply)) {
+    const again = await anthropic(env, body, req, [...messages, { role: "assistant", content: reply },
+      { role: "user", content: "(Note, not shown to the guest: your last reply was in Chinese, but the guest wrote in another language and cannot read it. Say the same thing again, entirely in the language of the guest's message, as if for the first time. Do not mention this note or apologise for the language.)" }]);
+    const redo = again.ok ? ((await again.json())?.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim() : "";
+    if (redo && !mostlyChinese(redo)) reply = redo;
+    else console.log("chat reply still in Chinese", again.status);
+  }
   if (!reply) console.log("chat empty reply", data?.stop_reason);
   return json({ reply: reply || (zh ? (body?.host === "su" ? "嗯……来，先喝口茶吧。" : "嗯……来，先喝口茶。") : "Hmm… here, have some tea first.") }, 200, okOrigin);
 }
